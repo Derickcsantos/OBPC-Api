@@ -8,6 +8,27 @@ import {
 import { parseWithSchema } from '../utils/validation.js';
 import { BibleServiceContract } from '../types/crud.types.js';
 
+const sortByIdAscending = <T extends Record<string, unknown>>(items: T[]): T[] =>
+  [...items].sort((left, right) => {
+    const leftId = left.id;
+    const rightId = right.id;
+
+    const leftNumber = typeof leftId === 'number' ? leftId : Number(leftId);
+    const rightNumber = typeof rightId === 'number' ? rightId : Number(rightId);
+
+    const leftIsNumeric = Number.isFinite(leftNumber);
+    const rightIsNumeric = Number.isFinite(rightNumber);
+
+    if (leftIsNumeric && rightIsNumeric) {
+      return leftNumber - rightNumber;
+    }
+
+    return String(leftId).localeCompare(String(rightId), 'pt-BR', {
+      numeric: true,
+      sensitivity: 'base',
+    });
+  });
+
 export class BibleController {
   constructor(private readonly bibleService: BibleServiceContract) {}
 
@@ -19,7 +40,7 @@ export class BibleController {
   getBooks = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const query = parseWithSchema(bibleBooksQuerySchema, request.query);
     const data = await this.bibleService.getBooks(query.version_id);
-    reply.send({ data });
+    reply.send({ data: Array.isArray(data) ? sortByIdAscending(data) : data });
   };
 
   getChapters = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {

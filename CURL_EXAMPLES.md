@@ -328,6 +328,302 @@ curl -X GET "http://localhost:3333/api/biblia/search?version_id=1&book_id=1&chap
 curl -X GET "http://localhost:3333/api/biblia/search?version_id=1&book_id=1&chapter_id=1&verse_start=1&verse_end=30&keyword=criou"
 ```
 
+## Exemplos de resposta da API
+
+> Os exemplos abaixo mostram o formato mais comum de retorno para o cliente final.
+
+### 2. Ministérios
+
+#### Criar / Atualizar / Buscar por ID / Deletar
+```json
+{
+  "message": "ministérios criado com sucesso",
+  "data": {
+    "ministerio_id": "uuid-exemplo",
+    "nome_ministerio": "Ministério de Jovens",
+    "descricao_ministerio": "Ministério para jovens adultos da Igreja",
+    "url_ministerio": "https://igreja.com.br/jovens"
+  }
+}
+```
+
+#### Listar todos
+```json
+{
+  "data": [
+    {
+      "ministerio_id": "uuid-1",
+      "nome_ministerio": "Ministério de Jovens",
+      "descricao_ministerio": "Ministério para jovens adultos da Igreja",
+      "url_ministerio": "https://igreja.com.br/jovens"
+    }
+  ]
+}
+```
+
+### 3. Usuários
+
+#### Criar / Atualizar / Buscar por ID / Deletar
+```json
+{
+  "message": "usuarios criado com sucesso",
+  "data": {
+    "usuario_id": "uuid-exemplo",
+    "nome_usuario": "João Silva",
+    "telefone_usuario": "11987654321",
+    "senha_usuario": "SenhaForte123!",
+    "email_usuario": "joao@igreja.com",
+    "data_nascimento": "1990-05-15"
+  }
+}
+```
+
+#### Listar todos
+```json
+{
+  "data": [
+    {
+      "usuario_id": "uuid-1",
+      "nome_usuario": "João Silva",
+      "telefone_usuario": "11987654321",
+      "senha_usuario": "SenhaForte123!",
+      "email_usuario": "joao@igreja.com",
+      "data_nascimento": "1990-05-15"
+    }
+  ]
+}
+```
+
+### 4. Eventos
+
+#### Criar / Atualizar / Buscar por ID / Deletar
+```json
+{
+  "message": "eventos criado com sucesso",
+  "data": {
+    "evento_id": "uuid-exemplo",
+    "nome_evento": "Culto Domingo",
+    "descricao_evento": "Culto dominical da comunidade",
+    "data_evento": "2025-04-20T18:00:00Z",
+    "link_evento": "https://youtube.com/live/evento123"
+  }
+}
+```
+
+#### Listar todos
+```json
+{
+  "data": [
+    {
+      "evento_id": "uuid-1",
+      "nome_evento": "Culto Domingo",
+      "descricao_evento": "Culto dominical da comunidade",
+      "data_evento": "2025-04-20T18:00:00Z",
+      "link_evento": "https://youtube.com/live/evento123"
+    }
+  ]
+}
+```
+
+### 5. Notícias
+
+#### Criar / Atualizar / Buscar por ID / Deletar
+```json
+{
+  "message": "notícias criado com sucesso",
+  "data": {
+    "noticia_id": "uuid-exemplo",
+    "nome_noticia": "Novo Projeto Social",
+    "mensagem_noticia": "A Igreja iniciou um novo projeto de assistência social",
+    "data_noticia": "2025-04-13T10:00:00Z",
+    "observacao_noticia": "Informação importante para toda comunidade"
+  }
+}
+```
+
+#### Listar todos
+```json
+{
+  "data": [
+    {
+      "noticia_id": "uuid-1",
+      "nome_noticia": "Novo Projeto Social",
+      "mensagem_noticia": "A Igreja iniciou um novo projeto de assistência social",
+      "data_noticia": "2025-04-13T10:00:00Z",
+      "observacao_noticia": "Informação importante para toda comunidade"
+    }
+  ]
+}
+```
+
+### 6. Louvores
+
+#### Criar / Atualizar / Buscar por ID / Deletar
+```json
+{
+  "message": "louvores criado com sucesso",
+  "data": {
+    "louvor_id": "uuid-exemplo",
+    "nome_louvor": "Graça Divina",
+    "url_louvor": "https://youtube.com/watch?v=louvor123",
+    "observacao_louvor": "Louvor em vídeo para meditação"
+  }
+}
+```
+
+#### Listar todos
+```json
+{
+  "data": [
+    {
+      "louvor_id": "uuid-1",
+      "nome_louvor": "Graça Divina",
+      "url_louvor": "https://youtube.com/watch?v=louvor123",
+      "observacao_louvor": "Louvor em vídeo para meditação"
+    }
+  ]
+}
+```
+
+### 7. Mensagens
+
+#### Criar / Atualizar / Buscar por ID / Deletar
+```json
+{
+  "message": "mensagens criado com sucesso",
+  "data": {
+    "mensagem_id": "uuid-exemplo",
+    "nome_mensagem": "Mensagem de Esperança",
+    "texto_mensagem": "Deposita tua confiança em Deus em todas as circunstâncias"
+  }
+}
+```
+
+#### Listar todos
+```json
+{
+  "data": [
+    {
+      "mensagem_id": "uuid-1",
+      "nome_mensagem": "Mensagem de Esperança",
+      "texto_mensagem": "Deposita tua confiança em Deus em todas as circunstâncias"
+    }
+  ]
+}
+```
+
+### 8. Orações
+
+#### Criar / Atualizar / Buscar por ID / Deletar
+```json
+{
+  "message": "orações criado com sucesso",
+  "data": {
+    "oracao_id": "uuid-exemplo",
+    "nome_pedido": "Cura da família",
+    "descricao_pedido": "Pedido de oração pela cura e restauração da família",
+    "mostrar_grupo": true,
+    "aceita_ligacao": true,
+    "status": "em andamento"
+  }
+}
+```
+
+#### Listar todos
+```json
+{
+  "data": [
+    {
+      "oracao_id": "uuid-1",
+      "nome_pedido": "Cura da família",
+      "descricao_pedido": "Pedido de oração pela cura e restauração da família",
+      "mostrar_grupo": true,
+      "aceita_ligacao": true,
+      "status": "em andamento"
+    }
+  ]
+}
+```
+
+### 9. Bíblia
+
+#### /versions
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Almeida Revista e Atualizada"
+    }
+  ]
+}
+```
+
+#### /books
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Gênesis"
+    },
+    {
+      "id": 2,
+      "name": "Êxodo"
+    },
+    {
+      "id": 3,
+      "name": "Levítico"
+    }
+  ]
+}
+```
+
+> Neste endpoint, o cliente recebe os livros ordenados pelo campo `id` em ordem crescente.
+
+#### /chapters
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "book_id": 1,
+      "chapter": 1
+    }
+  ]
+}
+```
+
+#### /verses
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "book_id": 1,
+      "chapter_id": 1,
+      "verse": 1,
+      "text": "No princípio criou Deus os céus e a terra."
+    }
+  ]
+}
+```
+
+#### /search
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "book_id": 1,
+      "chapter_id": 1,
+      "verse": 1,
+      "text": "No princípio criou Deus os céus e a terra."
+    }
+  ]
+}
+```
+
 ## Notas Importantes
 
 1. Substitua `{id}` pelo UUID da entidade que deseja manipular
