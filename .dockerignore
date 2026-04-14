@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.git
+.github
+.vscode
+*.log
+Dockerfile
+README.md
+QUICK_START.md
+SETUP_GUIDE.md
+FINAL_SUMMARY.md
+DELIVERY_CERTIFICATE.md
+COMPLETENESS.md
