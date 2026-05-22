@@ -6,7 +6,7 @@
   "main": "dist/src/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/src/server.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -25,6 +25,7 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "fastify": "^5.8.4",
+    "typescript": "^6.0.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -36,7 +37,6 @@
     "eslint": "^10.2.0",
     "supertest": "^7.2.2",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.2",
     "vitest": "^4.1.4"
   }
 }
