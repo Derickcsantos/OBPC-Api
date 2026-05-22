@@ -10,6 +10,7 @@ RUN npm install
 FROM deps AS build
 
 COPY tsconfig.json ./
+COPY tsconfig.build.json ./
 COPY src ./src
 COPY tests ./tests
 COPY vitest.config.ts ./

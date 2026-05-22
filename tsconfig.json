@@ -12,6 +12,6 @@
     "isolatedModules": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["src", "tests", "vitest.config.ts"],
+  "include": ["src", "api", "tests", "vitest.config.ts"],
   "exclude": ["dist", "node_modules"]
 }
