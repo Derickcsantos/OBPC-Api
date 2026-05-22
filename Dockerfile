@@ -21,7 +21,7 @@ FROM node:20-alpine AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3333
+ENV PORT=3000
 
 COPY package*.json ./
 RUN npm install --omit=dev && npm cache clean --force
@@ -31,6 +31,6 @@ COPY --from=build /app/dist ./dist
 RUN addgroup -S app && adduser -S app -G app
 USER app
 
-EXPOSE 3333
+EXPOSE 3000
 
 CMD ["node", "dist/src/server.js"]

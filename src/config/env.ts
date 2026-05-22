@@ -5,7 +5,7 @@ dotenvConfig();
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().int().positive().default(3333),
+  PORT: z.coerce.number().int().positive().default(3000),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   BIBLE_API_BASE_URL: z.string().url().default('https://pesquisarnabiblia.com.br/api-projeto/api'),
