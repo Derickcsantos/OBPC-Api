@@ -1,4 +1,4 @@
-FROM node:22-alpine AS base
+FROM node:20-alpine AS base
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY vitest.config.ts ./
 
 RUN npm run build
 
-FROM node:22-alpine AS runtime
+FROM node:20-alpine AS runtime
 
 WORKDIR /app
 

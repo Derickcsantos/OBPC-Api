@@ -1,0 +1,1566 @@
+{
+  "application": {
+    "name": "Church Mobile API",
+    "description": "API para aplicativo mobile de igreja com CRUDs em Supabase e consulta à API externa da Bíblia.",
+    "basePath": "/api",
+    "healthPath": "/health",
+    "stack": [
+      "Node.js",
+      "TypeScript",
+      "Fastify",
+      "Zod",
+      "Supabase"
+    ],
+    "features": [
+      "CRUD de ministérios, usuários, eventos, notícias, louvores, mensagens e orações",
+      "Consulta de versões, livros, capítulos, versículos e busca exata na Bíblia",
+      "Validação de entrada com Zod",
+      "Tratamento padronizado de erros"
+    ]
+  },
+  "common": {
+    "idParam": {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "format": "uuid"
+    },
+    "successResponseShapes": {
+      "list": {
+        "statusCode": 200,
+        "body": {
+          "data": ["record"]
+        }
+      },
+      "getById": {
+        "statusCode": 200,
+        "body": {
+          "data": "record"
+        }
+      },
+      "create": {
+        "statusCode": 201,
+        "body": {
+          "message": "string",
+          "data": "record"
+        }
+      },
+      "update": {
+        "statusCode": 200,
+        "body": {
+          "message": "string",
+          "data": "record"
+        }
+      },
+      "remove": {
+        "statusCode": 200,
+        "body": {
+          "message": "string",
+          "data": "record"
+        }
+      }
+    },
+    "errorResponses": [
+      {
+        "statusCode": 400,
+        "body": {
+          "message": "Erro de validação",
+          "details": "validation details"
+        }
+      },
+      {
+        "statusCode": 404,
+        "body": {
+          "message": "resource não encontrado",
+          "details": null
+        }
+      },
+      {
+        "statusCode": 500,
+        "body": {
+          "message": "Erro interno do servidor"
+        }
+      }
+    ]
+  },
+  "routes": [
+    {
+      "tag": "system",
+      "method": "GET",
+      "path": "/health",
+      "summary": "Verifica se a aplicação está no ar.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "status": "ok"
+        }
+      }
+    },
+    {
+      "tag": "ministerios",
+      "method": "GET",
+      "path": "/api/ministerios",
+      "summary": "Lista todos os ministérios.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "ministerio_id": "uuid",
+              "nome_ministerio": "string",
+              "descricao_ministerio": "string",
+              "url_ministerio": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "ministerios",
+      "method": "GET",
+      "path": "/api/ministerios/{id}",
+      "summary": "Busca um ministério pelo ID.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": {
+            "ministerio_id": "uuid",
+            "nome_ministerio": "string",
+            "descricao_ministerio": "string",
+            "url_ministerio": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "ministerios",
+      "method": "POST",
+      "path": "/api/ministerios",
+      "summary": "Cria um ministério.",
+      "params": [],
+      "query": [],
+      "body": {
+        "required": true,
+        "fields": [
+          {
+            "name": "nome_ministerio",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "descricao_ministerio",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "url_ministerio",
+            "type": "string",
+            "format": "url",
+            "required": true
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "ministerios criado com sucesso",
+          "data": {
+            "ministerio_id": "uuid",
+            "nome_ministerio": "string",
+            "descricao_ministerio": "string",
+            "url_ministerio": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "ministerios",
+      "method": "PUT",
+      "path": "/api/ministerios/{id}",
+      "summary": "Atualiza um ministério.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "required": true,
+        "atLeastOneFieldRequired": true,
+        "fields": [
+          {
+            "name": "nome_ministerio",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "descricao_ministerio",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "url_ministerio",
+            "type": "string",
+            "format": "url",
+            "required": false
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "ministerios atualizado com sucesso",
+          "data": {
+            "ministerio_id": "uuid",
+            "nome_ministerio": "string",
+            "descricao_ministerio": "string",
+            "url_ministerio": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "ministerios",
+      "method": "DELETE",
+      "path": "/api/ministerios/{id}",
+      "summary": "Remove um ministério.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "ministerios removido com sucesso",
+          "data": {
+            "ministerio_id": "uuid",
+            "nome_ministerio": "string",
+            "descricao_ministerio": "string",
+            "url_ministerio": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "usuarios",
+      "method": "GET",
+      "path": "/api/usuarios",
+      "summary": "Lista todos os usuários sem expor a senha.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "usuario_id": "uuid",
+              "nome_usuario": "string",
+              "telefone_usuario": "string",
+              "email_usuario": "string",
+              "data_nascimento": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "usuarios",
+      "method": "GET",
+      "path": "/api/usuarios/{id}",
+      "summary": "Busca um usuário pelo ID sem expor a senha.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": {
+            "usuario_id": "uuid",
+            "nome_usuario": "string",
+            "telefone_usuario": "string",
+            "email_usuario": "string",
+            "data_nascimento": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "usuarios",
+      "method": "POST",
+      "path": "/api/usuarios",
+      "summary": "Cria um usuário e grava a senha com hash bcrypt.",
+      "params": [],
+      "query": [],
+      "body": {
+        "required": true,
+        "fields": [
+          {
+            "name": "nome_usuario",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "telefone_usuario",
+            "type": "string",
+            "required": true,
+            "minLength": 8,
+            "maxLength": 20
+          },
+          {
+            "name": "senha_usuario",
+            "type": "string",
+            "required": true,
+            "minLength": 6
+          },
+          {
+            "name": "email_usuario",
+            "type": "string",
+            "format": "email",
+            "required": true
+          },
+          {
+            "name": "data_nascimento",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "usuarios criado com sucesso",
+          "data": {
+            "usuario_id": "uuid",
+            "nome_usuario": "string",
+            "telefone_usuario": "string",
+            "email_usuario": "string",
+            "data_nascimento": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "usuarios",
+      "method": "PUT",
+      "path": "/api/usuarios/{id}",
+      "summary": "Atualiza um usuário; se senha_usuario vier no body, ela é re-hasheada.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "required": true,
+        "atLeastOneFieldRequired": true,
+        "fields": [
+          {
+            "name": "nome_usuario",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "telefone_usuario",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "senha_usuario",
+            "type": "string",
+            "required": false,
+            "minLength": 6
+          },
+          {
+            "name": "email_usuario",
+            "type": "string",
+            "format": "email",
+            "required": false
+          },
+          {
+            "name": "data_nascimento",
+            "type": "string",
+            "required": false
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "usuarios atualizado com sucesso",
+          "data": {
+            "usuario_id": "uuid",
+            "nome_usuario": "string",
+            "telefone_usuario": "string",
+            "email_usuario": "string",
+            "data_nascimento": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "usuarios",
+      "method": "DELETE",
+      "path": "/api/usuarios/{id}",
+      "summary": "Remove um usuário sem expor a senha.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "usuarios removido com sucesso",
+          "data": {
+            "usuario_id": "uuid",
+            "nome_usuario": "string",
+            "telefone_usuario": "string",
+            "email_usuario": "string",
+            "data_nascimento": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "eventos",
+      "method": "GET",
+      "path": "/api/eventos",
+      "summary": "Lista todos os eventos.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "evento_id": "uuid",
+              "nome_evento": "string",
+              "descricao_evento": "string",
+              "data_evento": "string",
+              "link_evento": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "eventos",
+      "method": "GET",
+      "path": "/api/eventos/{id}",
+      "summary": "Busca um evento pelo ID.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": {
+            "evento_id": "uuid",
+            "nome_evento": "string",
+            "descricao_evento": "string",
+            "data_evento": "string",
+            "link_evento": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "eventos",
+      "method": "POST",
+      "path": "/api/eventos",
+      "summary": "Cria um evento.",
+      "params": [],
+      "query": [],
+      "body": {
+        "required": true,
+        "fields": [
+          {
+            "name": "nome_evento",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "descricao_evento",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "data_evento",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "link_evento",
+            "type": "string",
+            "format": "url",
+            "required": true
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "eventos criado com sucesso",
+          "data": {
+            "evento_id": "uuid",
+            "nome_evento": "string",
+            "descricao_evento": "string",
+            "data_evento": "string",
+            "link_evento": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "eventos",
+      "method": "PUT",
+      "path": "/api/eventos/{id}",
+      "summary": "Atualiza um evento.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "required": true,
+        "atLeastOneFieldRequired": true,
+        "fields": [
+          {
+            "name": "nome_evento",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "descricao_evento",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "data_evento",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "link_evento",
+            "type": "string",
+            "format": "url",
+            "required": false
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "eventos atualizado com sucesso",
+          "data": {
+            "evento_id": "uuid",
+            "nome_evento": "string",
+            "descricao_evento": "string",
+            "data_evento": "string",
+            "link_evento": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "eventos",
+      "method": "DELETE",
+      "path": "/api/eventos/{id}",
+      "summary": "Remove um evento.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "eventos removido com sucesso",
+          "data": {
+            "evento_id": "uuid",
+            "nome_evento": "string",
+            "descricao_evento": "string",
+            "data_evento": "string",
+            "link_evento": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "noticias",
+      "method": "GET",
+      "path": "/api/noticias",
+      "summary": "Lista todas as notícias.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "noticia_id": "uuid",
+              "nome_noticia": "string",
+              "mensagem_noticia": "string",
+              "data_noticia": "string",
+              "observacao_noticia": "string|null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "noticias",
+      "method": "GET",
+      "path": "/api/noticias/{id}",
+      "summary": "Busca uma notícia pelo ID.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": {
+            "noticia_id": "uuid",
+            "nome_noticia": "string",
+            "mensagem_noticia": "string",
+            "data_noticia": "string",
+            "observacao_noticia": "string|null"
+          }
+        }
+      }
+    },
+    {
+      "tag": "noticias",
+      "method": "POST",
+      "path": "/api/noticias",
+      "summary": "Cria uma notícia.",
+      "params": [],
+      "query": [],
+      "body": {
+        "required": true,
+        "fields": [
+          {
+            "name": "nome_noticia",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "mensagem_noticia",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "data_noticia",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "observacao_noticia",
+            "type": "string|null",
+            "required": false
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "noticias criado com sucesso",
+          "data": {
+            "noticia_id": "uuid",
+            "nome_noticia": "string",
+            "mensagem_noticia": "string",
+            "data_noticia": "string",
+            "observacao_noticia": "string|null"
+          }
+        }
+      }
+    },
+    {
+      "tag": "noticias",
+      "method": "PUT",
+      "path": "/api/noticias/{id}",
+      "summary": "Atualiza uma notícia.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "required": true,
+        "atLeastOneFieldRequired": true,
+        "fields": [
+          {
+            "name": "nome_noticia",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "mensagem_noticia",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "data_noticia",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "observacao_noticia",
+            "type": "string|null",
+            "required": false
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "noticias atualizado com sucesso",
+          "data": {
+            "noticia_id": "uuid",
+            "nome_noticia": "string",
+            "mensagem_noticia": "string",
+            "data_noticia": "string",
+            "observacao_noticia": "string|null"
+          }
+        }
+      }
+    },
+    {
+      "tag": "noticias",
+      "method": "DELETE",
+      "path": "/api/noticias/{id}",
+      "summary": "Remove uma notícia.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "noticias removido com sucesso",
+          "data": {
+            "noticia_id": "uuid",
+            "nome_noticia": "string",
+            "mensagem_noticia": "string",
+            "data_noticia": "string",
+            "observacao_noticia": "string|null"
+          }
+        }
+      }
+    },
+    {
+      "tag": "louvores",
+      "method": "GET",
+      "path": "/api/louvores",
+      "summary": "Lista todos os louvores.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "louvor_id": "uuid",
+              "nome_louvor": "string",
+              "url_louvor": "string",
+              "observacao_louvor": "string|null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "louvores",
+      "method": "GET",
+      "path": "/api/louvores/{id}",
+      "summary": "Busca um louvor pelo ID.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": {
+            "louvor_id": "uuid",
+            "nome_louvor": "string",
+            "url_louvor": "string",
+            "observacao_louvor": "string|null"
+          }
+        }
+      }
+    },
+    {
+      "tag": "louvores",
+      "method": "POST",
+      "path": "/api/louvores",
+      "summary": "Cria um louvor.",
+      "params": [],
+      "query": [],
+      "body": {
+        "required": true,
+        "fields": [
+          {
+            "name": "nome_louvor",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "url_louvor",
+            "type": "string",
+            "format": "url",
+            "required": true
+          },
+          {
+            "name": "observacao_louvor",
+            "type": "string|null",
+            "required": false
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "louvores criado com sucesso",
+          "data": {
+            "louvor_id": "uuid",
+            "nome_louvor": "string",
+            "url_louvor": "string",
+            "observacao_louvor": "string|null"
+          }
+        }
+      }
+    },
+    {
+      "tag": "louvores",
+      "method": "PUT",
+      "path": "/api/louvores/{id}",
+      "summary": "Atualiza um louvor.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "required": true,
+        "atLeastOneFieldRequired": true,
+        "fields": [
+          {
+            "name": "nome_louvor",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "url_louvor",
+            "type": "string",
+            "format": "url",
+            "required": false
+          },
+          {
+            "name": "observacao_louvor",
+            "type": "string|null",
+            "required": false
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "louvores atualizado com sucesso",
+          "data": {
+            "louvor_id": "uuid",
+            "nome_louvor": "string",
+            "url_louvor": "string",
+            "observacao_louvor": "string|null"
+          }
+        }
+      }
+    },
+    {
+      "tag": "louvores",
+      "method": "DELETE",
+      "path": "/api/louvores/{id}",
+      "summary": "Remove um louvor.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "louvores removido com sucesso",
+          "data": {
+            "louvor_id": "uuid",
+            "nome_louvor": "string",
+            "url_louvor": "string",
+            "observacao_louvor": "string|null"
+          }
+        }
+      }
+    },
+    {
+      "tag": "mensagens",
+      "method": "GET",
+      "path": "/api/mensagens",
+      "summary": "Lista todas as mensagens.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "mensagem_id": "uuid",
+              "nome_mensagem": "string",
+              "texto_mensagem": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "mensagens",
+      "method": "GET",
+      "path": "/api/mensagens/{id}",
+      "summary": "Busca uma mensagem pelo ID.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": {
+            "mensagem_id": "uuid",
+            "nome_mensagem": "string",
+            "texto_mensagem": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "mensagens",
+      "method": "POST",
+      "path": "/api/mensagens",
+      "summary": "Cria uma mensagem.",
+      "params": [],
+      "query": [],
+      "body": {
+        "required": true,
+        "fields": [
+          {
+            "name": "nome_mensagem",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "texto_mensagem",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "mensagens criado com sucesso",
+          "data": {
+            "mensagem_id": "uuid",
+            "nome_mensagem": "string",
+            "texto_mensagem": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "mensagens",
+      "method": "PUT",
+      "path": "/api/mensagens/{id}",
+      "summary": "Atualiza uma mensagem.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "required": true,
+        "atLeastOneFieldRequired": true,
+        "fields": [
+          {
+            "name": "nome_mensagem",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "texto_mensagem",
+            "type": "string",
+            "required": false
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "mensagens atualizado com sucesso",
+          "data": {
+            "mensagem_id": "uuid",
+            "nome_mensagem": "string",
+            "texto_mensagem": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "mensagens",
+      "method": "DELETE",
+      "path": "/api/mensagens/{id}",
+      "summary": "Remove uma mensagem.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "mensagens removido com sucesso",
+          "data": {
+            "mensagem_id": "uuid",
+            "nome_mensagem": "string",
+            "texto_mensagem": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "oracoes",
+      "method": "GET",
+      "path": "/api/oracoes",
+      "summary": "Lista todos os pedidos de oração.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "oracao_id": "uuid",
+              "nome_pedido": "string",
+              "descricao_pedido": "string",
+              "mostrar_grupo": "boolean",
+              "aceita_ligacao": "boolean",
+              "status": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "oracoes",
+      "method": "GET",
+      "path": "/api/oracoes/{id}",
+      "summary": "Busca um pedido de oração pelo ID.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": {
+            "oracao_id": "uuid",
+            "nome_pedido": "string",
+            "descricao_pedido": "string",
+            "mostrar_grupo": "boolean",
+            "aceita_ligacao": "boolean",
+            "status": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "oracoes",
+      "method": "POST",
+      "path": "/api/oracoes",
+      "summary": "Cria um pedido de oração.",
+      "params": [],
+      "query": [],
+      "body": {
+        "required": true,
+        "fields": [
+          {
+            "name": "nome_pedido",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "descricao_pedido",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "mostrar_grupo",
+            "type": "boolean",
+            "required": false,
+            "default": true
+          },
+          {
+            "name": "aceita_ligacao",
+            "type": "boolean",
+            "required": false,
+            "default": true
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "required": false,
+            "default": "em andamento",
+            "allowedValues": [
+              "em andamento",
+              "finalizado",
+              "concluído"
+            ]
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "oracoes criado com sucesso",
+          "data": {
+            "oracao_id": "uuid",
+            "nome_pedido": "string",
+            "descricao_pedido": "string",
+            "mostrar_grupo": "boolean",
+            "aceita_ligacao": "boolean",
+            "status": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "oracoes",
+      "method": "PUT",
+      "path": "/api/oracoes/{id}",
+      "summary": "Atualiza um pedido de oração.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "required": true,
+        "atLeastOneFieldRequired": true,
+        "fields": [
+          {
+            "name": "nome_pedido",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "descricao_pedido",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "mostrar_grupo",
+            "type": "boolean",
+            "required": false
+          },
+          {
+            "name": "aceita_ligacao",
+            "type": "boolean",
+            "required": false
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "required": false,
+            "allowedValues": [
+              "em andamento",
+              "finalizado",
+              "concluído"
+            ]
+          }
+        ]
+      },
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "oracoes atualizado com sucesso",
+          "data": {
+            "oracao_id": "uuid",
+            "nome_pedido": "string",
+            "descricao_pedido": "string",
+            "mostrar_grupo": "boolean",
+            "aceita_ligacao": "boolean",
+            "status": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "oracoes",
+      "method": "DELETE",
+      "path": "/api/oracoes/{id}",
+      "summary": "Remove um pedido de oração.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "oracoes removido com sucesso",
+          "data": {
+            "oracao_id": "uuid",
+            "nome_pedido": "string",
+            "descricao_pedido": "string",
+            "mostrar_grupo": "boolean",
+            "aceita_ligacao": "boolean",
+            "status": "string"
+          }
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/versions",
+      "summary": "Lista as versões disponíveis da Bíblia.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": "unknown"
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/books",
+      "summary": "Lista os livros de uma versão específica.",
+      "params": [],
+      "query": [
+        {
+          "name": "version_id",
+          "in": "query",
+          "required": true,
+          "type": "number",
+          "format": "positive integer"
+        }
+      ],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": "unknown"
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/chapters",
+      "summary": "Lista os capítulos de um livro em uma versão específica.",
+      "params": [],
+      "query": [
+        {
+          "name": "version_id",
+          "in": "query",
+          "required": true,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "book_id",
+          "in": "query",
+          "required": true,
+          "type": "number",
+          "format": "positive integer"
+        }
+      ],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": "unknown"
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/verses",
+      "summary": "Busca versículos; aceita versículo único ou intervalo.",
+      "params": [],
+      "query": [
+        {
+          "name": "version_id",
+          "in": "query",
+          "required": true,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "book_id",
+          "in": "query",
+          "required": true,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "chapter_id",
+          "in": "query",
+          "required": true,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "verse",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "verse_start",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "verse_end",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "format": "positive integer"
+        }
+      ],
+      "rules": [
+        "Não usar verse e verse_start/verse_end ao mesmo tempo.",
+        "Se verse_start for informado, verse_end também é obrigatório."
+      ],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": "unknown"
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/search",
+      "summary": "Busca exata de palavras na Bíblia.",
+      "params": [],
+      "query": [
+        {
+          "name": "version_id",
+          "in": "query",
+          "required": true,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "keyword",
+          "in": "query",
+          "required": true,
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "name": "book_id",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "chapter_id",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "verse_start",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "format": "positive integer"
+        },
+        {
+          "name": "verse_end",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "format": "positive integer"
+        }
+      ],
+      "rules": [
+        "Se verse_start for informado, verse_end também é obrigatório."
+      ],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": "unknown"
+        }
+      }
+    }
+  ]
+}

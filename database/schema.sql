@@ -8,6 +8,13 @@ begin
 end;
 $$ language plpgsql;
 
+do $$
+begin
+  create type status_oracao_enum as enum ('em andamento', 'finalizado', 'concluído');
+exception
+  when duplicate_object then null;
+end $$;
+
 create table if not exists ministerios (
   ministerio_id uuid primary key default gen_random_uuid(),
   nome_ministerio varchar(150) not null,
@@ -65,13 +72,6 @@ create table if not exists mensagens (
   updated_at timestamptz not null default now()
 );
 
-do $$
-begin
-  create type status_oracao_enum as enum ('em andamento', 'finalizado', 'concluído');
-exception
-  when duplicate_object then null;
-end $$;
-
 create table if not exists oracoes (
   oracao_id uuid primary key default gen_random_uuid(),
   nome_pedido varchar(150) not null,
@@ -82,6 +82,17 @@ create table if not exists oracoes (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+create index if not exists idx_ministerios_created_at on ministerios (created_at desc);
+create index if not exists idx_usuarios_created_at on usuarios (created_at desc);
+create index if not exists idx_eventos_created_at on eventos (created_at desc);
+create index if not exists idx_eventos_data_evento on eventos (data_evento desc);
+create index if not exists idx_noticias_created_at on noticias (created_at desc);
+create index if not exists idx_noticias_data_noticia on noticias (data_noticia desc);
+create index if not exists idx_louvores_created_at on louvores (created_at desc);
+create index if not exists idx_mensagens_created_at on mensagens (created_at desc);
+create index if not exists idx_oracoes_created_at on oracoes (created_at desc);
+create index if not exists idx_oracoes_status on oracoes (status);
 
 drop trigger if exists trg_ministerios_updated_at on ministerios;
 create trigger trg_ministerios_updated_at
