@@ -30,9 +30,10 @@ export interface CrudControllerConfig {
 }
 
 export interface BibleServiceContract {
+  getTestaments(): Promise<unknown>;
   getVersions(): Promise<unknown>;
-  getBooks(versionId: number): Promise<unknown>;
-  getChapters(versionId: number, bookId: number): Promise<unknown>;
+  getBooks(params: Record<string, string>): Promise<unknown>;
+  getChapters(params: Record<string, string>): Promise<unknown>;
   getVerses(params: Record<string, string>): Promise<unknown>;
   searchExactWords(params: Record<string, string>): Promise<unknown>;
 }

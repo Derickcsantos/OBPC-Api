@@ -8,8 +8,8 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  BIBLE_API_BASE_URL: z.string().url().default('https://pesquisarnabiblia.com.br/api-projeto/api'),
-  BIBLE_API_KEY: z.string().min(1),
+  BIBLE_API_BASE_URL: z.string().url().optional(),
+  BIBLE_API_KEY: z.string().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

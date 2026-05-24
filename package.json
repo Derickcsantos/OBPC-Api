@@ -5,12 +5,14 @@
   "type": "module",
   "main": "dist/src/server.js",
   "engines": {
-    "node": "20.x"
+    "node": ">=20 <23"
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/src/server.js",
+    "db:run:nvi": "powershell -ExecutionPolicy Bypass -File scripts/run-sql.ps1 database/nvi.sql",
+    "db:run:sql": "powershell -ExecutionPolicy Bypass -File scripts/run-sql.ps1",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

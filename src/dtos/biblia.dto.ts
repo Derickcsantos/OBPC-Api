@@ -1,35 +1,43 @@
 import { z } from 'zod';
 
 const positiveInt = z.coerce.number().int().positive();
+const bibleVersion = z.string().min(1).default('nvi');
 
 export const bibleBooksQuerySchema = z.object({
-  version_id: positiveInt,
+  version_id: positiveInt.optional(),
+  testament_id: positiveInt.optional(),
+  testament: positiveInt.optional(),
 });
 
 export const bibleChaptersQuerySchema = z.object({
-  version_id: positiveInt,
-  book_id: positiveInt,
+  version_id: positiveInt.optional(),
+  book_id: positiveInt.optional(),
 });
 
 export const bibleVersesQuerySchema = z
   .object({
-    version_id: positiveInt,
-    book_id: positiveInt,
-    chapter_id: positiveInt,
+    version: bibleVersion,
+    version_id: positiveInt.optional(),
+    book_id: positiveInt.optional(),
+    chapter_id: positiveInt.optional(),
     verse: positiveInt.optional(),
     verse_start: positiveInt.optional(),
     verse_end: positiveInt.optional(),
+    keyword: z.string().min(1).optional(),
+    q: z.string().min(1).optional(),
+    text: z.string().min(1).optional(),
   })
   .refine((obj) => !(obj.verse && (obj.verse_start || obj.verse_end)), {
-    message: 'Use verse ou verse_start/verse_end, não ambos.',
+    message: 'Use verse ou verse_start/verse_end, nao ambos.',
   })
   .refine((obj) => (obj.verse_start ? Boolean(obj.verse_end) : true), {
-    message: 'verse_end é obrigatório quando verse_start for informado.',
+    message: 'verse_end e obrigatorio quando verse_start for informado.',
   });
 
 export const bibleSearchQuerySchema = z
   .object({
-    version_id: positiveInt,
+    version: bibleVersion,
+    version_id: positiveInt.optional(),
     keyword: z.string().min(1),
     book_id: positiveInt.optional(),
     chapter_id: positiveInt.optional(),
@@ -37,5 +45,5 @@ export const bibleSearchQuerySchema = z
     verse_end: positiveInt.optional(),
   })
   .refine((obj) => (obj.verse_start ? Boolean(obj.verse_end) : true), {
-    message: 'verse_end é obrigatório quando verse_start for informado.',
+    message: 'verse_end e obrigatorio quando verse_start for informado.',
   });

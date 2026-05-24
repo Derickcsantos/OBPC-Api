@@ -8,6 +8,7 @@ import { SupabaseCrudService } from './services/crud.service.js';
 import { BibleService } from './services/bible.service.js';
 import { BibleServiceContract, CrudServiceContract, ResourceName } from './types/crud.types.js';
 import { registerRoutes } from './routes/index.js';
+import { dashboardHtml } from './frontend/dashboard.js';
 
 const resourceMap: Record<ResourceName, { table: string; idField: string }> = {
   ministerios: { table: 'ministerios', idField: 'ministerio_id' },
@@ -28,8 +29,22 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
   const app = Fastify({ logger: true });
 
   await app.register(cors, { origin: true });
-  await app.register(helmet);
+  await app.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:'],
+        connectSrc: ["'self'"],
+      },
+    },
+  });
   await app.register(sensible);
+
+  app.get('/', async (_request, reply) => {
+    reply.type('text/html; charset=utf-8').send(dashboardHtml);
+  });
 
   const supabase = getSupabaseClient();
 
@@ -46,7 +61,7 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
       ...defaultCrudServices,
       ...(dependencies?.crudServices ?? {}),
     },
-    bibleService: dependencies?.bibleService ?? new BibleService(),
+    bibleService: dependencies?.bibleService ?? new BibleService(supabase),
   };
 
   await app.register(

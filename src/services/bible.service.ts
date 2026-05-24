@@ -1,53 +1,164 @@
-import { env } from '../config/env.js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { AppError } from '../utils/app-error.js';
-import { BibleServiceContract } from '../types/crud.types.js';
+import { BibleServiceContract, EntityRecord } from '../types/crud.types.js';
+
+const defaultVersion = 'nvi';
+
+const decodeHtmlEntities = (value: string): string =>
+  value
+    .replace(/&quot;?/g, '"')
+    .replace(/&#34;/g, '"')
+    .replace(/&apos;?/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+
+const sanitizeVerse = (verse: EntityRecord): EntityRecord => ({
+  ...verse,
+  text: typeof verse.text === 'string' ? decodeHtmlEntities(verse.text) : verse.text,
+});
+
+const toInt = (value: string | undefined): number | undefined => {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
 
 export class BibleService implements BibleServiceContract {
-  private readonly headers = {
-    Authorization: `Bearer ${env.BIBLE_API_KEY}`,
-    Accept: 'application/json',
-  };
+  constructor(private readonly client: SupabaseClient) {}
 
-  private async request(path: string, params?: URLSearchParams): Promise<unknown> {
-    const url = `${env.BIBLE_API_BASE_URL}/${path}${params ? `?${params.toString()}` : ''}`;
+  async getTestaments(): Promise<unknown> {
+    const { data, error } = await this.client.from('testaments').select('*').order('id', { ascending: true });
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.headers,
-    });
-
-    const raw = await response.text();
-    const parsed = raw ? (JSON.parse(raw) as unknown) : null;
-
-    if (!response.ok) {
-      throw new AppError(response.status, 'Erro na integração com API da Bíblia', parsed);
+    if (error) {
+      throw new AppError(500, 'Erro ao listar testamentos', error);
     }
 
-    return parsed;
+    return data ?? [];
   }
 
-  getVersions(): Promise<unknown> {
-    return this.request('get_versions.php');
+  async getVersions(): Promise<unknown> {
+    const { data, error } = await this.client.from('verses').select('version').order('version', { ascending: true });
+
+    if (error) {
+      throw new AppError(500, 'Erro ao listar versoes da Biblia', error);
+    }
+
+    const versions = [...new Set((data ?? []).map((item) => item.version).filter(Boolean))];
+
+    return versions.map((version) => ({
+      id: version,
+      name: String(version).toUpperCase(),
+    }));
   }
 
-  getBooks(versionId: number): Promise<unknown> {
-    const params = new URLSearchParams({ version_id: String(versionId) });
-    return this.request('get_books.php', params);
+  async getBooks(params: Record<string, string>): Promise<unknown> {
+    const testamentId = toInt(params.testament_id ?? params.testament);
+    let query = this.client.from('books').select('*').order('id', { ascending: true });
+
+    if (testamentId) {
+      query = query.eq('testament', testamentId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw new AppError(500, 'Erro ao listar livros da Biblia', error);
+    }
+
+    return data ?? [];
   }
 
-  getChapters(versionId: number, bookId: number): Promise<unknown> {
-    const params = new URLSearchParams({
-      version_id: String(versionId),
-      book_id: String(bookId),
+  async getChapters(params: Record<string, string>): Promise<unknown> {
+    const bookId = toInt(params.book_id);
+    let query = this.client
+      .from('verses')
+      .select('version,testament,book,chapter')
+      .eq('version', params.version ?? defaultVersion)
+      .order('book', { ascending: true })
+      .order('chapter', { ascending: true });
+
+    if (bookId) {
+      query = query.eq('book', bookId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw new AppError(500, 'Erro ao listar capitulos da Biblia', error);
+    }
+
+    const chapters = new Map<string, EntityRecord>();
+
+    for (const row of data ?? []) {
+      const key = `${row.version}:${row.book}:${row.chapter}`;
+      if (!chapters.has(key)) {
+        chapters.set(key, row as EntityRecord);
+      }
+    }
+
+    return [...chapters.values()];
+  }
+
+  async getVerses(params: Record<string, string>): Promise<unknown> {
+    const data = await this.queryVerses({
+      ...params,
+      keyword: params.keyword ?? params.q ?? params.text,
     });
-    return this.request('get_chapters.php', params);
+
+    return data.map(sanitizeVerse);
   }
 
-  getVerses(params: Record<string, string>): Promise<unknown> {
-    return this.request('get_verses.php', new URLSearchParams(params));
+  async searchExactWords(params: Record<string, string>): Promise<unknown> {
+    const data = await this.queryVerses(params);
+    return data.map(sanitizeVerse);
   }
 
-  searchExactWords(params: Record<string, string>): Promise<unknown> {
-    return this.request('search_exact_words.php', new URLSearchParams(params));
+  private async queryVerses(params: Record<string, string>): Promise<EntityRecord[]> {
+    const bookId = toInt(params.book_id);
+    const chapterId = toInt(params.chapter_id);
+    const verse = toInt(params.verse);
+    const verseStart = toInt(params.verse_start);
+    const verseEnd = toInt(params.verse_end);
+
+    let query = this.client
+      .from('verses')
+      .select('*')
+      .eq('version', params.version ?? defaultVersion)
+      .order('book', { ascending: true })
+      .order('chapter', { ascending: true })
+      .order('verse', { ascending: true });
+
+    if (bookId) {
+      query = query.eq('book', bookId);
+    }
+
+    if (chapterId) {
+      query = query.eq('chapter', chapterId);
+    }
+
+    if (verse) {
+      query = query.eq('verse', verse);
+    }
+
+    if (verseStart && verseEnd) {
+      query = query.gte('verse', verseStart).lte('verse', verseEnd);
+    }
+
+    if (params.keyword) {
+      query = query.ilike('text', `%${params.keyword}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw new AppError(500, 'Erro ao buscar versos da Biblia', error);
+    }
+
+    return (data ?? []) as EntityRecord[];
   }
 }

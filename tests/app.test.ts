@@ -10,6 +10,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-key';
 process.env.BIBLE_API_KEY = 'test-bible-key';
 
 const bibleStub: BibleServiceContract = {
+  getTestaments: async () => [{ id: 1, name: 'Antigo Testamento' }],
   getVersions: async () => [{ id: 1, name: 'ACF' }],
   getBooks: async () => [{ id: 1, name: 'Gênesis' }],
   getChapters: async () => [{ chapter_id: 1 }],
