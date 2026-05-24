@@ -14,7 +14,17 @@ const bibleStub: BibleServiceContract = {
   getVersions: async () => [{ id: 1, name: 'ACF' }],
   getBooks: async () => [{ id: 1, name: 'Gênesis' }],
   getChapters: async () => [{ chapter_id: 1 }],
-  getBookVerses: async () => [{ verse_id: 1, text: 'No princípio...' }],
+  getBookVerses: async () => ({
+    data: [{ verse_id: 1, text: 'No princípio...' }],
+    pagination: {
+      page: 1,
+      limit: 10,
+      total: 1,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    },
+  }),
   getVerses: async () => ({ verses: [{ verse_id: 1, text: 'No princípio...' }] }),
   searchExactWords: async () => ({ verses: [{ verse_id: 1, text: 'Deus criou' }] }),
 };
@@ -79,6 +89,12 @@ describe('API', () => {
     const response = await request(app.server).get('/api/biblia/versions');
     expect(response.statusCode).toBe(200);
     expect(response.body.data[0].name).toBe('ACF');
+  });
+
+  it('deve retornar versos de um livro sem erro interno', async () => {
+    const response = await request(app.server).get('/api/biblia/books/3/verses?page=1&limit=10');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data[0].text).toBe('No princípio...');
   });
 
   it('deve criar oração', async () => {

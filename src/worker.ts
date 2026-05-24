@@ -58,7 +58,7 @@ const jsonHeaders = {
 };
 
 const defaultVersion = 'nvi';
-const pageSize = 1000;
+const defaultLimit = 50;
 
 const response = (body: unknown, init?: ResponseInit): Response =>
   new Response(JSON.stringify(body), {
@@ -90,6 +90,33 @@ const sanitizeVerse = (verse: Record<string, unknown>): Record<string, unknown> 
   ...verse,
   text: typeof verse.text === 'string' ? decodeHtmlEntities(verse.text) : verse.text,
 });
+
+const getPage = (params: URLSearchParams): { page: number; limit: number; offset: number } => {
+  const page = Math.max(Number(params.get('page') ?? 1), 1);
+  const limit = Math.min(Math.max(Number(params.get('limit') ?? defaultLimit), 1), 100);
+
+  return {
+    page,
+    limit,
+    offset: (page - 1) * limit,
+  };
+};
+
+const paginate = <T>(data: T[], total: number, page: number, limit: number): { data: T[]; pagination: Record<string, unknown> } => {
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    },
+  };
+};
 
 const sanitizeResource = (resource: string, item: Record<string, unknown>): Record<string, unknown> => {
   if (resource !== 'usuarios') {
@@ -215,6 +242,7 @@ const getBible = async (env: Env, table: string, params: URLSearchParams): Promi
 };
 
 const getChapters = async (env: Env, params: URLSearchParams): Promise<Response> => {
+  const { page, limit, offset } = getPage(params);
   const query = new URLSearchParams({
     select: 'version,testament,book,chapter',
     version: `eq.${params.get('version') ?? defaultVersion}`,
@@ -231,44 +259,43 @@ const getChapters = async (env: Env, params: URLSearchParams): Promise<Response>
     chapters.set(`${row.version}:${row.book}:${row.chapter}`, row);
   }
 
-  return response({ data: [...chapters.values()] });
+  const allChapters = [...chapters.values()];
+  return response(paginate(allChapters.slice(offset, offset + limit), allChapters.length, page, limit));
 };
 
 const getVerses = async (env: Env, params: URLSearchParams): Promise<Response> => {
   const keyword = params.get('keyword') ?? params.get('q') ?? params.get('text');
-  const rows: Record<string, unknown>[] = [];
-  let offset = 0;
+  const { page, limit, offset } = getPage(params);
+  const query = new URLSearchParams({
+    select: '*',
+    version: `eq.${params.get('version') ?? defaultVersion}`,
+    order: 'book.asc,chapter.asc,verse.asc',
+    limit: String(limit),
+    offset: String(offset),
+  });
 
-  while (true) {
-    const query = new URLSearchParams({
-      select: '*',
-      version: `eq.${params.get('version') ?? defaultVersion}`,
-      order: 'book.asc,chapter.asc,verse.asc',
-      limit: String(pageSize),
-      offset: String(offset),
-    });
+  if (params.get('book_id')) query.set('book', `eq.${params.get('book_id')}`);
+  if (params.get('chapter_id')) query.set('chapter', `eq.${params.get('chapter_id')}`);
+  if (params.get('verse')) query.set('verse', `eq.${params.get('verse')}`);
+  if (params.get('verse_start')) query.set('verse', `gte.${params.get('verse_start')}`);
+  if (params.get('verse_end')) query.append('verse', `lte.${params.get('verse_end')}`);
+  if (keyword) query.set('text', `ilike.*${keyword}*`);
 
-    if (params.get('book_id')) query.set('book', `eq.${params.get('book_id')}`);
-    if (params.get('chapter_id')) query.set('chapter', `eq.${params.get('chapter_id')}`);
-    if (params.get('verse')) query.set('verse', `eq.${params.get('verse')}`);
-    if (params.get('verse_start')) query.set('verse', `gte.${params.get('verse_start')}`);
-    if (params.get('verse_end')) query.append('verse', `lte.${params.get('verse_end')}`);
-    if (keyword) query.set('text', `ilike.*${keyword}*`);
+  const countQuery = new URLSearchParams(query);
+  countQuery.set('select', 'id');
+  countQuery.delete('limit');
+  countQuery.delete('offset');
 
-    const data = await supabaseFetch(env, `verses?${query.toString()}`);
-    if (data instanceof Response) return data;
+  const countData = await supabaseFetch(env, `verses?${countQuery.toString()}`);
+  if (countData instanceof Response) return countData;
 
-    const page = data as Record<string, unknown>[];
-    rows.push(...page);
+  const data = await supabaseFetch(env, `verses?${query.toString()}`);
+  if (data instanceof Response) return data;
 
-    if (page.length < pageSize) {
-      break;
-    }
+  const rows = (data as Record<string, unknown>[]).map(sanitizeVerse);
+  const total = (countData as Record<string, unknown>[]).length;
 
-    offset += pageSize;
-  }
-
-  return response({ data: rows.map(sanitizeVerse) });
+  return response(paginate(rows, total, page, limit));
 };
 
 const handleBible = async (env: Env, pathname: string, params: URLSearchParams): Promise<Response> => {

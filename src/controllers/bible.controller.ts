@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   bibleBookParamSchema,
+  bibleBookVersesQuerySchema,
   bibleBooksQuerySchema,
   bibleChaptersQuerySchema,
   bibleSearchQuerySchema,
@@ -66,12 +67,12 @@ export class BibleController {
     }, {});
 
     const data = await this.bibleService.getChapters(payload);
-    reply.send({ data });
+    reply.send(data);
   };
 
   getBookVerses = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const params = parseWithSchema(bibleBookParamSchema, request.params);
-    const query = parseWithSchema(bibleVersesQuerySchema.partial(), request.query);
+    const query = parseWithSchema(bibleBookVersesQuerySchema, request.query);
 
     const payload = Object.entries({
       ...query,
@@ -84,7 +85,7 @@ export class BibleController {
     }, {});
 
     const data = await this.bibleService.getBookVerses(payload);
-    reply.send({ data });
+    reply.send(data);
   };
 
   getVerses = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
@@ -98,7 +99,7 @@ export class BibleController {
     }, {});
 
     const data = await this.bibleService.getVerses(payload);
-    reply.send({ data });
+    reply.send(data);
   };
 
   searchExactWords = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
@@ -112,6 +113,6 @@ export class BibleController {
     }, {});
 
     const data = await this.bibleService.searchExactWords(payload);
-    reply.send({ data });
+    reply.send(data);
   };
 }

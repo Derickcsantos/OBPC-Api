@@ -65,14 +65,16 @@ export const bibleApiExamples = {
       ],
     },
   },
-  '/api/biblia/books/1/verses': {
+  '/api/biblia/books/1/verses?page=1&limit=50': {
     method: 'GET',
-    description: 'Lista todos os versos de um livro, em todos os capitulos.',
+    description: 'Lista versos de um livro, em todos os capitulos, com paginacao.',
     params: {
       book_id: 1,
     },
     query: {
       version: 'nvi',
+      page: 1,
+      limit: 50,
     },
     response: {
       data: [
@@ -95,6 +97,14 @@ export const bibleApiExamples = {
           text: 'Era a terra sem forma e vazia; trevas cobriam a face do abismo, e o Espírito de Deus se movia sobre a face das águas.',
         },
       ],
+      pagination: {
+        page: 1,
+        limit: 50,
+        total: 1533,
+        totalPages: 31,
+        hasNextPage: true,
+        hasPreviousPage: false,
+      },
     },
   },
   '/api/biblia/verses?book_id=1&chapter_id=1': {

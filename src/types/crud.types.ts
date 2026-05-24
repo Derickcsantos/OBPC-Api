@@ -11,6 +11,18 @@ export type ResourceName =
 
 export type EntityRecord = Record<string, unknown>;
 
+export interface PaginatedResult<T = EntityRecord> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 export interface CrudServiceContract {
   list(): Promise<EntityRecord[]>;
   getById(id: string): Promise<EntityRecord>;

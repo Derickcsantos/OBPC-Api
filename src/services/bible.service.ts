@@ -1,9 +1,9 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { AppError } from '../utils/app-error.js';
-import { BibleServiceContract, EntityRecord } from '../types/crud.types.js';
+import { BibleServiceContract, EntityRecord, PaginatedResult } from '../types/crud.types.js';
 
 const defaultVersion = 'nvi';
-const pageSize = 1000;
+const defaultLimit = 50;
 
 const decodeHtmlEntities = (value: string): string =>
   value
@@ -27,6 +27,36 @@ const toInt = (value: string | undefined): number | undefined => {
 
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const paginationFrom = (params: Record<string, string>): { page: number; limit: number; from: number; to: number } => {
+  const page = Math.max(toInt(params.page) ?? 1, 1);
+  const limit = Math.min(Math.max(toInt(params.limit) ?? defaultLimit, 1), 100);
+  const from = (page - 1) * limit;
+
+  return {
+    page,
+    limit,
+    from,
+    to: from + limit - 1,
+  };
+};
+
+const paginated = <T extends EntityRecord>(data: T[], count: number | null, page: number, limit: number): PaginatedResult<T> => {
+  const total = count ?? data.length;
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    },
+  };
 };
 
 export class BibleService implements BibleServiceContract {
@@ -76,6 +106,7 @@ export class BibleService implements BibleServiceContract {
 
   async getChapters(params: Record<string, string>): Promise<unknown> {
     const bookId = toInt(params.book_id);
+    const { page, limit, from, to } = paginationFrom(params);
     let query = this.client
       .from('verses')
       .select('version,testament,book,chapter')
@@ -102,87 +133,86 @@ export class BibleService implements BibleServiceContract {
       }
     }
 
-    return [...chapters.values()];
+    const allChapters = [...chapters.values()];
+    return paginated(allChapters.slice(from, to + 1), allChapters.length, page, limit);
   }
 
   async getVerses(params: Record<string, string>): Promise<unknown> {
-    const data = await this.queryVerses({
+    const result = await this.queryVerses({
       ...params,
       keyword: params.keyword ?? params.q ?? params.text,
     });
 
-    return data.map(sanitizeVerse);
+    return {
+      ...result,
+      data: result.data.map(sanitizeVerse),
+    };
   }
 
   async getBookVerses(params: Record<string, string>): Promise<unknown> {
-    const data = await this.queryVerses(params);
-    return data.map(sanitizeVerse);
+    const result = await this.queryVerses({
+      ...params,
+      keyword: params.keyword ?? params.q ?? params.text,
+    });
+
+    return {
+      ...result,
+      data: result.data.map(sanitizeVerse),
+    };
   }
 
   async searchExactWords(params: Record<string, string>): Promise<unknown> {
-    const data = await this.queryVerses(params);
-    return data.map(sanitizeVerse);
+    const result = await this.queryVerses(params);
+
+    return {
+      ...result,
+      data: result.data.map(sanitizeVerse),
+    };
   }
 
-  private async queryVerses(params: Record<string, string>): Promise<EntityRecord[]> {
+  private async queryVerses(params: Record<string, string>): Promise<PaginatedResult> {
     const bookId = toInt(params.book_id);
     const chapterId = toInt(params.chapter_id);
     const verse = toInt(params.verse);
     const verseStart = toInt(params.verse_start);
     const verseEnd = toInt(params.verse_end);
+    const { page, limit, from, to } = paginationFrom(params);
 
-    const buildQuery = (from: number, to: number) => {
-      let query = this.client
-        .from('verses')
-        .select('*')
-        .eq('version', params.version ?? defaultVersion)
-        .order('book', { ascending: true })
-        .order('chapter', { ascending: true })
-        .order('verse', { ascending: true })
-        .range(from, to);
+    let query = this.client
+      .from('verses')
+      .select('*', { count: 'exact' })
+      .eq('version', params.version ?? defaultVersion)
+      .order('book', { ascending: true })
+      .order('chapter', { ascending: true })
+      .order('verse', { ascending: true })
+      .range(from, to);
 
-      if (bookId) {
-        query = query.eq('book', bookId);
-      }
-
-      if (chapterId) {
-        query = query.eq('chapter', chapterId);
-      }
-
-      if (verse) {
-        query = query.eq('verse', verse);
-      }
-
-      if (verseStart && verseEnd) {
-        query = query.gte('verse', verseStart).lte('verse', verseEnd);
-      }
-
-      if (params.keyword) {
-        query = query.ilike('text', `%${params.keyword}%`);
-      }
-
-      return query;
-    };
-
-    const rows: EntityRecord[] = [];
-    let from = 0;
-
-    while (true) {
-      const { data, error } = await buildQuery(from, from + pageSize - 1);
-
-      if (error) {
-        throw new AppError(500, 'Erro ao buscar versos da Biblia', error);
-      }
-
-      rows.push(...((data ?? []) as EntityRecord[]));
-
-      if (!data || data.length < pageSize) {
-        break;
-      }
-
-      from += pageSize;
+    if (bookId) {
+      query = query.eq('book', bookId);
     }
 
-    return rows;
+    if (chapterId) {
+      query = query.eq('chapter', chapterId);
+    }
+
+    if (verse) {
+      query = query.eq('verse', verse);
+    }
+
+    if (verseStart && verseEnd) {
+      query = query.gte('verse', verseStart).lte('verse', verseEnd);
+    }
+
+    if (params.keyword) {
+      query = query.ilike('text', `%${params.keyword}%`);
+    }
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      throw new AppError(500, 'Erro ao buscar versos da Biblia', error);
+    }
+
+    return paginated((data ?? []) as EntityRecord[], count, page, limit);
   }
 }
