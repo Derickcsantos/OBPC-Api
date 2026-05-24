@@ -34,6 +34,7 @@ export interface BibleServiceContract {
   getVersions(): Promise<unknown>;
   getBooks(params: Record<string, string>): Promise<unknown>;
   getChapters(params: Record<string, string>): Promise<unknown>;
+  getBookVerses(params: Record<string, string>): Promise<unknown>;
   getVerses(params: Record<string, string>): Promise<unknown>;
   searchExactWords(params: Record<string, string>): Promise<unknown>;
 }

@@ -58,6 +58,7 @@ const jsonHeaders = {
 };
 
 const defaultVersion = 'nvi';
+const pageSize = 1000;
 
 const response = (body: unknown, init?: ResponseInit): Response =>
   new Response(JSON.stringify(body), {
@@ -234,29 +235,50 @@ const getChapters = async (env: Env, params: URLSearchParams): Promise<Response>
 };
 
 const getVerses = async (env: Env, params: URLSearchParams): Promise<Response> => {
-  const query = new URLSearchParams({
-    select: '*',
-    version: `eq.${params.get('version') ?? defaultVersion}`,
-    order: 'book.asc,chapter.asc,verse.asc',
-  });
-
   const keyword = params.get('keyword') ?? params.get('q') ?? params.get('text');
-  if (params.get('book_id')) query.set('book', `eq.${params.get('book_id')}`);
-  if (params.get('chapter_id')) query.set('chapter', `eq.${params.get('chapter_id')}`);
-  if (params.get('verse')) query.set('verse', `eq.${params.get('verse')}`);
-  if (params.get('verse_start')) query.set('verse', `gte.${params.get('verse_start')}`);
-  if (params.get('verse_end')) query.append('verse', `lte.${params.get('verse_end')}`);
-  if (keyword) query.set('text', `ilike.*${keyword}*`);
+  const rows: Record<string, unknown>[] = [];
+  let offset = 0;
 
-  const data = await supabaseFetch(env, `verses?${query.toString()}`);
-  if (data instanceof Response) return data;
+  while (true) {
+    const query = new URLSearchParams({
+      select: '*',
+      version: `eq.${params.get('version') ?? defaultVersion}`,
+      order: 'book.asc,chapter.asc,verse.asc',
+      limit: String(pageSize),
+      offset: String(offset),
+    });
 
-  return response({ data: (data as Record<string, unknown>[]).map(sanitizeVerse) });
+    if (params.get('book_id')) query.set('book', `eq.${params.get('book_id')}`);
+    if (params.get('chapter_id')) query.set('chapter', `eq.${params.get('chapter_id')}`);
+    if (params.get('verse')) query.set('verse', `eq.${params.get('verse')}`);
+    if (params.get('verse_start')) query.set('verse', `gte.${params.get('verse_start')}`);
+    if (params.get('verse_end')) query.append('verse', `lte.${params.get('verse_end')}`);
+    if (keyword) query.set('text', `ilike.*${keyword}*`);
+
+    const data = await supabaseFetch(env, `verses?${query.toString()}`);
+    if (data instanceof Response) return data;
+
+    const page = data as Record<string, unknown>[];
+    rows.push(...page);
+
+    if (page.length < pageSize) {
+      break;
+    }
+
+    offset += pageSize;
+  }
+
+  return response({ data: rows.map(sanitizeVerse) });
 };
 
 const handleBible = async (env: Env, pathname: string, params: URLSearchParams): Promise<Response> => {
   if (pathname === '/api/biblia/examples') return response({ data: bibleApiExamples });
   if (pathname === '/api/biblia/testaments') return getBible(env, 'testaments', params);
+  const bookVersesMatch = pathname.match(/^\/api\/biblia\/books\/(\d+)\/verses$/);
+  if (bookVersesMatch) {
+    params.set('book_id', bookVersesMatch[1]);
+    return getVerses(env, params);
+  }
   if (pathname === '/api/biblia/books') return getBible(env, 'books', params);
   if (pathname === '/api/biblia/chapters') return getChapters(env, params);
   if (pathname === '/api/biblia/verses' || pathname === '/api/biblia/search') return getVerses(env, params);

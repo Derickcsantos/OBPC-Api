@@ -10,6 +10,7 @@ export const bibliaRoutes = (app: FastifyInstance, service: BibleServiceContract
   app.get('/biblia/examples', async () => ({ data: bibleApiExamples }));
   app.get('/biblia/versions', controller.getVersions);
   app.get('/biblia/books', controller.getBooks);
+  app.get('/biblia/books/:book_id/verses', controller.getBookVerses);
   app.get('/biblia/chapters', controller.getChapters);
   app.get('/biblia/verses', controller.getVerses);
   app.get('/biblia/search', controller.searchExactWords);

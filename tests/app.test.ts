@@ -14,6 +14,7 @@ const bibleStub: BibleServiceContract = {
   getVersions: async () => [{ id: 1, name: 'ACF' }],
   getBooks: async () => [{ id: 1, name: 'Gênesis' }],
   getChapters: async () => [{ chapter_id: 1 }],
+  getBookVerses: async () => [{ verse_id: 1, text: 'No princípio...' }],
   getVerses: async () => ({ verses: [{ verse_id: 1, text: 'No princípio...' }] }),
   searchExactWords: async () => ({ verses: [{ verse_id: 1, text: 'Deus criou' }] }),
 };

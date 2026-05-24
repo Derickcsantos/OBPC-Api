@@ -3,6 +3,7 @@ import { AppError } from '../utils/app-error.js';
 import { BibleServiceContract, EntityRecord } from '../types/crud.types.js';
 
 const defaultVersion = 'nvi';
+const pageSize = 1000;
 
 const decodeHtmlEntities = (value: string): string =>
   value
@@ -113,6 +114,11 @@ export class BibleService implements BibleServiceContract {
     return data.map(sanitizeVerse);
   }
 
+  async getBookVerses(params: Record<string, string>): Promise<unknown> {
+    const data = await this.queryVerses(params);
+    return data.map(sanitizeVerse);
+  }
+
   async searchExactWords(params: Record<string, string>): Promise<unknown> {
     const data = await this.queryVerses(params);
     return data.map(sanitizeVerse);
@@ -125,40 +131,58 @@ export class BibleService implements BibleServiceContract {
     const verseStart = toInt(params.verse_start);
     const verseEnd = toInt(params.verse_end);
 
-    let query = this.client
-      .from('verses')
-      .select('*')
-      .eq('version', params.version ?? defaultVersion)
-      .order('book', { ascending: true })
-      .order('chapter', { ascending: true })
-      .order('verse', { ascending: true });
+    const buildQuery = (from: number, to: number) => {
+      let query = this.client
+        .from('verses')
+        .select('*')
+        .eq('version', params.version ?? defaultVersion)
+        .order('book', { ascending: true })
+        .order('chapter', { ascending: true })
+        .order('verse', { ascending: true })
+        .range(from, to);
 
-    if (bookId) {
-      query = query.eq('book', bookId);
+      if (bookId) {
+        query = query.eq('book', bookId);
+      }
+
+      if (chapterId) {
+        query = query.eq('chapter', chapterId);
+      }
+
+      if (verse) {
+        query = query.eq('verse', verse);
+      }
+
+      if (verseStart && verseEnd) {
+        query = query.gte('verse', verseStart).lte('verse', verseEnd);
+      }
+
+      if (params.keyword) {
+        query = query.ilike('text', `%${params.keyword}%`);
+      }
+
+      return query;
+    };
+
+    const rows: EntityRecord[] = [];
+    let from = 0;
+
+    while (true) {
+      const { data, error } = await buildQuery(from, from + pageSize - 1);
+
+      if (error) {
+        throw new AppError(500, 'Erro ao buscar versos da Biblia', error);
+      }
+
+      rows.push(...((data ?? []) as EntityRecord[]));
+
+      if (!data || data.length < pageSize) {
+        break;
+      }
+
+      from += pageSize;
     }
 
-    if (chapterId) {
-      query = query.eq('chapter', chapterId);
-    }
-
-    if (verse) {
-      query = query.eq('verse', verse);
-    }
-
-    if (verseStart && verseEnd) {
-      query = query.gte('verse', verseStart).lte('verse', verseEnd);
-    }
-
-    if (params.keyword) {
-      query = query.ilike('text', `%${params.keyword}%`);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      throw new AppError(500, 'Erro ao buscar versos da Biblia', error);
-    }
-
-    return (data ?? []) as EntityRecord[];
+    return rows;
   }
 }

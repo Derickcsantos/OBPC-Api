@@ -3,6 +3,10 @@ import { z } from 'zod';
 const positiveInt = z.coerce.number().int().positive();
 const bibleVersion = z.string().min(1).default('nvi');
 
+export const bibleBookParamSchema = z.object({
+  book_id: positiveInt,
+});
+
 export const bibleBooksQuerySchema = z.object({
   version_id: positiveInt.optional(),
   testament_id: positiveInt.optional(),

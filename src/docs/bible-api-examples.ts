@@ -65,6 +65,38 @@ export const bibleApiExamples = {
       ],
     },
   },
+  '/api/biblia/books/1/verses': {
+    method: 'GET',
+    description: 'Lista todos os versos de um livro, em todos os capitulos.',
+    params: {
+      book_id: 1,
+    },
+    query: {
+      version: 'nvi',
+    },
+    response: {
+      data: [
+        {
+          id: 31063,
+          version: 'nvi',
+          testament: 1,
+          book: 1,
+          chapter: 1,
+          verse: 1,
+          text: 'No princípio Deus criou os céus e a terra.',
+        },
+        {
+          id: 31064,
+          version: 'nvi',
+          testament: 1,
+          book: 1,
+          chapter: 1,
+          verse: 2,
+          text: 'Era a terra sem forma e vazia; trevas cobriam a face do abismo, e o Espírito de Deus se movia sobre a face das águas.',
+        },
+      ],
+    },
+  },
   '/api/biblia/verses?book_id=1&chapter_id=1': {
     method: 'GET',
     description: 'Lista todos os versos de um capitulo.',

@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import {
+  bibleBookParamSchema,
   bibleBooksQuerySchema,
   bibleChaptersQuerySchema,
   bibleSearchQuerySchema,
@@ -65,6 +66,24 @@ export class BibleController {
     }, {});
 
     const data = await this.bibleService.getChapters(payload);
+    reply.send({ data });
+  };
+
+  getBookVerses = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    const params = parseWithSchema(bibleBookParamSchema, request.params);
+    const query = parseWithSchema(bibleVersesQuerySchema.partial(), request.query);
+
+    const payload = Object.entries({
+      ...query,
+      book_id: params.book_id,
+    }).reduce<Record<string, string>>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = String(value);
+      }
+      return acc;
+    }, {});
+
+    const data = await this.bibleService.getBookVerses(payload);
     reply.send({ data });
   };
 
