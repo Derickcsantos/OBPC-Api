@@ -58,7 +58,8 @@ const jsonHeaders = {
 };
 
 const defaultVersion = 'nvi';
-const defaultLimit = 50;
+const defaultLimit = 100;
+const internalPageSize = 1000;
 
 const response = (body: unknown, init?: ResponseInit): Response =>
   new Response(JSON.stringify(body), {
@@ -154,6 +155,44 @@ const supabaseFetch = async (env: Env, path: string, init?: RequestInit): Promis
   return data;
 };
 
+const parseContentRangeTotal = (value: string | null, fallback: number): number => {
+  if (!value) {
+    return fallback;
+  }
+
+  const total = value.split('/')[1];
+  const parsed = Number(total);
+
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const supabaseFetchWithCount = async (
+  env: Env,
+  path: string,
+  init?: RequestInit,
+): Promise<{ data: Record<string, unknown>[]; total: number } | Response> => {
+  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
+    ...init,
+    headers: {
+      ...restHeaders(env),
+      Prefer: 'count=exact',
+      ...(init?.headers ?? {}),
+    },
+  });
+
+  const text = await res.text();
+  const data = text ? (JSON.parse(text) as Record<string, unknown>[]) : [];
+
+  if (!res.ok) {
+    return response({ message: 'Erro ao acessar Supabase', details: data }, { status: res.status });
+  }
+
+  return {
+    data,
+    total: parseContentRangeTotal(res.headers.get('content-range'), data.length),
+  };
+};
+
 const parseBody = async (request: Request): Promise<Record<string, unknown>> => {
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
   return body && typeof body === 'object' ? body : {};
@@ -243,19 +282,35 @@ const getBible = async (env: Env, table: string, params: URLSearchParams): Promi
 
 const getChapters = async (env: Env, params: URLSearchParams): Promise<Response> => {
   const { page, limit, offset } = getPage(params);
-  const query = new URLSearchParams({
-    select: 'version,testament,book,chapter',
-    version: `eq.${params.get('version') ?? defaultVersion}`,
-    order: 'book.asc,chapter.asc',
-  });
+  const rows: Record<string, unknown>[] = [];
+  let currentOffset = 0;
 
-  if (params.get('book_id')) query.set('book', `eq.${params.get('book_id')}`);
+  while (true) {
+    const query = new URLSearchParams({
+      select: 'version,testament,book,chapter',
+      version: `eq.${params.get('version') ?? defaultVersion}`,
+      order: 'book.asc,chapter.asc',
+      limit: String(internalPageSize),
+      offset: String(currentOffset),
+    });
 
-  const data = await supabaseFetch(env, `verses?${query.toString()}`);
-  if (data instanceof Response) return data;
+    if (params.get('book_id')) query.set('book', `eq.${params.get('book_id')}`);
+
+    const data = await supabaseFetch(env, `verses?${query.toString()}`);
+    if (data instanceof Response) return data;
+
+    const pageRows = data as Record<string, unknown>[];
+    rows.push(...pageRows);
+
+    if (pageRows.length < internalPageSize) {
+      break;
+    }
+
+    currentOffset += internalPageSize;
+  }
 
   const chapters = new Map<string, Record<string, unknown>>();
-  for (const row of data as Record<string, unknown>[]) {
+  for (const row of rows) {
     chapters.set(`${row.version}:${row.book}:${row.chapter}`, row);
   }
 
@@ -281,19 +336,11 @@ const getVerses = async (env: Env, params: URLSearchParams): Promise<Response> =
   if (params.get('verse_end')) query.append('verse', `lte.${params.get('verse_end')}`);
   if (keyword) query.set('text', `ilike.*${keyword}*`);
 
-  const countQuery = new URLSearchParams(query);
-  countQuery.set('select', 'id');
-  countQuery.delete('limit');
-  countQuery.delete('offset');
+  const result = await supabaseFetchWithCount(env, `verses?${query.toString()}`);
+  if (result instanceof Response) return result;
 
-  const countData = await supabaseFetch(env, `verses?${countQuery.toString()}`);
-  if (countData instanceof Response) return countData;
-
-  const data = await supabaseFetch(env, `verses?${query.toString()}`);
-  if (data instanceof Response) return data;
-
-  const rows = (data as Record<string, unknown>[]).map(sanitizeVerse);
-  const total = (countData as Record<string, unknown>[]).length;
+  const rows = result.data.map(sanitizeVerse);
+  const total = result.total;
 
   return response(paginate(rows, total, page, limit));
 };

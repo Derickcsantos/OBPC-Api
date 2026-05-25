@@ -3,7 +3,7 @@ import { z } from 'zod';
 const positiveInt = z.coerce.number().int().positive();
 const bibleVersion = z.string().min(1).default('nvi');
 const page = z.coerce.number().int().positive().default(1);
-const limit = z.coerce.number().int().positive().max(100).default(50);
+const limit = z.coerce.number().int().positive().max(100).default(100);
 
 export const biblePaginationQuerySchema = z.object({
   page,

@@ -3,7 +3,8 @@ import { AppError } from '../utils/app-error.js';
 import { BibleServiceContract, EntityRecord, PaginatedResult } from '../types/crud.types.js';
 
 const defaultVersion = 'nvi';
-const defaultLimit = 50;
+const defaultLimit = 100;
+const internalPageSize = 1000;
 
 const decodeHtmlEntities = (value: string): string =>
   value
@@ -107,26 +108,40 @@ export class BibleService implements BibleServiceContract {
   async getChapters(params: Record<string, string>): Promise<unknown> {
     const bookId = toInt(params.book_id);
     const { page, limit, from, to } = paginationFrom(params);
-    let query = this.client
-      .from('verses')
-      .select('version,testament,book,chapter')
-      .eq('version', params.version ?? defaultVersion)
-      .order('book', { ascending: true })
-      .order('chapter', { ascending: true });
+    const rows: EntityRecord[] = [];
+    let offset = 0;
 
-    if (bookId) {
-      query = query.eq('book', bookId);
-    }
+    while (true) {
+      let query = this.client
+        .from('verses')
+        .select('version,testament,book,chapter')
+        .eq('version', params.version ?? defaultVersion)
+        .order('book', { ascending: true })
+        .order('chapter', { ascending: true })
+        .range(offset, offset + internalPageSize - 1);
 
-    const { data, error } = await query;
+      if (bookId) {
+        query = query.eq('book', bookId);
+      }
 
-    if (error) {
-      throw new AppError(500, 'Erro ao listar capitulos da Biblia', error);
+      const { data, error } = await query;
+
+      if (error) {
+        throw new AppError(500, 'Erro ao listar capitulos da Biblia', error);
+      }
+
+      rows.push(...((data ?? []) as EntityRecord[]));
+
+      if (!data || data.length < internalPageSize) {
+        break;
+      }
+
+      offset += internalPageSize;
     }
 
     const chapters = new Map<string, EntityRecord>();
 
-    for (const row of data ?? []) {
+    for (const row of rows) {
       const key = `${row.version}:${row.book}:${row.chapter}`;
       if (!chapters.has(key)) {
         chapters.set(key, row as EntityRecord);

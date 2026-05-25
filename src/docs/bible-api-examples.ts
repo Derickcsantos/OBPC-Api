@@ -74,7 +74,7 @@ export const bibleApiExamples = {
     query: {
       version: 'nvi',
       page: 1,
-      limit: 50,
+      limit: 100,
     },
     response: {
       data: [
@@ -99,9 +99,9 @@ export const bibleApiExamples = {
       ],
       pagination: {
         page: 1,
-        limit: 50,
+        limit: 100,
         total: 1533,
-        totalPages: 31,
+        totalPages: 16,
         hasNextPage: true,
         hasPreviousPage: false,
       },
