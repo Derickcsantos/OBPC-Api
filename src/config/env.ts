@@ -8,6 +8,9 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  SUPABASE_STORAGE_BUCKET: z.string().min(1).optional(),
+  REDIS_URL: z.string().url().optional(),
+  REDIS_CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(604800),
   BIBLE_API_BASE_URL: z.string().url().optional(),
   BIBLE_API_KEY: z.string().optional(),
 });

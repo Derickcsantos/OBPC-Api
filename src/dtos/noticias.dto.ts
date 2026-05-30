@@ -4,6 +4,7 @@ const noticiaBaseSchema = z.object({
   nome_noticia: z.string().min(1),
   mensagem_noticia: z.string().min(1),
   data_noticia: z.string().min(1),
+  url_capa: z.string().url().nullable().optional(),
   observacao_noticia: z.string().nullable().optional(),
 });
 

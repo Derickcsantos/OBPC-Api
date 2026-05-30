@@ -4,6 +4,7 @@ import { bibleApiExamples } from './docs/bible-api-examples.js';
 interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
+  SUPABASE_STORAGE_BUCKET?: string;
 }
 
 interface ResourceConfig {
@@ -26,12 +27,34 @@ const resources: Record<string, ResourceConfig> = {
   eventos: {
     table: 'eventos',
     idField: 'evento_id',
-    fields: ['nome_evento', 'descricao_evento', 'data_evento', 'link_evento'],
+    fields: [
+      'nome_evento',
+      'descricao_evento',
+      'data_evento',
+      'link_evento',
+      'url_capa',
+      'numero_vagas',
+      'endereco_evento',
+      'hora_inicio',
+      'observacao_evento',
+      'responsavel_nome',
+      'responsavel_telefone',
+    ],
+  },
+  eventos_imagens: {
+    table: 'eventos_imagens',
+    idField: 'imagem_id',
+    fields: ['evento_id', 'url_imagem', 'ordem'],
+  },
+  eventos_inscricoes: {
+    table: 'eventos_inscricoes',
+    idField: 'inscricao_id',
+    fields: ['evento_id', 'nome', 'email', 'telefone', 'status'],
   },
   noticias: {
     table: 'noticias',
     idField: 'noticia_id',
-    fields: ['nome_noticia', 'mensagem_noticia', 'data_noticia', 'observacao_noticia'],
+    fields: ['nome_noticia', 'mensagem_noticia', 'data_noticia', 'url_capa', 'observacao_noticia'],
   },
   louvores: {
     table: 'louvores',
@@ -60,6 +83,8 @@ const jsonHeaders = {
 const defaultVersion = 'nvi';
 const defaultLimit = 100;
 const internalPageSize = 1000;
+const defaultBucket = 'imagens';
+const storageBucketCache = new Set<string>();
 
 const response = (body: unknown, init?: ResponseInit): Response =>
   new Response(JSON.stringify(body), {
@@ -91,6 +116,166 @@ const sanitizeVerse = (verse: Record<string, unknown>): Record<string, unknown> 
   ...verse,
   text: typeof verse.text === 'string' ? decodeHtmlEntities(verse.text) : verse.text,
 });
+
+const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer =>
+  bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+
+const safeFileName = (fileName: string): string =>
+  fileName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9._-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase();
+
+const base64ToBytes = (value: string): Uint8Array => {
+  const clean = value.includes(',') ? value.split(',').pop() ?? '' : value;
+  return Uint8Array.from(atob(clean), (char) => char.charCodeAt(0));
+};
+
+const randomId = (): string => crypto.randomUUID();
+
+const getStorageBucket = (env: Env): string => env.SUPABASE_STORAGE_BUCKET ?? defaultBucket;
+
+const storageHeaders = (env: Env, contentType = 'application/json'): HeadersInit => ({
+  apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+  Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+  'Content-Type': contentType,
+});
+
+const publicStorageUrl = (env: Env, bucket: string, key: string): string =>
+  `${env.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/public/${bucket}/${encodeObjectKey(key)}`;
+
+const ensurePublicBucket = async (env: Env, bucket: string): Promise<Response | null> => {
+  if (storageBucketCache.has(bucket)) {
+    return null;
+  }
+
+  const baseUrl = env.SUPABASE_URL.replace(/\/$/, '');
+  const getBucket = await fetch(`${baseUrl}/storage/v1/bucket/${encodeURIComponent(bucket)}`, {
+    headers: storageHeaders(env),
+  });
+
+  if (getBucket.ok) {
+    const bucketData = await getBucket.json() as { public?: boolean };
+
+    if (bucketData.public) {
+      storageBucketCache.add(bucket);
+      return null;
+    }
+
+    const updateBucket = await fetch(`${baseUrl}/storage/v1/bucket/${encodeURIComponent(bucket)}`, {
+      method: 'PUT',
+      headers: storageHeaders(env),
+      body: JSON.stringify({
+        public: true,
+        allowed_mime_types: ['image/*'],
+        file_size_limit: 10485760,
+      }),
+    });
+
+    if (!updateBucket.ok) {
+      return response({ message: 'Erro ao tornar bucket publico no Supabase Storage', details: await updateBucket.text() }, { status: 500 });
+    }
+
+    storageBucketCache.add(bucket);
+    return null;
+  }
+
+  if (getBucket.status !== 404) {
+    return response({ message: 'Erro ao validar bucket no Supabase Storage', details: await getBucket.text() }, { status: 500 });
+  }
+
+  const createBucket = await fetch(`${baseUrl}/storage/v1/bucket`, {
+    method: 'POST',
+    headers: storageHeaders(env),
+    body: JSON.stringify({
+      id: bucket,
+      name: bucket,
+      public: true,
+      allowed_mime_types: ['image/*'],
+      file_size_limit: 10485760,
+    }),
+  });
+
+  if (!createBucket.ok && createBucket.status !== 409) {
+    return response({ message: 'Erro ao criar bucket publico no Supabase Storage', details: await createBucket.text() }, { status: 500 });
+  }
+
+  storageBucketCache.add(bucket);
+  return null;
+};
+
+const uploadImage = async (
+  env: Env,
+  input: { fileName: string; contentType?: string; base64: string; folder?: string },
+): Promise<{ key: string; url: string } | Response> => {
+  const bucket = getStorageBucket(env);
+  const bucketError = await ensurePublicBucket(env, bucket);
+  if (bucketError) return bucketError;
+
+  const bytes = base64ToBytes(input.base64);
+  const folder = input.folder?.replace(/^\/+|\/+$/g, '') || 'uploads';
+  const contentType = input.contentType ?? 'application/octet-stream';
+  const extension = contentType === 'image/webp' ? 'webp' : safeFileName(input.fileName).split('.').pop();
+  const fileName = safeFileName(input.fileName).replace(/\.[^.]+$/, '') || 'imagem';
+  const key = `${folder}/${randomId()}-${fileName}.${extension || 'webp'}`;
+  const uploadUrl = `${env.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/${bucket}/${encodeObjectKey(key)}`;
+  const uploadResponse = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      ...storageHeaders(env, contentType),
+      'Cache-Control': '31536000',
+      'x-upsert': 'false',
+    },
+    body: toArrayBuffer(bytes),
+  });
+
+  if (!uploadResponse.ok) {
+    return response({ message: 'Erro ao enviar imagem para o Supabase Storage', details: await uploadResponse.text() }, { status: 500 });
+  }
+
+  return {
+    key,
+    url: publicStorageUrl(env, bucket, key),
+  };
+};
+
+const encodeObjectKey = (key: string): string => key.split('/').map(encodeURIComponent).join('/');
+
+const toProxyUrl = (env: Env, request: Request, value: unknown): unknown => {
+  if (typeof value !== 'string' || value.includes('/storage/v1/object/public/')) {
+    return value;
+  }
+
+  return value;
+};
+
+const normalizeStorageUrls = (env: Env, request: Request, record: Record<string, unknown>): Record<string, unknown> => ({
+  ...record,
+  url_capa: toProxyUrl(env, request, record.url_capa),
+  url_imagem: toProxyUrl(env, request, record.url_imagem),
+  imagens: Array.isArray(record.imagens)
+    ? record.imagens.map((image) => normalizeStorageUrls(env, request, image as Record<string, unknown>))
+    : record.imagens,
+});
+
+const getObject = async (env: Env, key: string): Promise<Response> => {
+  const bucket = getStorageBucket(env);
+  const objectResponse = await fetch(publicStorageUrl(env, bucket, key.replace(/^\/+/, '')));
+
+  if (!objectResponse.ok) {
+    return response({ message: 'Erro ao buscar arquivo no Supabase Storage' }, { status: objectResponse.status });
+  }
+
+  return new Response(objectResponse.body, {
+    headers: {
+      'Content-Type': objectResponse.headers.get('content-type') ?? 'application/octet-stream',
+      'Cache-Control': objectResponse.headers.get('cache-control') ?? 'public, max-age=3600',
+    },
+  });
+};
 
 const getPage = (params: URLSearchParams): { page: number; limit: number; offset: number } => {
   const page = Math.max(Number(params.get('page') ?? 1), 1);
@@ -201,13 +386,47 @@ const parseBody = async (request: Request): Promise<Record<string, unknown>> => 
 const onlyAllowedFields = (payload: Record<string, unknown>, fields: string[]): Record<string, unknown> =>
   Object.fromEntries(Object.entries(payload).filter(([key, value]) => fields.includes(key) && value !== ''));
 
+const attachEventImages = async (
+  env: Env,
+  resourceName: string,
+  items: Record<string, unknown>[],
+): Promise<Record<string, unknown>[] | Response> => {
+  if (resourceName !== 'eventos' || items.length === 0) {
+    return items;
+  }
+
+  const eventIds = items.map((item) => encodeURIComponent(String(item.evento_id))).filter(Boolean).join(',');
+  if (!eventIds) {
+    return items.map((item) => ({ ...item, imagens: [] }));
+  }
+
+  const images = await supabaseFetch(
+    env,
+    `eventos_imagens?select=*&evento_id=in.(${eventIds})&order=ordem.asc,created_at.asc`,
+  );
+  if (images instanceof Response) return images;
+
+  const imagesByEvent = (images as Record<string, unknown>[]).reduce<Record<string, Record<string, unknown>[]>>((acc, image) => {
+    const eventId = String(image.evento_id);
+    acc[eventId] = acc[eventId] ?? [];
+    acc[eventId].push(image);
+    return acc;
+  }, {});
+
+  return items.map((item) => ({
+    ...item,
+    imagens: imagesByEvent[String(item.evento_id)] ?? [],
+  }));
+};
+
 const handleCrud = async (
   request: Request,
   env: Env,
   resourceName: string,
   id?: string,
 ): Promise<Response> => {
-  const config = resources[resourceName];
+  const normalizedResourceName = resourceName.replace(/-/g, '_');
+  const config = resources[normalizedResourceName];
 
   if (!config) {
     return response({ message: 'Rota nao encontrada' }, { status: 404 });
@@ -218,14 +437,21 @@ const handleCrud = async (
   if (request.method === 'GET' && !id) {
     const data = await supabaseFetch(env, `${config.table}?${select}&order=created_at.desc`);
     if (data instanceof Response) return data;
-    return response({ data: (data as Record<string, unknown>[]).map((item) => sanitizeResource(resourceName, item)) });
+    const items = await attachEventImages(env, normalizedResourceName, data as Record<string, unknown>[]);
+    if (items instanceof Response) return items;
+    return response({
+      data: items.map((item) => sanitizeResource(normalizedResourceName, normalizeStorageUrls(env, request, item))),
+    });
   }
 
   if (request.method === 'GET' && id) {
     const data = await supabaseFetch(env, `${config.table}?${select}&${config.idField}=eq.${encodeURIComponent(id)}`);
     if (data instanceof Response) return data;
     const item = (data as Record<string, unknown>[])[0];
-    return item ? response({ data: sanitizeResource(resourceName, item) }) : response({ message: 'Registro nao encontrado' }, { status: 404 });
+    if (!item) return response({ message: 'Registro nao encontrado' }, { status: 404 });
+    const items = await attachEventImages(env, normalizedResourceName, [item]);
+    if (items instanceof Response) return items;
+    return response({ data: sanitizeResource(normalizedResourceName, normalizeStorageUrls(env, request, items[0])) });
   }
 
   if (request.method === 'POST') {
@@ -236,7 +462,7 @@ const handleCrud = async (
     });
     if (data instanceof Response) return data;
     const item = (data as Record<string, unknown>[])[0];
-    return response({ message: `${resourceName} criado com sucesso`, data: sanitizeResource(resourceName, item) }, { status: 201 });
+    return response({ message: `${normalizedResourceName} criado com sucesso`, data: sanitizeResource(normalizedResourceName, item) }, { status: 201 });
   }
 
   if (request.method === 'PUT' && id) {
@@ -247,7 +473,7 @@ const handleCrud = async (
     });
     if (data instanceof Response) return data;
     const item = (data as Record<string, unknown>[])[0];
-    return item ? response({ message: `${resourceName} atualizado com sucesso`, data: sanitizeResource(resourceName, item) }) : response({ message: 'Registro nao encontrado' }, { status: 404 });
+    return item ? response({ message: `${normalizedResourceName} atualizado com sucesso`, data: sanitizeResource(normalizedResourceName, item) }) : response({ message: 'Registro nao encontrado' }, { status: 404 });
   }
 
   if (request.method === 'DELETE' && id) {
@@ -256,10 +482,110 @@ const handleCrud = async (
     });
     if (data instanceof Response) return data;
     const item = (data as Record<string, unknown>[])[0];
-    return item ? response({ message: `${resourceName} removido com sucesso`, data: sanitizeResource(resourceName, item) }) : response({ message: 'Registro nao encontrado' }, { status: 404 });
+    return item ? response({ message: `${normalizedResourceName} removido com sucesso`, data: sanitizeResource(normalizedResourceName, item) }) : response({ message: 'Registro nao encontrado' }, { status: 404 });
   }
 
   return response({ message: 'Metodo nao permitido' }, { status: 405 });
+};
+
+const handleEventRegistration = async (request: Request, env: Env, eventId: string): Promise<Response> => {
+  if (request.method !== 'POST') {
+    return response({ message: 'Metodo nao permitido' }, { status: 405 });
+  }
+
+  const payload = await parseBody(request);
+  const data = await supabaseFetch(env, 'rpc/inscrever_evento', {
+    method: 'POST',
+    body: JSON.stringify({
+      p_evento_id: eventId,
+      p_nome: payload.nome,
+      p_email: payload.email,
+      p_telefone: payload.telefone,
+    }),
+  });
+
+  if (data instanceof Response) return data;
+
+  return response({ data }, { status: 201 });
+};
+
+const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): Promise<Response | null> => {
+  if (request.method === 'GET' && parts[1] === 'uploads' && parts[2] === 'object') {
+    const key = decodeURIComponent(parts.slice(3).join('/'));
+    return key ? getObject(env, key) : response({ message: 'Informe a chave do arquivo' }, { status: 400 });
+  }
+
+  if (request.method !== 'POST') {
+    return null;
+  }
+
+  if (parts[1] === 'uploads') {
+    const upload = await uploadImage(env, await parseBody(request) as { fileName: string; contentType?: string; base64: string; folder?: string });
+    if (upload instanceof Response) return upload;
+    return response({ data: upload }, { status: 201 });
+  }
+
+  if (parts[1] === 'eventos' && parts[2] && parts[3] === 'capa') {
+    const body = await parseBody(request) as { fileName: string; contentType?: string; base64: string; folder?: string };
+    const upload = await uploadImage(env, { ...body, folder: body.folder ?? `eventos/${parts[2]}/capa` });
+    if (upload instanceof Response) return upload;
+
+    const updated = await supabaseFetch(env, `eventos?select=*&evento_id=eq.${encodeURIComponent(parts[2])}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ url_capa: upload.url }),
+    });
+    if (updated instanceof Response) return updated;
+
+    return response({ data: { upload, evento: (updated as Record<string, unknown>[])[0] } }, { status: 201 });
+  }
+
+  if (parts[1] === 'noticias' && parts[2] && parts[3] === 'capa') {
+    const body = await parseBody(request) as { fileName: string; contentType?: string; base64: string; folder?: string };
+    const upload = await uploadImage(env, { ...body, folder: body.folder ?? `noticias/${parts[2]}/capa` });
+    if (upload instanceof Response) return upload;
+
+    const updated = await supabaseFetch(env, `noticias?select=*&noticia_id=eq.${encodeURIComponent(parts[2])}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ url_capa: upload.url }),
+    });
+    if (updated instanceof Response) return updated;
+
+    return response({ data: { upload, noticia: (updated as Record<string, unknown>[])[0] } }, { status: 201 });
+  }
+
+  if (parts[1] === 'eventos' && parts[2] && parts[3] === 'imagens') {
+    const body = await parseBody(request) as {
+      fileName: string;
+      contentType?: string;
+      base64: string;
+      folder?: string;
+      ordem?: number;
+      files?: Array<{ fileName: string; contentType?: string; base64: string; folder?: string; ordem?: number }>;
+    };
+    const files = Array.isArray(body.files) && body.files.length > 0 ? body.files : [body];
+    const rows = [];
+
+    for (const [index, file] of files.entries()) {
+      const upload = await uploadImage(env, { ...file, folder: file.folder ?? `eventos/${parts[2]}/imagens` });
+      if (upload instanceof Response) return upload;
+
+      rows.push({
+        evento_id: parts[2],
+        url_imagem: upload.url,
+        ordem: file.ordem ?? index,
+      });
+    }
+
+    const inserted = await supabaseFetch(env, 'eventos_imagens?select=*', {
+      method: 'POST',
+      body: JSON.stringify(rows),
+    });
+    if (inserted instanceof Response) return inserted;
+
+    return response({ data: inserted }, { status: 201 });
+  }
+
+  return null;
 };
 
 const getBible = async (env: Env, table: string, params: URLSearchParams): Promise<Response> => {
@@ -371,6 +697,11 @@ export default {
     if (url.pathname === '/') return html(dashboardHtml);
     if (url.pathname === '/health') return response({ status: 'ok' });
     if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
+    const uploadResponse = await handleUploadRoutes(request, env, parts);
+    if (uploadResponse) return uploadResponse;
+    if (parts[0] === 'api' && parts[1] === 'eventos' && parts[2] && parts[3] === 'inscricoes') {
+      return handleEventRegistration(request, env, parts[2]);
+    }
     if (parts[0] === 'api' && parts[1]) return handleCrud(request, env, parts[1], parts[2]);
 
     return response({ message: 'Rota nao encontrada' }, { status: 404 });

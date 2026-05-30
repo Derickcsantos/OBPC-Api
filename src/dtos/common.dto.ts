@@ -1,5 +1,6 @@
 import { z } from 'zod';
+import { idStringSchema } from '../utils/validation.js';
 
 export const idParamSchema = z.object({
-  id: z.string().uuid('ID inválido. Deve ser um UUID válido.'),
+  id: idStringSchema,
 });

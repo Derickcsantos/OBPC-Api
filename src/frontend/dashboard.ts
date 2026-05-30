@@ -30,6 +30,38 @@ const apiResources = [
       { name: 'descricao_evento', label: 'Descricao', type: 'textarea', required: true },
       { name: 'data_evento', label: 'Data', type: 'datetime-local', required: true },
       { name: 'link_evento', label: 'Link', type: 'url', required: true },
+      { name: 'url_capa', label: 'URL da capa', type: 'url', hiddenInput: true },
+      { name: 'capa_evento_file', label: 'Capa do evento', type: 'dropzone', uploadOnly: true, single: true },
+      { name: 'imagens_evento_files', label: 'Imagens auxiliares', type: 'dropzone', uploadOnly: true },
+      { name: 'numero_vagas', label: 'Numero de vagas', type: 'number' },
+      { name: 'endereco_evento', label: 'Endereco', type: 'textarea' },
+      { name: 'hora_inicio', label: 'Hora de inicio', type: 'time' },
+      { name: 'observacao_evento', label: 'Observacoes', type: 'textarea' },
+      { name: 'responsavel_nome', label: 'Responsavel', type: 'text' },
+      { name: 'responsavel_telefone', label: 'Telefone do responsavel', type: 'text' },
+    ],
+  },
+  {
+    name: 'eventos_imagens',
+    label: 'Imagens de Evento',
+    idField: 'imagem_id',
+    fields: [
+      { name: 'evento_id', label: 'Evento', type: 'event-combobox', required: true },
+      { name: 'imagem_evento_file', label: 'Imagens', type: 'dropzone', uploadOnly: true, required: true },
+      { name: 'url_imagem', label: 'URL da imagem', type: 'url', hidden: true },
+      { name: 'ordem', label: 'Ordem', type: 'number' },
+    ],
+  },
+  {
+    name: 'eventos_inscricoes',
+    label: 'Inscricoes',
+    idField: 'inscricao_id',
+    fields: [
+      { name: 'evento_id', label: 'Evento com vaga', type: 'event-combobox', onlyWithVacancy: true, required: true },
+      { name: 'nome', label: 'Nome', type: 'text', required: true },
+      { name: 'email', label: 'Email', type: 'email', required: true },
+      { name: 'telefone', label: 'Telefone', type: 'text', required: true },
+      { name: 'status', label: 'Status', type: 'select', options: ['inscrito', 'cancelado'] },
     ],
   },
   {
@@ -40,6 +72,8 @@ const apiResources = [
       { name: 'nome_noticia', label: 'Nome', type: 'text', required: true },
       { name: 'mensagem_noticia', label: 'Mensagem', type: 'textarea', required: true },
       { name: 'data_noticia', label: 'Data', type: 'datetime-local', required: true },
+      { name: 'url_capa', label: 'URL da capa', type: 'url', hiddenInput: true },
+      { name: 'capa_noticia_file', label: 'Capa da noticia', type: 'dropzone', uploadOnly: true, single: true },
       { name: 'observacao_noticia', label: 'Observacao', type: 'textarea' },
     ],
   },
@@ -92,8 +126,10 @@ export const dashboardHtml = `<!doctype html>
       --muted: #64707d;
       --line: #d9e0e7;
       --accent: #0f766e;
+      --accent-soft: #e6f4f1;
       --accent-2: #b42318;
       --focus: #2563eb;
+      --shadow: 0 18px 45px rgba(27, 31, 36, 0.08);
     }
 
     * { box-sizing: border-box; }
@@ -188,10 +224,7 @@ export const dashboardHtml = `<!doctype html>
     }
 
     .workspace {
-      display: grid;
-      grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
-      gap: 16px;
-      align-items: start;
+      min-width: 0;
     }
 
     section {
@@ -199,6 +232,7 @@ export const dashboardHtml = `<!doctype html>
       border: 1px solid var(--line);
       border-radius: 8px;
       min-width: 0;
+      box-shadow: var(--shadow);
     }
 
     .section-head {
@@ -262,9 +296,98 @@ export const dashboardHtml = `<!doctype html>
       flex-wrap: wrap;
     }
 
+    .dropzone {
+      border: 1.5px dashed #93a4b5;
+      border-radius: 8px;
+      background: #f9fbfc;
+      min-height: 132px;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      color: var(--muted);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .dropzone.single {
+      min-height: 104px;
+    }
+
+    .dropzone.dragging {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .dropzone strong {
+      color: var(--ink);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .file-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .thumb {
+      width: 72px;
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      display: block;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
     .table-wrap {
       overflow: auto;
       max-height: calc(100vh - 168px);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(17, 24, 39, 0.42);
+    }
+
+    .modal[hidden] {
+      display: none;
+    }
+
+    .modal-panel {
+      width: min(760px, 100%);
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 24px 70px rgba(17, 24, 39, 0.22);
+    }
+
+    .modal-head {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--panel);
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
     }
 
     table {
@@ -348,12 +471,6 @@ export const dashboardHtml = `<!doctype html>
       <div id="crud-view" class="workspace">
         <section>
           <div class="section-head">
-            <span id="form-title" class="section-title">Cadastro</span>
-          </div>
-          <form id="form"></form>
-        </section>
-        <section>
-          <div class="section-head">
             <span class="section-title">Dados</span>
           </div>
           <div class="table-wrap">
@@ -391,6 +508,15 @@ export const dashboardHtml = `<!doctype html>
           <pre id="bible-output">{}</pre>
         </section>
       </div>
+      <div id="form-modal" class="modal" hidden>
+        <div class="modal-panel">
+          <div class="modal-head">
+            <span id="form-title" class="section-title">Cadastro</span>
+            <button id="modal-close" type="button">Fechar</button>
+          </div>
+          <form id="form"></form>
+        </div>
+      </div>
     </main>
   </div>
   <script>
@@ -403,15 +529,28 @@ export const dashboardHtml = `<!doctype html>
     const title = document.querySelector('#title');
     const statusEl = document.querySelector('#status');
     const form = document.querySelector('#form');
+    const formModal = document.querySelector('#form-modal');
+    const modalClose = document.querySelector('#modal-close');
     const table = document.querySelector('#table');
     const crudView = document.querySelector('#crud-view');
     const bibleView = document.querySelector('#bible-view');
     const reloadBtn = document.querySelector('#reload');
     const newBtn = document.querySelector('#new-record');
+    const eventCache = { all: [], withVacancy: [], loadedAt: 0 };
 
     function setStatus(message, isError = false) {
       statusEl.textContent = message || '';
       statusEl.style.color = isError ? '#b42318' : '#64707d';
+    }
+
+    function openModal() {
+      formModal.hidden = false;
+      const firstInput = form.querySelector('input:not([type="hidden"]), textarea, select');
+      if (firstInput) firstInput.focus();
+    }
+
+    function closeModal() {
+      formModal.hidden = true;
     }
 
     function renderNav() {
@@ -452,6 +591,10 @@ export const dashboardHtml = `<!doctype html>
     }
 
     function fieldInput(field, value) {
+      if (field.hiddenInput || field.hidden) {
+        return '<input name="' + field.name + '" type="hidden" value="' + escapeHtml(formatInputValue(field, value)) + '">';
+      }
+
       if (field.type === 'textarea') {
         return '<textarea name="' + field.name + '" ' + (field.required ? 'required' : '') + '>' + escapeHtml(value || '') + '</textarea>';
       }
@@ -462,6 +605,21 @@ export const dashboardHtml = `<!doctype html>
 
       if (field.type === 'checkbox') {
         return '<label class="check-row"><input name="' + field.name + '" type="checkbox" ' + (value === true || value === undefined ? 'checked' : '') + '> ' + field.label + '</label>';
+      }
+
+      if (field.type === 'file') {
+        return '<input name="' + field.name + '" type="file" accept="image/*" ' + (field.required && !editing ? 'required' : '') + '>';
+      }
+
+      if (field.type === 'dropzone') {
+        const multiple = field.single ? '' : ' multiple';
+        const title = field.single ? 'Arraste a imagem aqui' : 'Arraste imagens aqui';
+        const helper = field.single ? 'ou clique para escolher uma imagem' : 'ou clique para escolher varias imagens';
+        return '<div class="dropzone' + (field.single ? ' single' : '') + '" data-dropzone="' + field.name + '"><div><strong>' + title + '</strong><span>' + helper + '</span><div class="file-list" data-file-list="' + field.name + '"></div></div></div><input name="' + field.name + '" type="file" accept="image/*"' + multiple + ' hidden>';
+      }
+
+      if (field.type === 'event-combobox') {
+        return '<input name="' + field.name + '_search" list="' + field.name + '_list" data-event-search="' + field.name + '" placeholder="Digite o nome do evento" autocomplete="off"><input name="' + field.name + '" type="hidden" value="' + escapeHtml(value || '') + '"><datalist id="' + field.name + '_list"></datalist><span class="hint" data-event-hint="' + field.name + '">Selecione um evento pelo nome.</span>';
       }
 
       return '<input name="' + field.name + '" type="' + field.type + '" value="' + escapeHtml(formatInputValue(field, value)) + '" ' + (field.required && !editing ? 'required' : '') + '>';
@@ -477,13 +635,105 @@ export const dashboardHtml = `<!doctype html>
     function renderForm(row = {}) {
       document.querySelector('#form-title').textContent = editing ? 'Edicao' : 'Cadastro';
       form.innerHTML = current.fields.map((field) => {
+        if (field.hiddenInput || field.hidden) return fieldInput(field, row[field.name]);
         if (field.type === 'checkbox') return fieldInput(field, row[field.name]);
         return '<label>' + field.label + fieldInput(field, row[field.name]) + '</label>';
       }).join('') + '<div class="actions"><button type="submit" class="primary">' + (editing ? 'Salvar' : 'Criar') + '</button><button type="button" id="cancel-edit">Limpar</button></div>';
       document.querySelector('#cancel-edit').addEventListener('click', () => {
         editing = null;
         renderForm();
+        closeModal();
       });
+      wireSpecialFields(row);
+    }
+
+    async function wireSpecialFields(row = {}) {
+      for (const field of current.fields) {
+        if (field.type === 'dropzone') setupDropzone(field.name);
+        if (field.type === 'event-combobox') await setupEventCombobox(field, row[field.name]);
+      }
+    }
+
+    function setupDropzone(name) {
+      const zone = form.querySelector('[data-dropzone="' + name + '"]');
+      const input = form.elements[name];
+      const list = form.querySelector('[data-file-list="' + name + '"]');
+      if (!zone || !input || !list) return;
+
+      const renderFiles = () => {
+        const files = [...(input.files || [])];
+        list.innerHTML = files.length ? files.map((file) => '<span>' + escapeHtml(file.name) + '</span>').join('') : '';
+      };
+
+      zone.addEventListener('click', () => input.click());
+      zone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        zone.classList.add('dragging');
+      });
+      zone.addEventListener('dragleave', () => zone.classList.remove('dragging'));
+      zone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        zone.classList.remove('dragging');
+        if (input.multiple) {
+          input.files = event.dataTransfer.files;
+        } else {
+          const transfer = new DataTransfer();
+          if (event.dataTransfer.files[0]) transfer.items.add(event.dataTransfer.files[0]);
+          input.files = transfer.files;
+        }
+        renderFiles();
+      });
+      input.addEventListener('change', renderFiles);
+    }
+
+    async function setupEventCombobox(field, selectedId) {
+      const search = form.querySelector('[data-event-search="' + field.name + '"]');
+      const hidden = form.elements[field.name];
+      const list = form.querySelector('#' + field.name + '_list');
+      const hint = form.querySelector('[data-event-hint="' + field.name + '"]');
+      if (!search || !hidden || !list) return;
+
+      const events = await getEvents(field.onlyWithVacancy);
+      const selected = events.find((event) => event.evento_id === selectedId);
+      if (selected) search.value = eventLabel(selected);
+
+      list.innerHTML = events.map((event) => '<option value="' + escapeHtml(eventLabel(event)) + '"></option>').join('');
+
+      const sync = () => {
+        const match = events.find((event) => eventLabel(event) === search.value);
+        hidden.value = match ? match.evento_id : '';
+        if (hint) {
+          hint.textContent = match ? 'Evento selecionado: ' + match.evento_id : 'Selecione um evento valido pelo nome.';
+        }
+      };
+
+      search.addEventListener('change', sync);
+      search.addEventListener('input', sync);
+    }
+
+    async function getEvents(onlyWithVacancy = false) {
+      const now = Date.now();
+      if (!eventCache.loadedAt || now - eventCache.loadedAt > 30000) {
+        const json = await request('/api/eventos');
+        eventCache.all = json.data || [];
+        eventCache.withVacancy = await filterEventsWithVacancy(eventCache.all);
+        eventCache.loadedAt = now;
+      }
+      return onlyWithVacancy ? eventCache.withVacancy : eventCache.all;
+    }
+
+    async function filterEventsWithVacancy(events) {
+      const inscriptions = await request('/api/eventos-inscricoes').catch(() => ({ data: [] }));
+      const activeByEvent = (inscriptions.data || []).reduce((acc, item) => {
+        if (item.status !== 'cancelado') acc[item.evento_id] = (acc[item.evento_id] || 0) + 1;
+        return acc;
+      }, {});
+      return events.filter((event) => !event.numero_vagas || (activeByEvent[event.evento_id] || 0) < Number(event.numero_vagas));
+    }
+
+    function eventLabel(event) {
+      const vacancies = event.numero_vagas ? ' - ' + event.numero_vagas + ' vagas' : '';
+      return event.nome_evento + ' (' + String(event.data_evento || '').slice(0, 10) + ')' + vacancies;
     }
 
     async function loadRows() {
@@ -499,10 +749,11 @@ export const dashboardHtml = `<!doctype html>
 
     function renderTable(rows) {
       const defaultKeys = [current.idField, ...current.fields.map((field) => field.name), 'created_at', 'updated_at'];
-      const keys = [...new Set([...defaultKeys, ...rows.flatMap((row) => Object.keys(row))])];
+      const hiddenKeys = new Set(current.fields.filter((field) => field.uploadOnly || field.hidden).map((field) => field.name));
+      const keys = [...new Set([...defaultKeys, ...rows.flatMap((row) => Object.keys(row))])].filter((key) => !hiddenKeys.has(key));
       const body = rows.length
         ? rows.map((row) => {
-        return '<tr>' + keys.map((key) => '<td>' + escapeHtml(preview(row[key])) + '</td>').join('') + '<td><div class="row-actions"><button type="button" data-edit="' + row[current.idField] + '">Editar</button><button class="danger" type="button" data-delete="' + row[current.idField] + '">Excluir</button></div></td></tr>';
+        return '<tr>' + keys.map((key) => '<td>' + renderCell(key, row[key]) + '</td>').join('') + '<td><div class="row-actions"><button type="button" data-edit="' + row[current.idField] + '">Editar</button><button class="danger" type="button" data-delete="' + row[current.idField] + '">Excluir</button></div></td></tr>';
       }).join('')
         : '<tr><td colspan="' + (keys.length + 1) + '">Nenhum registro encontrado.</td></tr>';
 
@@ -516,11 +767,24 @@ export const dashboardHtml = `<!doctype html>
       });
     }
 
+    function renderCell(key, value) {
+      if ((key === 'url_capa' || key === 'url_imagem') && value) {
+        return '<a href="' + escapeHtml(value) + '" target="_blank" rel="noreferrer"><img class="thumb" src="' + escapeHtml(value) + '" alt="Imagem"></a>';
+      }
+      if (key === 'imagens' && Array.isArray(value)) {
+        return value.length
+          ? '<div class="actions">' + value.map((image) => '<a href="' + escapeHtml(image.url_imagem || '') + '" target="_blank" rel="noreferrer"><img class="thumb" src="' + escapeHtml(image.url_imagem || '') + '" alt="Imagem"></a>').join('') + '</div>'
+          : '';
+      }
+      return escapeHtml(preview(value));
+    }
+
     async function editRow(id) {
       try {
         const json = await request('/api/' + current.name + '/' + id);
         editing = id;
         renderForm(json.data || {});
+        openModal();
         setStatus('Registro selecionado.');
       } catch (error) {
         setStatus(error.message, true);
@@ -533,6 +797,7 @@ export const dashboardHtml = `<!doctype html>
         await request('/api/' + current.name + '/' + id, { method: 'DELETE' });
         editing = null;
         renderForm();
+        closeModal();
         await loadRows();
       } catch (error) {
         setStatus(error.message, true);
@@ -543,28 +808,151 @@ export const dashboardHtml = `<!doctype html>
       event.preventDefault();
       const payload = {};
       for (const field of current.fields) {
+        if (field.uploadOnly) continue;
         const input = form.elements[field.name];
         if (!input) continue;
         if (field.type === 'checkbox') {
           payload[field.name] = input.checked;
-        } else if (input.value !== '' || !editing) {
+        } else if (input.value !== '') {
           payload[field.name] = input.value;
         }
       }
 
       try {
-        await request('/api/' + current.name + (editing ? '/' + editing : ''), {
+        if (current.name === 'eventos_imagens' && !editing && !form.elements.imagem_evento_file?.files?.length) {
+          throw new Error('Envie ao menos uma imagem para o evento.');
+        }
+
+        if (current.name === 'eventos_imagens' && !editing && form.elements.imagem_evento_file?.files?.length) {
+          const files = await Promise.all([...form.elements.imagem_evento_file.files].map(fileToPayload));
+          await request('/api/eventos/' + payload.evento_id + '/imagens', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: files.map((file, index) => ({
+                ...file,
+                ordem: Number(payload.ordem || 0) + index,
+              })),
+            }),
+          });
+          renderForm();
+          closeModal();
+          await loadRows();
+          return;
+        }
+
+        const saved = await request('/api/' + current.name + (editing ? '/' + editing : ''), {
           method: editing ? 'PUT' : 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+
+        const savedData = saved.data || {};
+
+        if (current.name === 'eventos' && form.elements.capa_evento_file?.files?.[0]) {
+          const id = savedData.evento_id || editing;
+          const filePayload = await fileToPayload(form.elements.capa_evento_file.files[0]);
+          await request('/api/eventos/' + id + '/capa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(filePayload),
+          });
+        }
+
+        if (current.name === 'eventos' && form.elements.imagens_evento_files?.files?.length) {
+          const id = savedData.evento_id || editing;
+          const files = await Promise.all([...form.elements.imagens_evento_files.files].map(fileToPayload));
+          await request('/api/eventos/' + id + '/imagens', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: files.map((file, index) => ({ ...file, ordem: index })),
+            }),
+          });
+        }
+
+        if (current.name === 'noticias' && form.elements.capa_noticia_file?.files?.[0]) {
+          const id = savedData.noticia_id || editing;
+          const filePayload = await fileToPayload(form.elements.capa_noticia_file.files[0]);
+          await request('/api/noticias/' + id + '/capa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(filePayload),
+          });
+        }
+
         editing = null;
+        if (current.name === 'eventos') eventCache.loadedAt = 0;
         renderForm();
+        closeModal();
         await loadRows();
       } catch (error) {
         setStatus(error.message, true);
       }
     });
+
+    function fileToPayload(file) {
+      return new Promise((resolve, reject) => {
+        if (!file.type.startsWith('image/')) {
+          reject(new Error('Envie apenas arquivos de imagem.'));
+          return;
+        }
+
+        const image = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        image.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+
+          const maxDimension = 1920;
+          const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(image.width * scale));
+          canvas.height = Math.max(1, Math.round(image.height * scale));
+
+          const context = canvas.getContext('2d');
+          if (!context) {
+            reject(new Error('Nao foi possivel processar a imagem.'));
+            return;
+          }
+
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              reject(new Error('Nao foi possivel compactar a imagem.'));
+              return;
+            }
+
+            const reader = new FileReader();
+            const baseName = file.name.replace(/\.[^.]+$/, '') || 'imagem';
+            reader.onload = () => resolve({
+              fileName: baseName + '.webp',
+              contentType: 'image/webp',
+              base64: String(reader.result),
+            });
+            reader.onerror = () => reject(new Error('Nao foi possivel ler a imagem compactada.'));
+            reader.readAsDataURL(blob);
+          }, 'image/webp', 0.8);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error('Nao foi possivel carregar a imagem.'));
+        };
+        image.src = objectUrl;
+      });
+    }
+
+    function rawFileToPayload(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          fileName: file.name,
+          contentType: file.type || 'application/octet-stream',
+          base64: String(reader.result),
+        });
+        reader.onerror = () => reject(new Error('Nao foi possivel ler o arquivo.'));
+        reader.readAsDataURL(file);
+      });
+    }
 
     async function fetchBible() {
       const endpoint = document.querySelector('#bible-endpoint').value;
@@ -613,7 +1001,11 @@ export const dashboardHtml = `<!doctype html>
     }
 
     reloadBtn.addEventListener('click', loadRows);
-    newBtn.addEventListener('click', () => { editing = null; renderForm(); });
+    newBtn.addEventListener('click', () => { editing = null; renderForm(); openModal(); });
+    modalClose.addEventListener('click', closeModal);
+    formModal.addEventListener('click', (event) => {
+      if (event.target === formModal) closeModal();
+    });
     document.querySelector('#bible-fetch').addEventListener('click', fetchBible);
     document.querySelector('#bible-endpoint').addEventListener('change', fetchBible);
 

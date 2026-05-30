@@ -7,7 +7,9 @@ export type ResourceName =
   | 'noticias'
   | 'louvores'
   | 'mensagens'
-  | 'oracoes';
+  | 'oracoes'
+  | 'eventos_imagens'
+  | 'eventos_inscricoes';
 
 export type EntityRecord = Record<string, unknown>;
 

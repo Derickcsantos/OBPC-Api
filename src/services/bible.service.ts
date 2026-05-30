@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { AppError } from '../utils/app-error.js';
 import { BibleServiceContract, EntityRecord, PaginatedResult } from '../types/crud.types.js';
+import { redisCache } from './redis-cache.service.js';
 
 const defaultVersion = 'nvi';
 const defaultLimit = 100;
@@ -60,52 +61,91 @@ const paginated = <T extends EntityRecord>(data: T[], count: number | null, page
   };
 };
 
+const cacheKey = (method: string, params: Record<string, string> = {}): string => {
+  const normalizedParams = Object.keys(params)
+    .sort()
+    .reduce<Record<string, string>>((acc, key) => {
+      if (params[key] !== undefined && params[key] !== '') {
+        acc[key] = params[key];
+      }
+      return acc;
+    }, {});
+
+  return `biblia:${method}:${JSON.stringify(normalizedParams)}`;
+};
+
+const hasSearchTerm = (params: Record<string, string>): boolean => Boolean(params.keyword ?? params.q ?? params.text);
+
 export class BibleService implements BibleServiceContract {
   constructor(private readonly client: SupabaseClient) {}
 
-  async getTestaments(): Promise<unknown> {
-    const { data, error } = await this.client.from('testaments').select('*').order('id', { ascending: true });
+  private async cached<T>(method: string, params: Record<string, string>, loader: () => Promise<T>): Promise<T> {
+    const key = cacheKey(method, params);
+    const cached = await redisCache.get<T>(key);
 
-    if (error) {
-      throw new AppError(500, 'Erro ao listar testamentos', error);
+    if (cached) {
+      return cached;
     }
 
-    return data ?? [];
+    const data = await loader();
+    await redisCache.set(key, data);
+
+    return data;
+  }
+
+  async getTestaments(): Promise<unknown> {
+    return this.cached('testaments', {}, async () => {
+      const { data, error } = await this.client.from('testaments').select('*').order('id', { ascending: true });
+
+      if (error) {
+        throw new AppError(500, 'Erro ao listar testamentos', error);
+      }
+
+      return data ?? [];
+    });
   }
 
   async getVersions(): Promise<unknown> {
-    const { data, error } = await this.client.from('verses').select('version').order('version', { ascending: true });
+    return this.cached('versions', {}, async () => {
+      const { data, error } = await this.client.from('verses').select('version').order('version', { ascending: true });
 
-    if (error) {
-      throw new AppError(500, 'Erro ao listar versoes da Biblia', error);
-    }
+      if (error) {
+        throw new AppError(500, 'Erro ao listar versoes da Biblia', error);
+      }
 
-    const versions = [...new Set((data ?? []).map((item) => item.version).filter(Boolean))];
+      const versions = [...new Set((data ?? []).map((item) => item.version).filter(Boolean))];
 
-    return versions.map((version) => ({
-      id: version,
-      name: String(version).toUpperCase(),
-    }));
+      return versions.map((version) => ({
+        id: version,
+        name: String(version).toUpperCase(),
+      }));
+    });
   }
 
   async getBooks(params: Record<string, string>): Promise<unknown> {
-    const testamentId = toInt(params.testament_id ?? params.testament);
-    let query = this.client.from('books').select('*').order('id', { ascending: true });
+    return this.cached('books', params, async () => {
+      const testamentId = toInt(params.testament_id ?? params.testament);
+      let query = this.client.from('books').select('*').order('id', { ascending: true });
 
-    if (testamentId) {
-      query = query.eq('testament', testamentId);
-    }
+      if (testamentId) {
+        query = query.eq('testament', testamentId);
+      }
 
-    const { data, error } = await query;
+      const { data, error } = await query;
 
-    if (error) {
-      throw new AppError(500, 'Erro ao listar livros da Biblia', error);
-    }
+      if (error) {
+        throw new AppError(500, 'Erro ao listar livros da Biblia', error);
+      }
 
-    return data ?? [];
+      return data ?? [];
+    });
   }
 
   async getChapters(params: Record<string, string>): Promise<unknown> {
+    return this.cached('chapters', params, async () => this.loadChapters(params));
+  }
+
+  private async loadChapters(params: Record<string, string>): Promise<PaginatedResult> {
     const bookId = toInt(params.book_id);
     const { page, limit, from, to } = paginationFrom(params);
     const rows: EntityRecord[] = [];
@@ -153,27 +193,53 @@ export class BibleService implements BibleServiceContract {
   }
 
   async getVerses(params: Record<string, string>): Promise<unknown> {
-    const result = await this.queryVerses({
+    const normalizedParams = {
       ...params,
       keyword: params.keyword ?? params.q ?? params.text,
-    });
-
-    return {
-      ...result,
-      data: result.data.map(sanitizeVerse),
     };
+
+    if (hasSearchTerm(normalizedParams)) {
+      const result = await this.queryVerses(normalizedParams);
+
+      return {
+        ...result,
+        data: result.data.map(sanitizeVerse),
+      };
+    }
+
+    return this.cached('verses', normalizedParams, async () => {
+      const result = await this.queryVerses(normalizedParams);
+
+      return {
+        ...result,
+        data: result.data.map(sanitizeVerse),
+      };
+    });
   }
 
   async getBookVerses(params: Record<string, string>): Promise<unknown> {
-    const result = await this.queryVerses({
+    const normalizedParams = {
       ...params,
       keyword: params.keyword ?? params.q ?? params.text,
-    });
-
-    return {
-      ...result,
-      data: result.data.map(sanitizeVerse),
     };
+
+    if (hasSearchTerm(normalizedParams)) {
+      const result = await this.queryVerses(normalizedParams);
+
+      return {
+        ...result,
+        data: result.data.map(sanitizeVerse),
+      };
+    }
+
+    return this.cached('book-verses', normalizedParams, async () => {
+      const result = await this.queryVerses(normalizedParams);
+
+      return {
+        ...result,
+        data: result.data.map(sanitizeVerse),
+      };
+    });
   }
 
   async searchExactWords(params: Record<string, string>): Promise<unknown> {

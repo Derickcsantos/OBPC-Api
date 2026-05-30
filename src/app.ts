@@ -18,6 +18,8 @@ const resourceMap: Record<ResourceName, { table: string; idField: string }> = {
   louvores: { table: 'louvores', idField: 'louvor_id' },
   mensagens: { table: 'mensagens', idField: 'mensagem_id' },
   oracoes: { table: 'oracoes', idField: 'oracao_id' },
+  eventos_imagens: { table: 'eventos_imagens', idField: 'imagem_id' },
+  eventos_inscricoes: { table: 'eventos_inscricoes', idField: 'inscricao_id' },
 };
 
 export interface AppDependencies {
