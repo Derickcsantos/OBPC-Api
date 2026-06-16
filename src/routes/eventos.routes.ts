@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { CrudController } from '../controllers/crud.controller.js';
 import { createEventoInscricaoPublicSchema } from '../dtos/eventos-inscricoes.dto.js';
 import { createEventoSchema, updateEventoSchema } from '../dtos/eventos.dto.js';
+import { eventsApiExamples } from '../docs/events-api-examples.js';
 import { CrudServiceContract } from '../types/crud.types.js';
 import { AppError } from '../utils/app-error.js';
 import { parseWithSchema } from '../utils/validation.js';
@@ -20,6 +21,8 @@ export const eventosRoutes = (app: FastifyInstance, service: CrudServiceContract
     createSchema: createEventoSchema,
     updateSchema: updateEventoSchema,
   });
+
+  app.get('/eventos/examples', async () => ({ data: eventsApiExamples }));
 
   registerCrudRoutes(app, '/eventos', controller);
 

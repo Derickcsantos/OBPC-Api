@@ -8,6 +8,8 @@ export const bibleApiExamples = {
       'GET /api/biblia/versions',
       'GET /api/biblia/books',
       'GET /api/biblia/chapters',
+      'GET /api/biblia/books/:book_id/chapters/:chapter',
+      'GET /api/biblia/compare',
       'GET /api/biblia/verses sem keyword/q/text',
       'GET /api/biblia/books/:book_id/verses sem keyword/q/text',
     ],

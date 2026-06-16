@@ -5,7 +5,12 @@ import { redisCache } from './redis-cache.service.js';
 
 const defaultVersion = 'nvi';
 const defaultLimit = 100;
-const internalPageSize = 1000;
+const maxLimit = 100;
+const chapterColumns: string = 'version,comparison_scope,testament,book,book_name,book_abbrev,chapter';
+const chapterFullColumns: string = `${chapterColumns},verses,chapter_text`;
+const verseColumns: string = 'id,version,testament,book,book_name,book_abbrev,chapter,verse,text,global_order';
+const comparisonColumns: string = 'testament,book,book_name,book_abbrev,chapter,verse,texts_by_version';
+const inFlightCache = new Map<string, Promise<unknown>>();
 
 const decodeHtmlEntities = (value: string): string =>
   value
@@ -17,10 +22,37 @@ const decodeHtmlEntities = (value: string): string =>
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>');
 
+const sanitizeText = (value: unknown): unknown => (typeof value === 'string' ? decodeHtmlEntities(value) : value);
+
 const sanitizeVerse = (verse: EntityRecord): EntityRecord => ({
   ...verse,
-  text: typeof verse.text === 'string' ? decodeHtmlEntities(verse.text) : verse.text,
+  text: sanitizeText(verse.text),
 });
+
+const sanitizeChapter = (chapter: EntityRecord): EntityRecord => ({
+  ...chapter,
+  chapter_text: sanitizeText(chapter.chapter_text),
+  verses: Array.isArray(chapter.verses)
+    ? chapter.verses.map((verse) => ({
+        ...(verse as EntityRecord),
+        text: sanitizeText((verse as EntityRecord).text),
+      }))
+    : chapter.verses,
+});
+
+const sanitizeComparison = (comparison: EntityRecord, versions?: string[]): EntityRecord => {
+  const texts = comparison.texts_by_version as Record<string, unknown> | undefined;
+  const normalizedTexts = Object.fromEntries(
+    Object.entries(texts ?? {})
+      .filter(([version]) => !versions || versions.includes(version))
+      .map(([version, text]) => [version, sanitizeText(text)]),
+  );
+
+  return {
+    ...comparison,
+    texts_by_version: normalizedTexts,
+  };
+};
 
 const toInt = (value: string | undefined): number | undefined => {
   if (!value) {
@@ -31,9 +63,11 @@ const toInt = (value: string | undefined): number | undefined => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
+const toBool = (value: string | undefined): boolean => value === 'true' || value === '1';
+
 const paginationFrom = (params: Record<string, string>): { page: number; limit: number; from: number; to: number } => {
   const page = Math.max(toInt(params.page) ?? 1, 1);
-  const limit = Math.min(Math.max(toInt(params.limit) ?? defaultLimit, 1), 100);
+  const limit = Math.min(Math.max(toInt(params.limit) ?? defaultLimit, 1), maxLimit);
   const from = (page - 1) * limit;
 
   return {
@@ -71,10 +105,16 @@ const cacheKey = (method: string, params: Record<string, string> = {}): string =
       return acc;
     }, {});
 
-  return `biblia:${method}:${JSON.stringify(normalizedParams)}`;
+  return `biblia:v2:${method}:${JSON.stringify(normalizedParams)}`;
 };
 
 const hasSearchTerm = (params: Record<string, string>): boolean => Boolean(params.keyword ?? params.q ?? params.text);
+
+const versionsFilter = (params: Record<string, string>): string[] | undefined =>
+  params.versions
+    ?.split(',')
+    .map((version) => version.trim().toLowerCase())
+    .filter(Boolean);
 
 export class BibleService implements BibleServiceContract {
   constructor(private readonly client: SupabaseClient) {}
@@ -87,10 +127,22 @@ export class BibleService implements BibleServiceContract {
       return cached;
     }
 
-    const data = await loader();
-    await redisCache.set(key, data);
+    const running = inFlightCache.get(key) as Promise<T> | undefined;
+    if (running) {
+      return running;
+    }
 
-    return data;
+    const promise = loader()
+      .then(async (data) => {
+        await redisCache.set(key, data);
+        return data;
+      })
+      .finally(() => {
+        inFlightCache.delete(key);
+      });
+
+    inFlightCache.set(key, promise);
+    return promise;
   }
 
   async getTestaments(): Promise<unknown> {
@@ -107,17 +159,18 @@ export class BibleService implements BibleServiceContract {
 
   async getVersions(): Promise<unknown> {
     return this.cached('versions', {}, async () => {
-      const { data, error } = await this.client.from('verses').select('version').order('version', { ascending: true });
+      const { data, error } = await this.client
+        .from('bible_versions')
+        .select('code,name,language,source_file,comparison_scope,total_books,total_chapters,total_verses,created_at,updated_at')
+        .order('code', { ascending: true });
 
       if (error) {
         throw new AppError(500, 'Erro ao listar versoes da Biblia', error);
       }
 
-      const versions = [...new Set((data ?? []).map((item) => item.version).filter(Boolean))];
-
-      return versions.map((version) => ({
-        id: version,
-        name: String(version).toUpperCase(),
+      return (data ?? []).map((version) => ({
+        id: version.code,
+        ...version,
       }));
     });
   }
@@ -142,54 +195,62 @@ export class BibleService implements BibleServiceContract {
   }
 
   async getChapters(params: Record<string, string>): Promise<unknown> {
-    return this.cached('chapters', params, async () => this.loadChapters(params));
-  }
-
-  private async loadChapters(params: Record<string, string>): Promise<PaginatedResult> {
-    const bookId = toInt(params.book_id);
-    const { page, limit, from, to } = paginationFrom(params);
-    const rows: EntityRecord[] = [];
-    let offset = 0;
-
-    while (true) {
+    return this.cached('chapters', params, async () => {
+      const bookId = toInt(params.book_id);
+      const includeFullText = toBool(params.include_text) || toBool(params.include_verses);
+      const { page, limit, from, to } = paginationFrom(params);
       let query = this.client
-        .from('verses')
-        .select('version,testament,book,chapter')
+        .from('chapter_texts')
+        .select(includeFullText ? chapterFullColumns : chapterColumns, { count: 'exact' })
         .eq('version', params.version ?? defaultVersion)
         .order('book', { ascending: true })
         .order('chapter', { ascending: true })
-        .range(offset, offset + internalPageSize - 1);
+        .range(from, to);
 
       if (bookId) {
         query = query.eq('book', bookId);
       }
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
 
       if (error) {
         throw new AppError(500, 'Erro ao listar capitulos da Biblia', error);
       }
 
-      rows.push(...((data ?? []) as EntityRecord[]));
+      const rows = includeFullText
+        ? ((data ?? []) as unknown as EntityRecord[]).map(sanitizeChapter)
+        : ((data ?? []) as unknown as EntityRecord[]);
+      return paginated(rows, count, page, limit);
+    });
+  }
 
-      if (!data || data.length < internalPageSize) {
-        break;
+  async getChapter(params: Record<string, string>): Promise<unknown> {
+    return this.cached('chapter', params, async () => {
+      const bookId = toInt(params.book_id);
+      const chapterId = toInt(params.chapter_id);
+
+      if (!bookId || !chapterId) {
+        throw new AppError(400, 'Informe book_id e chapter_id');
       }
 
-      offset += internalPageSize;
-    }
+      const { data, error } = await this.client
+        .from('chapter_texts')
+        .select(chapterFullColumns)
+        .eq('version', params.version ?? defaultVersion)
+        .eq('book', bookId)
+        .eq('chapter', chapterId)
+        .maybeSingle();
 
-    const chapters = new Map<string, EntityRecord>();
-
-    for (const row of rows) {
-      const key = `${row.version}:${row.book}:${row.chapter}`;
-      if (!chapters.has(key)) {
-        chapters.set(key, row as EntityRecord);
+      if (error) {
+        throw new AppError(500, 'Erro ao buscar capitulo da Biblia', error);
       }
-    }
 
-    const allChapters = [...chapters.values()];
-    return paginated(allChapters.slice(from, to + 1), allChapters.length, page, limit);
+      if (!data) {
+        throw new AppError(404, 'Capitulo da Biblia nao encontrado');
+      }
+
+      return sanitizeChapter(data as unknown as EntityRecord);
+    });
   }
 
   async getVerses(params: Record<string, string>): Promise<unknown> {
@@ -199,22 +260,10 @@ export class BibleService implements BibleServiceContract {
     };
 
     if (hasSearchTerm(normalizedParams)) {
-      const result = await this.queryVerses(normalizedParams);
-
-      return {
-        ...result,
-        data: result.data.map(sanitizeVerse),
-      };
+      return this.queryVerses(normalizedParams);
     }
 
-    return this.cached('verses', normalizedParams, async () => {
-      const result = await this.queryVerses(normalizedParams);
-
-      return {
-        ...result,
-        data: result.data.map(sanitizeVerse),
-      };
-    });
+    return this.cached('verses', normalizedParams, async () => this.queryVerses(normalizedParams));
   }
 
   async getBookVerses(params: Record<string, string>): Promise<unknown> {
@@ -224,31 +273,50 @@ export class BibleService implements BibleServiceContract {
     };
 
     if (hasSearchTerm(normalizedParams)) {
-      const result = await this.queryVerses(normalizedParams);
-
-      return {
-        ...result,
-        data: result.data.map(sanitizeVerse),
-      };
+      return this.queryVerses(normalizedParams);
     }
 
-    return this.cached('book-verses', normalizedParams, async () => {
-      const result = await this.queryVerses(normalizedParams);
+    return this.cached('book-verses', normalizedParams, async () => this.queryVerses(normalizedParams));
+  }
 
-      return {
-        ...result,
-        data: result.data.map(sanitizeVerse),
-      };
+  async compareVerses(params: Record<string, string>): Promise<unknown> {
+    return this.cached('compare', params, async () => {
+      const bookId = toInt(params.book_id);
+      const chapterId = toInt(params.chapter_id);
+      const verse = toInt(params.verse);
+      const verseStart = toInt(params.verse_start);
+      const verseEnd = toInt(params.verse_end);
+      const versions = versionsFilter(params);
+      const { page, limit, from, to } = paginationFrom(params);
+
+      let query = this.client
+        .from('verses_comparisons')
+        .select(comparisonColumns, { count: 'exact' })
+        .order('book', { ascending: true })
+        .order('chapter', { ascending: true })
+        .order('verse', { ascending: true })
+        .range(from, to);
+
+      if (bookId) query = query.eq('book', bookId);
+      if (chapterId) query = query.eq('chapter', chapterId);
+      if (verse) query = query.eq('verse', verse);
+      if (verseStart && verseEnd) query = query.gte('verse', verseStart).lte('verse', verseEnd);
+
+      const { data, error, count } = await query;
+
+      if (error) {
+        throw new AppError(500, 'Erro ao comparar versoes da Biblia', error);
+      }
+
+      return paginated(((data ?? []) as unknown as EntityRecord[]).map((row) => sanitizeComparison(row, versions)), count, page, limit);
     });
   }
 
   async searchExactWords(params: Record<string, string>): Promise<unknown> {
-    const result = await this.queryVerses(params);
-
-    return {
-      ...result,
-      data: result.data.map(sanitizeVerse),
-    };
+    return this.queryVerses({
+      ...params,
+      keyword: params.keyword ?? params.q ?? params.text,
+    });
   }
 
   private async queryVerses(params: Record<string, string>): Promise<PaginatedResult> {
@@ -257,36 +325,23 @@ export class BibleService implements BibleServiceContract {
     const verse = toInt(params.verse);
     const verseStart = toInt(params.verse_start);
     const verseEnd = toInt(params.verse_end);
+    const keyword = params.keyword?.trim();
     const { page, limit, from, to } = paginationFrom(params);
 
     let query = this.client
-      .from('verses')
-      .select('*', { count: 'exact' })
+      .from('verses_normalized')
+      .select(verseColumns, { count: 'exact' })
       .eq('version', params.version ?? defaultVersion)
       .order('book', { ascending: true })
       .order('chapter', { ascending: true })
       .order('verse', { ascending: true })
       .range(from, to);
 
-    if (bookId) {
-      query = query.eq('book', bookId);
-    }
-
-    if (chapterId) {
-      query = query.eq('chapter', chapterId);
-    }
-
-    if (verse) {
-      query = query.eq('verse', verse);
-    }
-
-    if (verseStart && verseEnd) {
-      query = query.gte('verse', verseStart).lte('verse', verseEnd);
-    }
-
-    if (params.keyword) {
-      query = query.ilike('text', `%${params.keyword}%`);
-    }
+    if (bookId) query = query.eq('book', bookId);
+    if (chapterId) query = query.eq('chapter', chapterId);
+    if (verse) query = query.eq('verse', verse);
+    if (verseStart && verseEnd) query = query.gte('verse', verseStart).lte('verse', verseEnd);
+    if (keyword) query = query.ilike('text', `%${keyword}%`);
 
     const { data, error, count } = await query;
 
@@ -294,6 +349,6 @@ export class BibleService implements BibleServiceContract {
       throw new AppError(500, 'Erro ao buscar versos da Biblia', error);
     }
 
-    return paginated((data ?? []) as EntityRecord[], count, page, limit);
+    return paginated(((data ?? []) as unknown as EntityRecord[]).map(sanitizeVerse), count, page, limit);
   }
 }

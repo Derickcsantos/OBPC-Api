@@ -1,5 +1,6 @@
 import { dashboardHtml } from './frontend/dashboard.js';
 import { bibleApiExamples } from './docs/bible-api-examples.js';
+import { eventsApiExamples } from './docs/events-api-examples.js';
 
 interface Env {
   SUPABASE_URL: string;
@@ -82,7 +83,6 @@ const jsonHeaders = {
 
 const defaultVersion = 'nvi';
 const defaultLimit = 100;
-const internalPageSize = 1000;
 const defaultBucket = 'imagens';
 const storageBucketCache = new Set<string>();
 
@@ -606,49 +606,74 @@ const getBible = async (env: Env, table: string, params: URLSearchParams): Promi
   return response({ data });
 };
 
+const getBibleVersions = async (env: Env): Promise<Response> => {
+  const query = new URLSearchParams({
+    select: 'code,name,language,source_file,comparison_scope,total_books,total_chapters,total_verses,created_at,updated_at',
+    order: 'code.asc',
+  });
+  const data = await supabaseFetch(env, `bible_versions?${query.toString()}`);
+  if (data instanceof Response) return data;
+  return response({
+    data: (data as Record<string, unknown>[]).map((version) => ({
+      id: version.code,
+      ...version,
+    })),
+  });
+};
+
 const getChapters = async (env: Env, params: URLSearchParams): Promise<Response> => {
   const { page, limit, offset } = getPage(params);
-  const rows: Record<string, unknown>[] = [];
-  let currentOffset = 0;
+  const includeFullText = params.get('include_text') === 'true' || params.get('include_text') === '1' || params.get('include_verses') === 'true' || params.get('include_verses') === '1';
+  const query = new URLSearchParams({
+    select: includeFullText
+      ? 'version,comparison_scope,testament,book,book_name,book_abbrev,chapter,verses,chapter_text'
+      : 'version,comparison_scope,testament,book,book_name,book_abbrev,chapter',
+    version: `eq.${params.get('version') ?? defaultVersion}`,
+    order: 'book.asc,chapter.asc',
+    limit: String(limit),
+    offset: String(offset),
+  });
 
-  while (true) {
-    const query = new URLSearchParams({
-      select: 'version,testament,book,chapter',
-      version: `eq.${params.get('version') ?? defaultVersion}`,
-      order: 'book.asc,chapter.asc',
-      limit: String(internalPageSize),
-      offset: String(currentOffset),
-    });
+  if (params.get('book_id')) query.set('book', `eq.${params.get('book_id')}`);
 
-    if (params.get('book_id')) query.set('book', `eq.${params.get('book_id')}`);
+  const result = await supabaseFetchWithCount(env, `chapter_texts?${query.toString()}`);
+  if (result instanceof Response) return result;
 
-    const data = await supabaseFetch(env, `verses?${query.toString()}`);
-    if (data instanceof Response) return data;
+  const rows = includeFullText ? result.data.map(sanitizeChapter) : result.data;
+  return response(paginate(rows, result.total, page, limit));
+};
 
-    const pageRows = data as Record<string, unknown>[];
-    rows.push(...pageRows);
+const sanitizeChapter = (chapter: Record<string, unknown>): Record<string, unknown> => ({
+  ...chapter,
+  chapter_text: typeof chapter.chapter_text === 'string' ? decodeHtmlEntities(chapter.chapter_text) : chapter.chapter_text,
+  verses: Array.isArray(chapter.verses)
+    ? chapter.verses.map((verse) => sanitizeVerse(verse as Record<string, unknown>))
+    : chapter.verses,
+});
 
-    if (pageRows.length < internalPageSize) {
-      break;
-    }
+const getChapter = async (env: Env, bookId: string, chapter: string, params: URLSearchParams): Promise<Response> => {
+  const query = new URLSearchParams({
+    select: 'version,comparison_scope,testament,book,book_name,book_abbrev,chapter,verses,chapter_text',
+    version: `eq.${params.get('version') ?? defaultVersion}`,
+    book: `eq.${bookId}`,
+    chapter: `eq.${chapter}`,
+    limit: '1',
+  });
 
-    currentOffset += internalPageSize;
-  }
+  const data = await supabaseFetch(env, `chapter_texts?${query.toString()}`);
+  if (data instanceof Response) return data;
+  const item = (data as Record<string, unknown>[])[0];
 
-  const chapters = new Map<string, Record<string, unknown>>();
-  for (const row of rows) {
-    chapters.set(`${row.version}:${row.book}:${row.chapter}`, row);
-  }
-
-  const allChapters = [...chapters.values()];
-  return response(paginate(allChapters.slice(offset, offset + limit), allChapters.length, page, limit));
+  return item
+    ? response({ data: sanitizeChapter(item) })
+    : response({ message: 'Capitulo da Biblia nao encontrado' }, { status: 404 });
 };
 
 const getVerses = async (env: Env, params: URLSearchParams): Promise<Response> => {
   const keyword = params.get('keyword') ?? params.get('q') ?? params.get('text');
   const { page, limit, offset } = getPage(params);
   const query = new URLSearchParams({
-    select: '*',
+    select: 'id,version,testament,book,book_name,book_abbrev,chapter,verse,text,global_order',
     version: `eq.${params.get('version') ?? defaultVersion}`,
     order: 'book.asc,chapter.asc,verse.asc',
     limit: String(limit),
@@ -662,7 +687,7 @@ const getVerses = async (env: Env, params: URLSearchParams): Promise<Response> =
   if (params.get('verse_end')) query.append('verse', `lte.${params.get('verse_end')}`);
   if (keyword) query.set('text', `ilike.*${keyword}*`);
 
-  const result = await supabaseFetchWithCount(env, `verses?${query.toString()}`);
+  const result = await supabaseFetchWithCount(env, `verses_normalized?${query.toString()}`);
   if (result instanceof Response) return result;
 
   const rows = result.data.map(sanitizeVerse);
@@ -671,9 +696,45 @@ const getVerses = async (env: Env, params: URLSearchParams): Promise<Response> =
   return response(paginate(rows, total, page, limit));
 };
 
+const getVerseComparisons = async (env: Env, params: URLSearchParams): Promise<Response> => {
+  const versions = params.get('versions')?.split(',').map((version) => version.trim().toLowerCase()).filter(Boolean);
+  const { page, limit, offset } = getPage(params);
+  const query = new URLSearchParams({
+    select: 'testament,book,book_name,book_abbrev,chapter,verse,texts_by_version',
+    order: 'book.asc,chapter.asc,verse.asc',
+    limit: String(limit),
+    offset: String(offset),
+  });
+
+  if (params.get('book_id')) query.set('book', `eq.${params.get('book_id')}`);
+  if (params.get('chapter_id')) query.set('chapter', `eq.${params.get('chapter_id')}`);
+  if (params.get('verse')) query.set('verse', `eq.${params.get('verse')}`);
+  if (params.get('verse_start')) query.set('verse', `gte.${params.get('verse_start')}`);
+  if (params.get('verse_end')) query.append('verse', `lte.${params.get('verse_end')}`);
+
+  const result = await supabaseFetchWithCount(env, `verses_comparisons?${query.toString()}`);
+  if (result instanceof Response) return result;
+
+  const rows = result.data.map((row) => {
+    const texts = row.texts_by_version as Record<string, unknown> | undefined;
+    return {
+      ...row,
+      texts_by_version: Object.fromEntries(
+        Object.entries(texts ?? {})
+          .filter(([version]) => !versions || versions.includes(version))
+          .map(([version, text]) => [version, typeof text === 'string' ? decodeHtmlEntities(text) : text]),
+      ),
+    };
+  });
+
+  return response(paginate(rows, result.total, page, limit));
+};
+
 const handleBible = async (env: Env, pathname: string, params: URLSearchParams): Promise<Response> => {
   if (pathname === '/api/biblia/examples') return response({ data: bibleApiExamples });
   if (pathname === '/api/biblia/testaments') return getBible(env, 'testaments', params);
+  const chapterMatch = pathname.match(/^\/api\/biblia\/books\/(\d+)\/chapters\/(\d+)$/);
+  if (chapterMatch) return getChapter(env, chapterMatch[1], chapterMatch[2], params);
   const bookVersesMatch = pathname.match(/^\/api\/biblia\/books\/(\d+)\/verses$/);
   if (bookVersesMatch) {
     params.set('book_id', bookVersesMatch[1]);
@@ -681,8 +742,9 @@ const handleBible = async (env: Env, pathname: string, params: URLSearchParams):
   }
   if (pathname === '/api/biblia/books') return getBible(env, 'books', params);
   if (pathname === '/api/biblia/chapters') return getChapters(env, params);
+  if (pathname === '/api/biblia/compare') return getVerseComparisons(env, params);
   if (pathname === '/api/biblia/verses' || pathname === '/api/biblia/search') return getVerses(env, params);
-  if (pathname === '/api/biblia/versions') return response({ data: [{ id: 'nvi', name: 'NVI' }] });
+  if (pathname === '/api/biblia/versions') return getBibleVersions(env);
 
   return response({ message: 'Rota nao encontrada' }, { status: 404 });
 };
@@ -697,6 +759,7 @@ export default {
     if (url.pathname === '/') return html(dashboardHtml);
     if (url.pathname === '/health') return response({ status: 'ok' });
     if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
+    if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });
     const uploadResponse = await handleUploadRoutes(request, env, parts);
     if (uploadResponse) return uploadResponse;
     if (parts[0] === 'api' && parts[1] === 'eventos' && parts[2] && parts[3] === 'inscricoes') {

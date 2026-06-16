@@ -3,7 +3,10 @@ import {
   bibleBookParamSchema,
   bibleBookVersesQuerySchema,
   bibleBooksQuerySchema,
+  bibleChapterParamSchema,
+  bibleChapterQuerySchema,
   bibleChaptersQuerySchema,
+  bibleCompareQuerySchema,
   bibleSearchQuerySchema,
   bibleVersesQuerySchema,
 } from '../dtos/biblia.dto.js';
@@ -88,6 +91,25 @@ export class BibleController {
     reply.send(data);
   };
 
+  getChapter = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    const params = parseWithSchema(bibleChapterParamSchema, request.params);
+    const query = parseWithSchema(bibleChapterQuerySchema, request.query);
+
+    const payload = Object.entries({
+      ...query,
+      book_id: params.book_id,
+      chapter_id: params.chapter,
+    }).reduce<Record<string, string>>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = String(value);
+      }
+      return acc;
+    }, {});
+
+    const data = await this.bibleService.getChapter(payload);
+    reply.send({ data });
+  };
+
   getVerses = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const query = parseWithSchema(bibleVersesQuerySchema, request.query);
 
@@ -113,6 +135,20 @@ export class BibleController {
     }, {});
 
     const data = await this.bibleService.searchExactWords(payload);
+    reply.send(data);
+  };
+
+  compareVerses = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    const query = parseWithSchema(bibleCompareQuerySchema, request.query);
+
+    const payload = Object.entries(query).reduce<Record<string, string>>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = String(value);
+      }
+      return acc;
+    }, {});
+
+    const data = await this.bibleService.compareVerses(payload);
     reply.send(data);
   };
 }

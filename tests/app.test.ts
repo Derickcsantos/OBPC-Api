@@ -14,6 +14,7 @@ const bibleStub: BibleServiceContract = {
   getVersions: async () => [{ id: 1, name: 'ACF' }],
   getBooks: async () => [{ id: 1, name: 'Gênesis' }],
   getChapters: async () => [{ chapter_id: 1 }],
+  getChapter: async () => ({ book: 1, chapter: 1, verses: [] }),
   getBookVerses: async () => ({
     data: [{ verse_id: 1, text: 'No princípio...' }],
     pagination: {
@@ -26,6 +27,7 @@ const bibleStub: BibleServiceContract = {
     },
   }),
   getVerses: async () => ({ verses: [{ verse_id: 1, text: 'No princípio...' }] }),
+  compareVerses: async () => ({ data: [{ book: 1, chapter: 1, verse: 1, texts_by_version: { nvi: 'No principio...' } }] }),
   searchExactWords: async () => ({ verses: [{ verse_id: 1, text: 'Deus criou' }] }),
 };
 
