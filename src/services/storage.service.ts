@@ -115,4 +115,17 @@ export class StorageService {
 
     return response;
   }
+
+  async removeObjects(keys: string[]): Promise<void> {
+    if (keys.length === 0) {
+      return;
+    }
+
+    const bucket = getBucket();
+    const { error } = await this.client.storage.from(bucket).remove(keys);
+
+    if (error) {
+      throw new AppError(500, 'Erro ao remover imagem do Supabase Storage', error);
+    }
+  }
 }

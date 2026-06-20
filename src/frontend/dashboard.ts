@@ -7,6 +7,32 @@ const apiResources = [
       { name: 'nome_ministerio', label: 'Nome', type: 'text', required: true },
       { name: 'descricao_ministerio', label: 'Descricao', type: 'textarea', required: true },
       { name: 'url_ministerio', label: 'URL', type: 'url', required: true },
+      { name: 'fotos_ministerio_files', label: 'Fotos do ministerio', type: 'dropzone', uploadOnly: true },
+    ],
+  },
+  {
+    name: 'fotos_ministerios',
+    label: 'Fotos de Ministerios',
+    idField: 'foto_ministerio_id',
+    fields: [
+      { name: 'ministerio_id', label: 'Ministerio', type: 'ministry-combobox', required: true },
+      { name: 'foto_ministerio_file', label: 'Imagem', type: 'dropzone', uploadOnly: true, single: true, required: true },
+      { name: 'url_imagem', label: 'URL da imagem', type: 'url', hidden: true },
+      { name: 'ordem', label: 'Ordem', type: 'number' },
+    ],
+  },
+  {
+    name: 'pessoas',
+    label: 'Pessoas',
+    idField: 'pessoa_id',
+    fields: [
+      { name: 'url_imagem', label: 'URL da imagem', type: 'url', hiddenInput: true },
+      { name: 'imagem_pessoa_file', label: 'Imagem da pessoa', type: 'dropzone', uploadOnly: true, single: true },
+      { name: 'nome', label: 'Nome', type: 'text', required: true },
+      { name: 'cargo', label: 'Cargo', type: 'text', required: true },
+      { name: 'sobre', label: 'Sobre', type: 'textarea', required: true },
+      { name: 'telefone', label: 'Telefone', type: 'text' },
+      { name: 'email', label: 'Email', type: 'email' },
     ],
   },
   {
@@ -537,6 +563,7 @@ export const dashboardHtml = `<!doctype html>
     const reloadBtn = document.querySelector('#reload');
     const newBtn = document.querySelector('#new-record');
     const eventCache = { all: [], withVacancy: [], loadedAt: 0 };
+    const ministryCache = { all: [], loadedAt: 0 };
 
     function setStatus(message, isError = false) {
       statusEl.textContent = message || '';
@@ -622,6 +649,10 @@ export const dashboardHtml = `<!doctype html>
         return '<input name="' + field.name + '_search" list="' + field.name + '_list" data-event-search="' + field.name + '" placeholder="Digite o nome do evento" autocomplete="off"><input name="' + field.name + '" type="hidden" value="' + escapeHtml(value || '') + '"><datalist id="' + field.name + '_list"></datalist><span class="hint" data-event-hint="' + field.name + '">Selecione um evento pelo nome.</span>';
       }
 
+      if (field.type === 'ministry-combobox') {
+        return '<input name="' + field.name + '_search" list="' + field.name + '_list" data-ministry-search="' + field.name + '" placeholder="Digite o nome do ministerio" autocomplete="off"><input name="' + field.name + '" type="hidden" value="' + escapeHtml(value || '') + '"><datalist id="' + field.name + '_list"></datalist><span class="hint" data-ministry-hint="' + field.name + '">Selecione um ministerio pelo nome.</span>';
+      }
+
       return '<input name="' + field.name + '" type="' + field.type + '" value="' + escapeHtml(formatInputValue(field, value)) + '" ' + (field.required && !editing ? 'required' : '') + '>';
     }
 
@@ -651,6 +682,7 @@ export const dashboardHtml = `<!doctype html>
       for (const field of current.fields) {
         if (field.type === 'dropzone') setupDropzone(field.name);
         if (field.type === 'event-combobox') await setupEventCombobox(field, row[field.name]);
+        if (field.type === 'ministry-combobox') await setupMinistryCombobox(field, row[field.name]);
       }
     }
 
@@ -722,6 +754,43 @@ export const dashboardHtml = `<!doctype html>
       return onlyWithVacancy ? eventCache.withVacancy : eventCache.all;
     }
 
+    async function setupMinistryCombobox(field, selectedId) {
+      const search = form.querySelector('[data-ministry-search="' + field.name + '"]');
+      const hidden = form.elements[field.name];
+      const list = form.querySelector('#' + field.name + '_list');
+      const hint = form.querySelector('[data-ministry-hint="' + field.name + '"]');
+      if (!search || !hidden || !list) return;
+
+      const ministries = await getMinistries();
+      const selected = ministries.find((item) => item.ministerio_id === selectedId);
+      if (selected) search.value = selected.nome_ministerio;
+
+      list.innerHTML = ministries
+        .map((item) => '<option value="' + escapeHtml(item.nome_ministerio) + '"></option>')
+        .join('');
+
+      const sync = () => {
+        const match = ministries.find((item) => item.nome_ministerio === search.value);
+        hidden.value = match ? match.ministerio_id : '';
+        if (hint) {
+          hint.textContent = match ? 'Ministerio selecionado: ' + match.ministerio_id : 'Selecione um ministerio valido pelo nome.';
+        }
+      };
+
+      search.addEventListener('change', sync);
+      search.addEventListener('input', sync);
+    }
+
+    async function getMinistries() {
+      const now = Date.now();
+      if (!ministryCache.loadedAt || now - ministryCache.loadedAt > 30000) {
+        const json = await request('/api/ministerios');
+        ministryCache.all = json.data || [];
+        ministryCache.loadedAt = now;
+      }
+      return ministryCache.all;
+    }
+
     async function filterEventsWithVacancy(events) {
       const inscriptions = await request('/api/eventos-inscricoes').catch(() => ({ data: [] }));
       const activeByEvent = (inscriptions.data || []).reduce((acc, item) => {
@@ -776,6 +845,11 @@ export const dashboardHtml = `<!doctype html>
           ? '<div class="actions">' + value.map((image) => '<a href="' + escapeHtml(image.url_imagem || '') + '" target="_blank" rel="noreferrer"><img class="thumb" src="' + escapeHtml(image.url_imagem || '') + '" alt="Imagem"></a>').join('') + '</div>'
           : '';
       }
+      if (key === 'fotos' && Array.isArray(value)) {
+        return value.length
+          ? '<div class="actions">' + value.map((image) => '<a href="' + escapeHtml(image.url_imagem || '') + '" target="_blank" rel="noreferrer"><img class="thumb" src="' + escapeHtml(image.url_imagem || '') + '" alt="Foto"></a>').join('') + '</div>'
+          : '';
+      }
       return escapeHtml(preview(value));
     }
 
@@ -823,6 +897,34 @@ export const dashboardHtml = `<!doctype html>
           throw new Error('Envie ao menos uma imagem para o evento.');
         }
 
+        if (current.name === 'fotos_ministerios' && !editing && !form.elements.foto_ministerio_file?.files?.[0]) {
+          throw new Error('Envie uma foto para o ministerio.');
+        }
+
+        if (current.name === 'fotos_ministerios' && !editing && !payload.ministerio_id) {
+          throw new Error('Selecione um ministerio valido.');
+        }
+
+        if (current.name === 'pessoas' && !editing && !form.elements.imagem_pessoa_file?.files?.[0]) {
+          throw new Error('Envie uma imagem para a pessoa.');
+        }
+
+        if (current.name === 'fotos_ministerios' && !editing && form.elements.foto_ministerio_file?.files?.[0]) {
+          const filePayload = await fileToPayload(form.elements.foto_ministerio_file.files[0]);
+          await request('/api/ministerios/' + payload.ministerio_id + '/fotos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...filePayload,
+              ordem: Number(payload.ordem || 0),
+            }),
+          });
+          renderForm();
+          closeModal();
+          await loadRows();
+          return;
+        }
+
         if (current.name === 'eventos_imagens' && !editing && form.elements.imagem_evento_file?.files?.length) {
           const files = await Promise.all([...form.elements.imagem_evento_file.files].map(fileToPayload));
           await request('/api/eventos/' + payload.evento_id + '/imagens', {
@@ -841,11 +943,24 @@ export const dashboardHtml = `<!doctype html>
           return;
         }
 
-        const saved = await request('/api/' + current.name + (editing ? '/' + editing : ''), {
-          method: editing ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        let saved;
+        if (current.name === 'pessoas' && !editing) {
+          const filePayload = await fileToPayload(form.elements.imagem_pessoa_file.files[0]);
+          saved = await request('/api/pessoas/com-imagem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...payload,
+              imagem: filePayload,
+            }),
+          });
+        } else {
+          saved = await request('/api/' + current.name + (editing ? '/' + editing : ''), {
+            method: editing ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        }
 
         const savedData = saved.data || {};
 
@@ -881,8 +996,31 @@ export const dashboardHtml = `<!doctype html>
           });
         }
 
+        if (current.name === 'ministerios' && form.elements.fotos_ministerio_files?.files?.length) {
+          const id = savedData.ministerio_id || editing;
+          const files = await Promise.all([...form.elements.fotos_ministerio_files.files].map(fileToPayload));
+          await request('/api/ministerios/' + id + '/fotos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: files.map((file, index) => ({ ...file, ordem: index })),
+            }),
+          });
+        }
+
+        if (current.name === 'pessoas' && editing && form.elements.imagem_pessoa_file?.files?.[0]) {
+          const id = savedData.pessoa_id || editing;
+          const filePayload = await fileToPayload(form.elements.imagem_pessoa_file.files[0]);
+          await request('/api/pessoas/' + id + '/imagem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(filePayload),
+          });
+        }
+
         editing = null;
         if (current.name === 'eventos') eventCache.loadedAt = 0;
+        if (current.name === 'ministerios') ministryCache.loadedAt = 0;
         renderForm();
         closeModal();
         await loadRows();

@@ -25,36 +25,59 @@ export class SupabaseCrudService implements CrudServiceContract {
       imagens: Array.isArray(record.imagens)
         ? record.imagens.map((image) => this.normalizeStorageUrls(image as EntityRecord))
         : record.imagens,
+      fotos: Array.isArray(record.fotos)
+        ? record.fotos.map((image) => this.normalizeStorageUrls(image as EntityRecord))
+        : record.fotos,
     };
   }
 
-  private async attachEventImages(events: EntityRecord[]): Promise<EntityRecord[]> {
-    if (this.tableName !== 'eventos' || events.length === 0) {
-      return events;
+  private async attachRelatedImages(records: EntityRecord[]): Promise<EntityRecord[]> {
+    if (records.length === 0) {
+      return records;
     }
 
-    const eventIds = events.map((event) => event[this.idField]).filter(Boolean);
+    const relation = this.tableName === 'eventos'
+      ? {
+          table: 'eventos_imagens',
+          foreignKey: 'evento_id',
+          outputKey: 'imagens',
+          errorMessage: 'Erro ao listar imagens dos eventos',
+        }
+      : this.tableName === 'ministerios'
+        ? {
+            table: 'fotos_ministerios',
+            foreignKey: 'ministerio_id',
+            outputKey: 'fotos',
+            errorMessage: 'Erro ao listar fotos dos ministerios',
+          }
+        : null;
+
+    if (!relation) {
+      return records;
+    }
+
+    const recordIds = records.map((record) => record[this.idField]).filter(Boolean);
     const { data, error } = await this.client
-      .from('eventos_imagens')
+      .from(relation.table)
       .select('*')
-      .in('evento_id', eventIds)
+      .in(relation.foreignKey, recordIds)
       .order('ordem', { ascending: true })
       .order('created_at', { ascending: true });
 
     if (error) {
-      throw new AppError(500, 'Erro ao listar imagens dos eventos', error);
+      throw new AppError(500, relation.errorMessage, error);
     }
 
-    const imagesByEvent = (data ?? []).reduce<Record<string, EntityRecord[]>>((acc, image) => {
-      const eventId = String((image as EntityRecord).evento_id);
-      acc[eventId] = acc[eventId] ?? [];
-      acc[eventId].push(image as EntityRecord);
+    const imagesByRecord = (data ?? []).reduce<Record<string, EntityRecord[]>>((acc, image) => {
+      const recordId = String((image as EntityRecord)[relation.foreignKey]);
+      acc[recordId] = acc[recordId] ?? [];
+      acc[recordId].push(image as EntityRecord);
       return acc;
     }, {});
 
-    return events.map((event) => this.normalizeStorageUrls({
-      ...event,
-      imagens: imagesByEvent[String(event[this.idField])] ?? [],
+    return records.map((record) => this.normalizeStorageUrls({
+      ...record,
+      [relation.outputKey]: imagesByRecord[String(record[this.idField])] ?? [],
     }));
   }
 
@@ -65,7 +88,7 @@ export class SupabaseCrudService implements CrudServiceContract {
       throw new AppError(500, `Erro ao listar ${this.tableName}`, error);
     }
 
-    const records = await this.attachEventImages((data ?? []) as EntityRecord[]);
+    const records = await this.attachRelatedImages((data ?? []) as EntityRecord[]);
     return records.map((record) => this.normalizeStorageUrls(record));
   }
 
@@ -80,7 +103,7 @@ export class SupabaseCrudService implements CrudServiceContract {
       throw new AppError(404, `${this.tableName} não encontrado`);
     }
 
-    const [record] = await this.attachEventImages([data as EntityRecord]);
+    const [record] = await this.attachRelatedImages([data as EntityRecord]);
     return this.normalizeStorageUrls(record);
   }
 

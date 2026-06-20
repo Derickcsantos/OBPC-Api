@@ -8,6 +8,8 @@ export type ResourceName =
   | 'louvores'
   | 'mensagens'
   | 'oracoes'
+  | 'pessoas'
+  | 'fotos_ministerios'
   | 'eventos_imagens'
   | 'eventos_inscricoes';
 

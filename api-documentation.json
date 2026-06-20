@@ -1,7 +1,7 @@
 {
   "application": {
     "name": "Church Mobile API",
-    "description": "API para aplicativo mobile de igreja com CRUDs em Supabase e consulta à API externa da Bíblia.",
+    "description": "API para aplicativo mobile de igreja com CRUDs, uploads no Supabase Storage e Bíblia multi-versão armazenada no Supabase.",
     "basePath": "/api",
     "healthPath": "/health",
     "stack": [
@@ -12,8 +12,10 @@
       "Supabase"
     ],
     "features": [
-      "CRUD de ministérios, usuários, eventos, notícias, louvores, mensagens e orações",
-      "Consulta de versões, livros, capítulos, versículos e busca exata na Bíblia",
+      "CRUD de ministérios, fotos de ministérios, pessoas, usuários, eventos, notícias, louvores, mensagens e orações",
+      "Upload de imagens para o bucket público imagens antes da persistência da URL",
+      "Consulta multi-versão de livros, capítulos, versículos, busca textual e comparação da Bíblia",
+      "Paginação e cache Redis nas consultas da Bíblia",
       "Validação de entrada com Zod",
       "Tratamento padronizado de erros"
     ]
@@ -116,7 +118,8 @@
               "ministerio_id": "uuid",
               "nome_ministerio": "string",
               "descricao_ministerio": "string",
-              "url_ministerio": "string"
+              "url_ministerio": "string",
+              "fotos": ["FotoMinisterio"]
             }
           ]
         }
@@ -145,7 +148,8 @@
             "ministerio_id": "uuid",
             "nome_ministerio": "string",
             "descricao_ministerio": "string",
-            "url_ministerio": "string"
+            "url_ministerio": "string",
+            "fotos": ["FotoMinisterio"]
           }
         }
       }
@@ -1372,6 +1376,391 @@
       }
     },
     {
+      "tag": "fotos_ministerios",
+      "method": "GET",
+      "path": "/api/fotos-ministerios",
+      "summary": "Lista todas as fotos de ministérios ordenadas por data de criação.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "foto_ministerio_id": "uuid",
+              "ministerio_id": "uuid",
+              "url_imagem": "https://.../storage/v1/object/public/imagens/ministerios/.../foto.webp",
+              "ordem": 0,
+              "created_at": "ISO-8601",
+              "updated_at": "ISO-8601"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "fotos_ministerios",
+      "method": "GET",
+      "path": "/api/fotos-ministerios/{id}",
+      "summary": "Busca uma foto de ministério pelo UUID.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": "FotoMinisterio"
+        }
+      }
+    },
+    {
+      "tag": "fotos_ministerios",
+      "method": "POST",
+      "path": "/api/fotos-ministerios",
+      "summary": "Cria um registro de foto a partir de uma URL já enviada ao Storage.",
+      "params": [],
+      "query": [],
+      "body": {
+        "ministerio_id": "uuid obrigatório",
+        "url_imagem": "URL obrigatória",
+        "ordem": "inteiro não negativo opcional"
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "fotos_ministerios criado com sucesso",
+          "data": "FotoMinisterio"
+        }
+      }
+    },
+    {
+      "tag": "fotos_ministerios",
+      "method": "PUT",
+      "path": "/api/fotos-ministerios/{id}",
+      "summary": "Atualiza o ministério, URL ou ordem de uma foto.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "ministerio_id": "uuid opcional",
+        "url_imagem": "URL opcional",
+        "ordem": "inteiro não negativo opcional"
+      },
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "fotos_ministerios atualizado com sucesso",
+          "data": "FotoMinisterio"
+        }
+      }
+    },
+    {
+      "tag": "fotos_ministerios",
+      "method": "DELETE",
+      "path": "/api/fotos-ministerios/{id}",
+      "summary": "Remove o registro de uma foto de ministério.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "fotos_ministerios removido com sucesso",
+          "data": "FotoMinisterio"
+        }
+      }
+    },
+    {
+      "tag": "pessoas",
+      "method": "GET",
+      "path": "/api/pessoas",
+      "summary": "Lista pessoas.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "pessoa_id": "uuid",
+              "url_imagem": "URL ou null",
+              "nome": "string",
+              "cargo": "string",
+              "sobre": "string",
+              "telefone": "string ou null",
+              "email": "string ou null",
+              "created_at": "ISO-8601",
+              "updated_at": "ISO-8601"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "pessoas",
+      "method": "GET",
+      "path": "/api/pessoas/{id}",
+      "summary": "Busca uma pessoa pelo UUID.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": "Pessoa"
+        }
+      }
+    },
+    {
+      "tag": "pessoas",
+      "method": "POST",
+      "path": "/api/pessoas",
+      "summary": "Cria uma pessoa. Para criação com upload atômico, prefira /api/pessoas/com-imagem.",
+      "params": [],
+      "query": [],
+      "body": {
+        "url_imagem": "URL opcional",
+        "nome": "string obrigatória, máximo 150",
+        "cargo": "string obrigatória, máximo 150",
+        "sobre": "string obrigatória",
+        "telefone": "string opcional",
+        "email": "e-mail opcional"
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "pessoas criado com sucesso",
+          "data": "Pessoa"
+        }
+      }
+    },
+    {
+      "tag": "pessoas",
+      "method": "PUT",
+      "path": "/api/pessoas/{id}",
+      "summary": "Atualiza os dados de uma pessoa.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "url_imagem": "URL opcional",
+        "nome": "string opcional",
+        "cargo": "string opcional",
+        "sobre": "string opcional",
+        "telefone": "string opcional",
+        "email": "e-mail opcional"
+      },
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "pessoas atualizado com sucesso",
+          "data": "Pessoa"
+        }
+      }
+    },
+    {
+      "tag": "pessoas",
+      "method": "DELETE",
+      "path": "/api/pessoas/{id}",
+      "summary": "Remove uma pessoa.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "message": "pessoas removido com sucesso",
+          "data": "Pessoa"
+        }
+      }
+    },
+    {
+      "tag": "uploads",
+      "method": "POST",
+      "path": "/api/ministerios/{id}/fotos",
+      "summary": "Envia uma ou várias fotos ao bucket imagens e depois cria os registros em fotos_ministerios.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "single": {
+          "fileName": "foto.webp",
+          "contentType": "image/webp",
+          "base64": "data:image/webp;base64,...",
+          "ordem": 0
+        },
+        "batch": {
+          "files": [
+            {
+              "fileName": "foto.webp",
+              "contentType": "image/webp",
+              "base64": "data:image/webp;base64,...",
+              "ordem": 0
+            }
+          ]
+        }
+      },
+      "rules": [
+        "O ministério precisa existir.",
+        "O arquivo é salvo primeiro no bucket imagens.",
+        "Se o insert no banco falhar, os objetos recém-enviados são removidos."
+      ],
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "data": ["FotoMinisterio"]
+        }
+      }
+    },
+    {
+      "tag": "uploads",
+      "method": "POST",
+      "path": "/api/pessoas/com-imagem",
+      "summary": "Cria uma pessoa com upload atômico: Storage primeiro e tabela pessoas depois.",
+      "params": [],
+      "query": [],
+      "body": {
+        "nome": "string",
+        "cargo": "string",
+        "sobre": "string",
+        "telefone": "string opcional",
+        "email": "e-mail opcional",
+        "imagem": {
+          "fileName": "pessoa.webp",
+          "contentType": "image/webp",
+          "base64": "data:image/webp;base64,..."
+        }
+      },
+      "rules": [
+        "Se a criação da pessoa falhar, a imagem recém-enviada é removida do bucket."
+      ],
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "message": "pessoas criado com sucesso",
+          "data": "Pessoa"
+        }
+      }
+    },
+    {
+      "tag": "uploads",
+      "method": "POST",
+      "path": "/api/pessoas/{id}/imagem",
+      "summary": "Envia ou substitui a URL de imagem de uma pessoa existente.",
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "format": "uuid"
+        }
+      ],
+      "query": [],
+      "body": {
+        "fileName": "pessoa.webp",
+        "contentType": "image/webp",
+        "base64": "data:image/webp;base64,..."
+      },
+      "returns": {
+        "statusCode": 201,
+        "body": {
+          "data": {
+            "upload": {
+              "key": "pessoas/uuid-arquivo.webp",
+              "url": "https://.../storage/v1/object/public/imagens/pessoas/uuid-arquivo.webp"
+            },
+            "pessoa": "Pessoa"
+          }
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/testaments",
+      "summary": "Lista os testamentos.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": ["Testamento"]
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/examples",
+      "summary": "Retorna exemplos de uso da API da Bíblia.",
+      "params": [],
+      "query": [],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": "object"
+        }
+      }
+    },
+    {
       "tag": "biblia",
       "method": "GET",
       "path": "/api/biblia/versions",
@@ -1390,13 +1779,13 @@
       "tag": "biblia",
       "method": "GET",
       "path": "/api/biblia/books",
-      "summary": "Lista os livros de uma versão específica.",
+      "summary": "Lista livros, com filtro opcional por testamento.",
       "params": [],
       "query": [
         {
-          "name": "version_id",
+          "name": "testament_id",
           "in": "query",
-          "required": true,
+          "required": false,
           "type": "number",
           "format": "positive integer"
         }
@@ -1413,22 +1802,51 @@
       "tag": "biblia",
       "method": "GET",
       "path": "/api/biblia/chapters",
-      "summary": "Lista os capítulos de um livro em uma versão específica.",
+      "summary": "Lista capítulos de uma versão usando chapter_texts.",
       "params": [],
       "query": [
         {
-          "name": "version_id",
+          "name": "version",
           "in": "query",
-          "required": true,
-          "type": "number",
-          "format": "positive integer"
+          "required": false,
+          "type": "string",
+          "default": "nvi"
         },
         {
           "name": "book_id",
           "in": "query",
-          "required": true,
+          "required": false,
           "type": "number",
           "format": "positive integer"
+        },
+        {
+          "name": "include_text",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "name": "include_verses",
+          "in": "query",
+          "required": false,
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "name": "page",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "default": 1
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "default": 100,
+          "maximum": 100
         }
       ],
       "body": null,
@@ -1442,28 +1860,203 @@
     {
       "tag": "biblia",
       "method": "GET",
-      "path": "/api/biblia/verses",
-      "summary": "Busca versículos; aceita versículo único ou intervalo.",
+      "path": "/api/biblia/books/{book_id}/chapters/{chapter}",
+      "summary": "Retorna um capítulo completo com texto e versos.",
+      "params": [
+        {
+          "name": "book_id",
+          "in": "path",
+          "required": true,
+          "type": "number"
+        },
+        {
+          "name": "chapter",
+          "in": "path",
+          "required": true,
+          "type": "number"
+        }
+      ],
+      "query": [
+        {
+          "name": "version",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "default": "nvi"
+        }
+      ],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": "CapituloCompleto"
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/books/{book_id}/verses",
+      "summary": "Lista versos de um livro com filtros e paginação.",
+      "params": [
+        {
+          "name": "book_id",
+          "in": "path",
+          "required": true,
+          "type": "number"
+        }
+      ],
+      "query": [
+        {
+          "name": "version",
+          "required": false,
+          "type": "string",
+          "default": "nvi"
+        },
+        {
+          "name": "chapter_id",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "name": "verse",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "name": "verse_start",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "name": "verse_end",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "name": "keyword",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "page",
+          "required": false,
+          "type": "number",
+          "default": 1
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "number",
+          "default": 100,
+          "maximum": 100
+        }
+      ],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": ["Verso"],
+          "pagination": "Pagination"
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/compare",
+      "summary": "Compara textos do mesmo verso entre versões.",
       "params": [],
       "query": [
         {
-          "name": "version_id",
-          "in": "query",
-          "required": true,
+          "name": "book_id",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "name": "chapter_id",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "name": "verse",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "name": "verse_start",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "name": "verse_end",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "name": "versions",
+          "required": false,
+          "type": "string",
+          "example": "nvi,ara,arc"
+        },
+        {
+          "name": "page",
+          "required": false,
           "type": "number",
-          "format": "positive integer"
+          "default": 1
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "number",
+          "default": 100,
+          "maximum": 100
+        }
+      ],
+      "body": null,
+      "returns": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "book": 1,
+              "chapter": 1,
+              "verse": 1,
+              "texts_by_version": {
+                "nvi": "texto",
+                "ara": "texto"
+              }
+            }
+          ],
+          "pagination": "Pagination"
+        }
+      }
+    },
+    {
+      "tag": "biblia",
+      "method": "GET",
+      "path": "/api/biblia/verses",
+      "summary": "Lista versos de uma versão com filtros, busca textual e paginação.",
+      "params": [],
+      "query": [
+        {
+          "name": "version",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "default": "nvi"
         },
         {
           "name": "book_id",
           "in": "query",
-          "required": true,
+          "required": false,
           "type": "number",
           "format": "positive integer"
         },
         {
           "name": "chapter_id",
           "in": "query",
-          "required": true,
+          "required": false,
           "type": "number",
           "format": "positive integer"
         },
@@ -1487,6 +2080,41 @@
           "required": false,
           "type": "number",
           "format": "positive integer"
+        },
+        {
+          "name": "keyword",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Alias de keyword."
+        },
+        {
+          "name": "text",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Alias de keyword."
+        },
+        {
+          "name": "page",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "default": 1
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "default": 100,
+          "maximum": 100
         }
       ],
       "rules": [
@@ -1497,7 +2125,8 @@
       "returns": {
         "statusCode": 200,
         "body": {
-          "data": "unknown"
+          "data": ["Verso"],
+          "pagination": "Pagination"
         }
       }
     },
@@ -1505,15 +2134,15 @@
       "tag": "biblia",
       "method": "GET",
       "path": "/api/biblia/search",
-      "summary": "Busca exata de palavras na Bíblia.",
+      "summary": "Busca por conteúdo nos versos da versão informada.",
       "params": [],
       "query": [
         {
-          "name": "version_id",
+          "name": "version",
           "in": "query",
-          "required": true,
-          "type": "number",
-          "format": "positive integer"
+          "required": false,
+          "type": "string",
+          "default": "nvi"
         },
         {
           "name": "keyword",
@@ -1549,6 +2178,21 @@
           "required": false,
           "type": "number",
           "format": "positive integer"
+        },
+        {
+          "name": "page",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "default": 1
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "number",
+          "default": 100,
+          "maximum": 100
         }
       ],
       "rules": [
@@ -1558,7 +2202,8 @@
       "returns": {
         "statusCode": 200,
         "body": {
-          "data": "unknown"
+          "data": ["Verso"],
+          "pagination": "Pagination"
         }
       }
     }

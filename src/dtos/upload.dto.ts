@@ -14,3 +14,6 @@ export const eventImageUploadSchema = uploadImageSchema.extend({
 export const eventImagesBatchUploadSchema = z.object({
   files: z.array(eventImageUploadSchema).min(1),
 });
+
+export const ministryPhotoUploadSchema = eventImageUploadSchema;
+export const ministryPhotosBatchUploadSchema = eventImagesBatchUploadSchema;

@@ -6,6 +6,8 @@ import { eventosRoutes } from './eventos.routes.js';
 import { louvoresRoutes } from './louvores.routes.js';
 import { mensagensRoutes } from './mensagens.routes.js';
 import { ministeriosRoutes } from './ministerios.routes.js';
+import { fotosMinisteriosRoutes } from './fotos-ministerios.routes.js';
+import { pessoasRoutes } from './pessoas.routes.js';
 import { oracoesRoutes } from './oracoes.routes.js';
 import { noticiasRoutes } from './noticias.routes.js';
 import { usuariosRoutes } from './usuarios.routes.js';
@@ -30,6 +32,8 @@ export const registerRoutes = async (
   }
 
   ministeriosRoutes(app, opts.services.crudServices.ministerios);
+  fotosMinisteriosRoutes(app, opts.services.crudServices.fotos_ministerios);
+  pessoasRoutes(app, opts.services.crudServices.pessoas);
   usuariosRoutes(app, opts.services.crudServices.usuarios);
   eventosRoutes(app, opts.services.crudServices.eventos);
   eventosImagensRoutes(app, opts.services.crudServices.eventos_imagens);

@@ -47,6 +47,8 @@ describe('API', () => {
         louvores: fakeService,
         mensagens: fakeService,
         oracoes: fakeService,
+        pessoas: fakeService,
+        fotos_ministerios: fakeService,
       },
       bibleService: bibleStub,
     });
@@ -111,5 +113,29 @@ describe('API', () => {
     expect(response.statusCode).toBe(201);
     expect(response.body.data.nome_pedido).toBe('Saúde');
     expect(response.body.data.status).toBe('em andamento');
+  });
+
+  it('deve criar pessoa', async () => {
+    const response = await request(app.server).post('/api/pessoas').send({
+      nome: 'Maria Silva',
+      cargo: 'Lider',
+      sobre: 'Responsavel pelo ministerio.',
+      telefone: '11999999999',
+      email: 'maria@example.com',
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.body.data.nome).toBe('Maria Silva');
+  });
+
+  it('deve criar registro de foto de ministerio', async () => {
+    const response = await request(app.server).post('/api/fotos-ministerios').send({
+      ministerio_id: '11111111-1111-4111-8111-111111111111',
+      url_imagem: 'https://example.com/foto.webp',
+      ordem: 0,
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.body.data.url_imagem).toBe('https://example.com/foto.webp');
   });
 });

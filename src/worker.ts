@@ -20,6 +20,16 @@ const resources: Record<string, ResourceConfig> = {
     idField: 'ministerio_id',
     fields: ['nome_ministerio', 'descricao_ministerio', 'url_ministerio'],
   },
+  fotos_ministerios: {
+    table: 'fotos_ministerios',
+    idField: 'foto_ministerio_id',
+    fields: ['ministerio_id', 'url_imagem', 'ordem'],
+  },
+  pessoas: {
+    table: 'pessoas',
+    idField: 'pessoa_id',
+    fields: ['url_imagem', 'nome', 'cargo', 'sobre', 'telefone', 'email'],
+  },
   usuarios: {
     table: 'usuarios',
     idField: 'usuario_id',
@@ -244,6 +254,20 @@ const uploadImage = async (
 
 const encodeObjectKey = (key: string): string => key.split('/').map(encodeURIComponent).join('/');
 
+const removeStorageObjects = async (env: Env, keys: string[]): Promise<void> => {
+  const bucket = getStorageBucket(env);
+
+  await Promise.all(keys.map(async (key) => {
+    await fetch(
+      `${env.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/${bucket}/${encodeObjectKey(key)}`,
+      {
+        method: 'DELETE',
+        headers: storageHeaders(env),
+      },
+    );
+  }));
+};
+
 const toProxyUrl = (env: Env, request: Request, value: unknown): unknown => {
   if (typeof value !== 'string' || value.includes('/storage/v1/object/public/')) {
     return value;
@@ -259,6 +283,9 @@ const normalizeStorageUrls = (env: Env, request: Request, record: Record<string,
   imagens: Array.isArray(record.imagens)
     ? record.imagens.map((image) => normalizeStorageUrls(env, request, image as Record<string, unknown>))
     : record.imagens,
+  fotos: Array.isArray(record.fotos)
+    ? record.fotos.map((image) => normalizeStorageUrls(env, request, image as Record<string, unknown>))
+    : record.fotos,
 });
 
 const getObject = async (env: Env, key: string): Promise<Response> => {
@@ -386,36 +413,46 @@ const parseBody = async (request: Request): Promise<Record<string, unknown>> => 
 const onlyAllowedFields = (payload: Record<string, unknown>, fields: string[]): Record<string, unknown> =>
   Object.fromEntries(Object.entries(payload).filter(([key, value]) => fields.includes(key) && value !== ''));
 
-const attachEventImages = async (
+const attachRelatedImages = async (
   env: Env,
   resourceName: string,
   items: Record<string, unknown>[],
 ): Promise<Record<string, unknown>[] | Response> => {
-  if (resourceName !== 'eventos' || items.length === 0) {
+  if (items.length === 0) {
     return items;
   }
 
-  const eventIds = items.map((item) => encodeURIComponent(String(item.evento_id))).filter(Boolean).join(',');
-  if (!eventIds) {
-    return items.map((item) => ({ ...item, imagens: [] }));
+  const relation = resourceName === 'eventos'
+    ? { table: 'eventos_imagens', foreignKey: 'evento_id', idField: 'evento_id', outputKey: 'imagens' }
+    : resourceName === 'ministerios'
+      ? { table: 'fotos_ministerios', foreignKey: 'ministerio_id', idField: 'ministerio_id', outputKey: 'fotos' }
+      : null;
+
+  if (!relation) {
+    return items;
+  }
+
+  const ids = items.map((item) => encodeURIComponent(String(item[relation.idField]))).filter(Boolean).join(',');
+  if (!ids) {
+    return items.map((item) => ({ ...item, [relation.outputKey]: [] }));
   }
 
   const images = await supabaseFetch(
     env,
-    `eventos_imagens?select=*&evento_id=in.(${eventIds})&order=ordem.asc,created_at.asc`,
+    `${relation.table}?select=*&${relation.foreignKey}=in.(${ids})&order=ordem.asc,created_at.asc`,
   );
   if (images instanceof Response) return images;
 
-  const imagesByEvent = (images as Record<string, unknown>[]).reduce<Record<string, Record<string, unknown>[]>>((acc, image) => {
-    const eventId = String(image.evento_id);
-    acc[eventId] = acc[eventId] ?? [];
-    acc[eventId].push(image);
+  const imagesByRecord = (images as Record<string, unknown>[]).reduce<Record<string, Record<string, unknown>[]>>((acc, image) => {
+    const recordId = String(image[relation.foreignKey]);
+    acc[recordId] = acc[recordId] ?? [];
+    acc[recordId].push(image);
     return acc;
   }, {});
 
   return items.map((item) => ({
     ...item,
-    imagens: imagesByEvent[String(item.evento_id)] ?? [],
+    [relation.outputKey]: imagesByRecord[String(item[relation.idField])] ?? [],
   }));
 };
 
@@ -437,7 +474,7 @@ const handleCrud = async (
   if (request.method === 'GET' && !id) {
     const data = await supabaseFetch(env, `${config.table}?${select}&order=created_at.desc`);
     if (data instanceof Response) return data;
-    const items = await attachEventImages(env, normalizedResourceName, data as Record<string, unknown>[]);
+    const items = await attachRelatedImages(env, normalizedResourceName, data as Record<string, unknown>[]);
     if (items instanceof Response) return items;
     return response({
       data: items.map((item) => sanitizeResource(normalizedResourceName, normalizeStorageUrls(env, request, item))),
@@ -449,7 +486,7 @@ const handleCrud = async (
     if (data instanceof Response) return data;
     const item = (data as Record<string, unknown>[])[0];
     if (!item) return response({ message: 'Registro nao encontrado' }, { status: 404 });
-    const items = await attachEventImages(env, normalizedResourceName, [item]);
+    const items = await attachRelatedImages(env, normalizedResourceName, [item]);
     if (items instanceof Response) return items;
     return response({ data: sanitizeResource(normalizedResourceName, normalizeStorageUrls(env, request, items[0])) });
   }
@@ -583,6 +620,130 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
     if (inserted instanceof Response) return inserted;
 
     return response({ data: inserted }, { status: 201 });
+  }
+
+  if (parts[1] === 'ministerios' && parts[2] && parts[3] === 'fotos') {
+    const existing = await supabaseFetch(
+      env,
+      `ministerios?select=ministerio_id&ministerio_id=eq.${encodeURIComponent(parts[2])}&limit=1`,
+    );
+    if (existing instanceof Response) return existing;
+    if (!(existing as Record<string, unknown>[])[0]) {
+      return response({ message: 'Ministerio nao encontrado' }, { status: 404 });
+    }
+
+    const body = await parseBody(request) as {
+      fileName: string;
+      contentType?: string;
+      base64: string;
+      folder?: string;
+      ordem?: number;
+      files?: Array<{ fileName: string; contentType?: string; base64: string; folder?: string; ordem?: number }>;
+    };
+    const files = Array.isArray(body.files) && body.files.length > 0 ? body.files : [body];
+    const uploads: Array<{ key: string; url: string }> = [];
+
+    for (const file of files) {
+      const upload = await uploadImage(env, {
+        ...file,
+        folder: file.folder ?? `ministerios/${parts[2]}/fotos`,
+      });
+      if (upload instanceof Response) {
+        await removeStorageObjects(env, uploads.map((item) => item.key));
+        return upload;
+      }
+      uploads.push(upload);
+    }
+
+    const inserted = await supabaseFetch(env, 'fotos_ministerios?select=*', {
+      method: 'POST',
+      body: JSON.stringify(uploads.map((upload, index) => ({
+        ministerio_id: parts[2],
+        url_imagem: upload.url,
+        ordem: files[index].ordem ?? index,
+      }))),
+    });
+    if (inserted instanceof Response) {
+      await removeStorageObjects(env, uploads.map((item) => item.key));
+      return inserted;
+    }
+
+    return response({ data: inserted }, { status: 201 });
+  }
+
+  if (parts[1] === 'pessoas' && parts[2] === 'com-imagem' && !parts[3]) {
+    const body = await parseBody(request) as {
+      nome: string;
+      cargo: string;
+      sobre: string;
+      telefone?: string;
+      email?: string;
+      imagem: { fileName: string; contentType?: string; base64: string; folder?: string };
+    };
+    const upload = await uploadImage(env, {
+      ...body.imagem,
+      folder: body.imagem?.folder ?? 'pessoas',
+    });
+    if (upload instanceof Response) return upload;
+
+    const inserted = await supabaseFetch(env, 'pessoas?select=*', {
+      method: 'POST',
+      body: JSON.stringify({
+        nome: body.nome,
+        cargo: body.cargo,
+        sobre: body.sobre,
+        telefone: body.telefone,
+        email: body.email,
+        url_imagem: upload.url,
+      }),
+    });
+    if (inserted instanceof Response) {
+      await removeStorageObjects(env, [upload.key]);
+      return inserted;
+    }
+
+    return response({
+      message: 'pessoas criado com sucesso',
+      data: (inserted as Record<string, unknown>[])[0],
+    }, { status: 201 });
+  }
+
+  if (parts[1] === 'pessoas' && parts[2] && parts[3] === 'imagem') {
+    const existing = await supabaseFetch(
+      env,
+      `pessoas?select=pessoa_id&pessoa_id=eq.${encodeURIComponent(parts[2])}&limit=1`,
+    );
+    if (existing instanceof Response) return existing;
+    if (!(existing as Record<string, unknown>[])[0]) {
+      return response({ message: 'Pessoa nao encontrada' }, { status: 404 });
+    }
+
+    const body = await parseBody(request) as { fileName: string; contentType?: string; base64: string; folder?: string };
+    const upload = await uploadImage(env, {
+      ...body,
+      folder: body.folder ?? `pessoas/${parts[2]}`,
+    });
+    if (upload instanceof Response) return upload;
+
+    const updated = await supabaseFetch(
+      env,
+      `pessoas?select=*&pessoa_id=eq.${encodeURIComponent(parts[2])}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ url_imagem: upload.url }),
+      },
+    );
+    if (updated instanceof Response) {
+      await removeStorageObjects(env, [upload.key]);
+      return updated;
+    }
+
+    return response({
+      data: {
+        upload,
+        pessoa: (updated as Record<string, unknown>[])[0],
+      },
+    }, { status: 201 });
   }
 
   return null;
