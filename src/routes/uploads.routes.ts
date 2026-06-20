@@ -20,6 +20,13 @@ const uuidParamSchema = z.object({
 export const uploadsRoutes = (app: FastifyInstance, supabase: SupabaseClient): void => {
   const storage = new StorageService(supabase);
 
+  const removePreviousImage = async (previousUrl: unknown, currentKey: string): Promise<void> => {
+    const previousKey = storage.keyFromPublicUrl(previousUrl);
+    if (previousKey && previousKey !== currentKey) {
+      await storage.removeObjects([previousKey]).catch(() => undefined);
+    }
+  };
+
   app.get('/uploads/object/*', async (request, reply) => {
     const key = decodeURIComponent(((request.params as Record<string, string>)['*'] ?? '').replace(/^\/+/, ''));
     if (!key) throw new AppError(400, 'Informe a chave do arquivo');
@@ -44,24 +51,50 @@ export const uploadsRoutes = (app: FastifyInstance, supabase: SupabaseClient): v
   app.post('/eventos/:id/capa', async (request, reply) => {
     const { id } = parseWithSchema(uuidParamSchema, request.params);
     const payload = parseWithSchema(uploadImageSchema, request.body);
+    const { data: existing, error: existingError } = await supabase
+      .from('eventos')
+      .select('evento_id,url_capa')
+      .eq('evento_id', id)
+      .maybeSingle();
+
+    if (existingError) throw new AppError(500, 'Erro ao validar evento', existingError);
+    if (!existing) throw new AppError(404, 'Evento nao encontrado');
+
     const upload = await storage.uploadImage({ ...payload, folder: payload.folder ?? `eventos/${id}/capa` });
     const { data, error } = await supabase.from('eventos').update({ url_capa: upload.url }).eq('evento_id', id).select('*').maybeSingle();
 
-    if (error) throw new AppError(500, 'Erro ao atualizar capa do evento', error);
-    if (!data) throw new AppError(404, 'Evento nao encontrado');
+    if (error || !data) {
+      await storage.removeObjects([upload.key]).catch(() => undefined);
+      if (error) throw new AppError(500, 'Erro ao atualizar capa do evento', error);
+      throw new AppError(404, 'Evento nao encontrado');
+    }
 
+    await removePreviousImage(existing.url_capa, upload.key);
     reply.status(201).send({ data: { upload, evento: data } });
   });
 
   app.post('/noticias/:id/capa', async (request, reply) => {
     const { id } = parseWithSchema(uuidParamSchema, request.params);
     const payload = parseWithSchema(uploadImageSchema, request.body);
+    const { data: existing, error: existingError } = await supabase
+      .from('noticias')
+      .select('noticia_id,url_capa')
+      .eq('noticia_id', id)
+      .maybeSingle();
+
+    if (existingError) throw new AppError(500, 'Erro ao validar noticia', existingError);
+    if (!existing) throw new AppError(404, 'Noticia nao encontrada');
+
     const upload = await storage.uploadImage({ ...payload, folder: payload.folder ?? `noticias/${id}/capa` });
     const { data, error } = await supabase.from('noticias').update({ url_capa: upload.url }).eq('noticia_id', id).select('*').maybeSingle();
 
-    if (error) throw new AppError(500, 'Erro ao atualizar capa da noticia', error);
-    if (!data) throw new AppError(404, 'Noticia nao encontrada');
+    if (error || !data) {
+      await storage.removeObjects([upload.key]).catch(() => undefined);
+      if (error) throw new AppError(500, 'Erro ao atualizar capa da noticia', error);
+      throw new AppError(404, 'Noticia nao encontrada');
+    }
 
+    await removePreviousImage(existing.url_capa, upload.key);
     reply.status(201).send({ data: { upload, noticia: data } });
   });
 
@@ -71,22 +104,41 @@ export const uploadsRoutes = (app: FastifyInstance, supabase: SupabaseClient): v
     const files = Array.isArray((body as { files?: unknown })?.files)
       ? parseWithSchema(eventImagesBatchUploadSchema, body).files
       : [parseWithSchema(eventImageUploadSchema, body)];
-    const rows = [];
+    const { data: evento, error: eventoError } = await supabase
+      .from('eventos')
+      .select('evento_id')
+      .eq('evento_id', id)
+      .maybeSingle();
 
-    for (const [index, payload] of files.entries()) {
-      const upload = await storage.uploadImage({ ...payload, folder: payload.folder ?? `eventos/${id}/imagens` });
-      rows.push({
-        evento_id: id,
-        url_imagem: upload.url,
-        ordem: payload.ordem ?? index,
-      });
+    if (eventoError) throw new AppError(500, 'Erro ao validar evento', eventoError);
+    if (!evento) throw new AppError(404, 'Evento nao encontrado');
+
+    const uploads = [];
+    try {
+      for (const [index, payload] of files.entries()) {
+        const upload = await storage.uploadImage({ ...payload, folder: payload.folder ?? `eventos/${id}/imagens` });
+        uploads.push({
+          upload,
+          row: {
+            evento_id: id,
+            url_imagem: upload.url,
+            ordem: payload.ordem ?? index,
+          },
+        });
+      }
+
+      const { data, error } = await supabase
+        .from('eventos_imagens')
+        .insert(uploads.map((item) => item.row))
+        .select('*');
+
+      if (error) throw new AppError(500, 'Erro ao cadastrar imagem do evento', error);
+
+      reply.status(201).send({ data });
+    } catch (error) {
+      await storage.removeObjects(uploads.map((item) => item.upload.key)).catch(() => undefined);
+      throw error;
     }
-
-    const { data, error } = await supabase.from('eventos_imagens').insert(rows).select('*');
-
-    if (error) throw new AppError(500, 'Erro ao cadastrar imagem do evento', error);
-
-    reply.status(201).send({ data });
   });
 
   app.post('/ministerios/:id/fotos', async (request, reply) => {
@@ -144,7 +196,7 @@ export const uploadsRoutes = (app: FastifyInstance, supabase: SupabaseClient): v
     const { id } = parseWithSchema(uuidParamSchema, request.params);
     const { data: pessoa, error: pessoaError } = await supabase
       .from('pessoas')
-      .select('pessoa_id')
+      .select('pessoa_id,url_imagem')
       .eq('pessoa_id', id)
       .maybeSingle();
 
@@ -169,6 +221,7 @@ export const uploadsRoutes = (app: FastifyInstance, supabase: SupabaseClient): v
       throw new AppError(404, 'Pessoa nao encontrada');
     }
 
+    await removePreviousImage(pessoa.url_imagem, upload.key);
     reply.status(201).send({ data: { upload, pessoa: data } });
   });
 

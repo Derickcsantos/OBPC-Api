@@ -635,14 +635,14 @@ export const dashboardHtml = `<!doctype html>
       }
 
       if (field.type === 'file') {
-        return '<input name="' + field.name + '" type="file" accept="image/*" ' + (field.required && !editing ? 'required' : '') + '>';
+        return '<input name="' + field.name + '" type="file" accept="image/jpeg,image/png,image/webp,image/gif" ' + (field.required && !editing ? 'required' : '') + '>';
       }
 
       if (field.type === 'dropzone') {
         const multiple = field.single ? '' : ' multiple';
         const title = field.single ? 'Arraste a imagem aqui' : 'Arraste imagens aqui';
         const helper = field.single ? 'ou clique para escolher uma imagem' : 'ou clique para escolher varias imagens';
-        return '<div class="dropzone' + (field.single ? ' single' : '') + '" data-dropzone="' + field.name + '"><div><strong>' + title + '</strong><span>' + helper + '</span><div class="file-list" data-file-list="' + field.name + '"></div></div></div><input name="' + field.name + '" type="file" accept="image/*"' + multiple + ' hidden>';
+        return '<div class="dropzone' + (field.single ? ' single' : '') + '" data-dropzone="' + field.name + '"><div><strong>' + title + '</strong><span>' + helper + '</span><div class="file-list" data-file-list="' + field.name + '"></div></div></div><input name="' + field.name + '" type="file" accept="image/jpeg,image/png,image/webp,image/gif"' + multiple + ' hidden>';
       }
 
       if (field.type === 'event-combobox') {
@@ -1031,8 +1031,13 @@ export const dashboardHtml = `<!doctype html>
 
     function fileToPayload(file) {
       return new Promise((resolve, reject) => {
-        if (!file.type.startsWith('image/')) {
-          reject(new Error('Envie apenas arquivos de imagem.'));
+        const supportedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!supportedTypes.includes(file.type)) {
+          reject(new Error('Envie uma imagem PNG, JPEG, WebP ou GIF.'));
+          return;
+        }
+        if (!file.size || file.size > 20 * 1024 * 1024) {
+          reject(new Error('A imagem original deve ter no maximo 20 MB.'));
           return;
         }
 
@@ -1040,6 +1045,10 @@ export const dashboardHtml = `<!doctype html>
         const objectUrl = URL.createObjectURL(file);
         image.onload = () => {
           URL.revokeObjectURL(objectUrl);
+          if (!image.width || !image.height) {
+            reject(new Error('A imagem enviada nao possui dimensoes validas.'));
+            return;
+          }
 
           const maxDimension = 1920;
           const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
@@ -1062,9 +1071,11 @@ export const dashboardHtml = `<!doctype html>
 
             const reader = new FileReader();
             const baseName = file.name.replace(/\.[^.]+$/, '') || 'imagem';
+            const outputType = blob.type === 'image/webp' ? 'image/webp' : 'image/png';
+            const outputExtension = outputType === 'image/webp' ? 'webp' : 'png';
             reader.onload = () => resolve({
-              fileName: baseName + '.webp',
-              contentType: 'image/webp',
+              fileName: baseName + '.' + outputExtension,
+              contentType: outputType,
               base64: String(reader.result),
             });
             reader.onerror = () => reject(new Error('Nao foi possivel ler a imagem compactada.'));

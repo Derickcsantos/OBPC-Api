@@ -14,6 +14,7 @@
     "features": [
       "CRUD de ministérios, fotos de ministérios, pessoas, usuários, eventos, notícias, louvores, mensagens e orações",
       "Upload de imagens para o bucket público imagens antes da persistência da URL",
+      "Validação de PNG, JPEG, WebP e GIF, com limite de 10 MB e URL pública do Supabase",
       "Consulta multi-versão de livros, capítulos, versículos, busca textual e comparação da Bíblia",
       "Paginação e cache Redis nas consultas da Bíblia",
       "Validação de entrada com Zod",

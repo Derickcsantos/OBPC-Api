@@ -93,7 +93,8 @@ const jsonHeaders = {
 
 const defaultVersion = 'nvi';
 const defaultLimit = 100;
-const defaultBucket = 'imagens';
+const storageBucket = 'imagens';
+const maxImageSizeBytes = 10 * 1024 * 1024;
 const storageBucketCache = new Set<string>();
 
 const response = (body: unknown, init?: ResponseInit): Response =>
@@ -140,13 +141,50 @@ const safeFileName = (fileName: string): string =>
     .toLowerCase();
 
 const base64ToBytes = (value: string): Uint8Array => {
-  const clean = value.includes(',') ? value.split(',').pop() ?? '' : value;
+  const clean = (value.includes(',') ? value.split(',').pop() ?? '' : value).replace(/\s/g, '');
   return Uint8Array.from(atob(clean), (char) => char.charCodeAt(0));
 };
 
 const randomId = (): string => crypto.randomUUID();
 
-const getStorageBucket = (env: Env): string => env.SUPABASE_STORAGE_BUCKET ?? defaultBucket;
+const getStorageBucket = (_env: Env): string => storageBucket;
+
+const sanitizeStorageFolder = (value?: string): string => {
+  const segments = (value || 'uploads')
+    .replace(/\\/g, '/')
+    .split('/')
+    .map((segment) => safeFileName(segment))
+    .filter((segment) => segment && segment !== '.' && segment !== '..');
+
+  return segments.length > 0 ? segments.join('/') : 'uploads';
+};
+
+const imageExtensionByType: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+};
+
+const bytesToAscii = (bytes: Uint8Array, start: number, end: number): string =>
+  String.fromCharCode(...bytes.slice(start, end));
+
+const hasImageSignature = (bytes: Uint8Array, contentType: string): boolean => {
+  if (contentType === 'image/png') {
+    return bytes.length >= 8 && [137, 80, 78, 71, 13, 10, 26, 10].every((value, index) => bytes[index] === value);
+  }
+  if (contentType === 'image/jpeg') {
+    return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  }
+  if (contentType === 'image/webp') {
+    return bytes.length >= 12 && bytesToAscii(bytes, 0, 4) === 'RIFF' && bytesToAscii(bytes, 8, 12) === 'WEBP';
+  }
+  if (contentType === 'image/gif') {
+    const signature = bytesToAscii(bytes, 0, 6);
+    return signature === 'GIF87a' || signature === 'GIF89a';
+  }
+  return false;
+};
 
 const storageHeaders = (env: Env, contentType = 'application/json'): HeadersInit => ({
   apikey: env.SUPABASE_SERVICE_ROLE_KEY,
@@ -225,12 +263,29 @@ const uploadImage = async (
   const bucketError = await ensurePublicBucket(env, bucket);
   if (bucketError) return bucketError;
 
-  const bytes = base64ToBytes(input.base64);
-  const folder = input.folder?.replace(/^\/+|\/+$/g, '') || 'uploads';
-  const contentType = input.contentType ?? 'application/octet-stream';
-  const extension = contentType === 'image/webp' ? 'webp' : safeFileName(input.fileName).split('.').pop();
+  const dataUrlMatch = input.base64?.match(/^data:([^;,]+);base64,(.+)$/s);
+  const contentType = input.contentType ?? dataUrlMatch?.[1]?.toLowerCase();
+  const extension = contentType ? imageExtensionByType[contentType] : undefined;
+  if (!input.fileName || !input.base64 || !contentType || !extension) {
+    return response({ message: 'Envie uma imagem PNG, JPEG, WebP ou GIF valida' }, { status: 400 });
+  }
+  if (dataUrlMatch && dataUrlMatch[1].toLowerCase() !== contentType) {
+    return response({ message: 'O tipo da imagem nao corresponde ao conteudo enviado' }, { status: 400 });
+  }
+
+  let bytes: Uint8Array;
+  try {
+    bytes = base64ToBytes(input.base64);
+  } catch {
+    return response({ message: 'Imagem base64 invalida' }, { status: 400 });
+  }
+  if (bytes.length === 0 || bytes.length > maxImageSizeBytes || !hasImageSignature(bytes, contentType)) {
+    return response({ message: 'Imagem invalida ou maior que 10 MB' }, { status: 400 });
+  }
+
+  const folder = sanitizeStorageFolder(input.folder);
   const fileName = safeFileName(input.fileName).replace(/\.[^.]+$/, '') || 'imagem';
-  const key = `${folder}/${randomId()}-${fileName}.${extension || 'webp'}`;
+  const key = `${folder}/${randomId()}-${fileName}.${extension}`;
   const uploadUrl = `${env.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/${bucket}/${encodeObjectKey(key)}`;
   const uploadResponse = await fetch(uploadUrl, {
     method: 'PUT',
@@ -266,6 +321,24 @@ const removeStorageObjects = async (env: Env, keys: string[]): Promise<void> => 
       },
     );
   }));
+};
+
+const storageKeyFromPublicUrl = (value: unknown): string | null => {
+  if (typeof value !== 'string') return null;
+  const marker = `/storage/v1/object/public/${storageBucket}/`;
+  const index = value.indexOf(marker);
+  if (index < 0) return null;
+
+  try {
+    return value
+      .slice(index + marker.length)
+      .split('?')[0]
+      .split('/')
+      .map(decodeURIComponent)
+      .join('/');
+  } catch {
+    return null;
+  }
 };
 
 const toProxyUrl = (env: Env, request: Request, value: unknown): unknown => {
@@ -563,6 +636,14 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
   }
 
   if (parts[1] === 'eventos' && parts[2] && parts[3] === 'capa') {
+    const existing = await supabaseFetch(
+      env,
+      `eventos?select=evento_id,url_capa&evento_id=eq.${encodeURIComponent(parts[2])}&limit=1`,
+    );
+    if (existing instanceof Response) return existing;
+    const currentEvent = (existing as Record<string, unknown>[])[0];
+    if (!currentEvent) return response({ message: 'Evento nao encontrado' }, { status: 404 });
+
     const body = await parseBody(request) as { fileName: string; contentType?: string; base64: string; folder?: string };
     const upload = await uploadImage(env, { ...body, folder: body.folder ?? `eventos/${parts[2]}/capa` });
     if (upload instanceof Response) return upload;
@@ -571,12 +652,26 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
       method: 'PATCH',
       body: JSON.stringify({ url_capa: upload.url }),
     });
-    if (updated instanceof Response) return updated;
+    if (updated instanceof Response) {
+      await removeStorageObjects(env, [upload.key]);
+      return updated;
+    }
+
+    const previousKey = storageKeyFromPublicUrl(currentEvent.url_capa);
+    if (previousKey && previousKey !== upload.key) await removeStorageObjects(env, [previousKey]);
 
     return response({ data: { upload, evento: (updated as Record<string, unknown>[])[0] } }, { status: 201 });
   }
 
   if (parts[1] === 'noticias' && parts[2] && parts[3] === 'capa') {
+    const existing = await supabaseFetch(
+      env,
+      `noticias?select=noticia_id,url_capa&noticia_id=eq.${encodeURIComponent(parts[2])}&limit=1`,
+    );
+    if (existing instanceof Response) return existing;
+    const currentNews = (existing as Record<string, unknown>[])[0];
+    if (!currentNews) return response({ message: 'Noticia nao encontrada' }, { status: 404 });
+
     const body = await parseBody(request) as { fileName: string; contentType?: string; base64: string; folder?: string };
     const upload = await uploadImage(env, { ...body, folder: body.folder ?? `noticias/${parts[2]}/capa` });
     if (upload instanceof Response) return upload;
@@ -585,12 +680,27 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
       method: 'PATCH',
       body: JSON.stringify({ url_capa: upload.url }),
     });
-    if (updated instanceof Response) return updated;
+    if (updated instanceof Response) {
+      await removeStorageObjects(env, [upload.key]);
+      return updated;
+    }
+
+    const previousKey = storageKeyFromPublicUrl(currentNews.url_capa);
+    if (previousKey && previousKey !== upload.key) await removeStorageObjects(env, [previousKey]);
 
     return response({ data: { upload, noticia: (updated as Record<string, unknown>[])[0] } }, { status: 201 });
   }
 
   if (parts[1] === 'eventos' && parts[2] && parts[3] === 'imagens') {
+    const existing = await supabaseFetch(
+      env,
+      `eventos?select=evento_id&evento_id=eq.${encodeURIComponent(parts[2])}&limit=1`,
+    );
+    if (existing instanceof Response) return existing;
+    if (!(existing as Record<string, unknown>[])[0]) {
+      return response({ message: 'Evento nao encontrado' }, { status: 404 });
+    }
+
     const body = await parseBody(request) as {
       fileName: string;
       contentType?: string;
@@ -600,24 +710,29 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
       files?: Array<{ fileName: string; contentType?: string; base64: string; folder?: string; ordem?: number }>;
     };
     const files = Array.isArray(body.files) && body.files.length > 0 ? body.files : [body];
-    const rows = [];
+    const uploads: Array<{ key: string; url: string }> = [];
 
-    for (const [index, file] of files.entries()) {
+    for (const file of files) {
       const upload = await uploadImage(env, { ...file, folder: file.folder ?? `eventos/${parts[2]}/imagens` });
-      if (upload instanceof Response) return upload;
-
-      rows.push({
-        evento_id: parts[2],
-        url_imagem: upload.url,
-        ordem: file.ordem ?? index,
-      });
+      if (upload instanceof Response) {
+        await removeStorageObjects(env, uploads.map((item) => item.key));
+        return upload;
+      }
+      uploads.push(upload);
     }
 
     const inserted = await supabaseFetch(env, 'eventos_imagens?select=*', {
       method: 'POST',
-      body: JSON.stringify(rows),
+      body: JSON.stringify(uploads.map((upload, index) => ({
+        evento_id: parts[2],
+        url_imagem: upload.url,
+        ordem: files[index].ordem ?? index,
+      }))),
     });
-    if (inserted instanceof Response) return inserted;
+    if (inserted instanceof Response) {
+      await removeStorageObjects(env, uploads.map((item) => item.key));
+      return inserted;
+    }
 
     return response({ data: inserted }, { status: 201 });
   }
@@ -711,10 +826,11 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
   if (parts[1] === 'pessoas' && parts[2] && parts[3] === 'imagem') {
     const existing = await supabaseFetch(
       env,
-      `pessoas?select=pessoa_id&pessoa_id=eq.${encodeURIComponent(parts[2])}&limit=1`,
+      `pessoas?select=pessoa_id,url_imagem&pessoa_id=eq.${encodeURIComponent(parts[2])}&limit=1`,
     );
     if (existing instanceof Response) return existing;
-    if (!(existing as Record<string, unknown>[])[0]) {
+    const currentPerson = (existing as Record<string, unknown>[])[0];
+    if (!currentPerson) {
       return response({ message: 'Pessoa nao encontrada' }, { status: 404 });
     }
 
@@ -737,6 +853,9 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
       await removeStorageObjects(env, [upload.key]);
       return updated;
     }
+
+    const previousKey = storageKeyFromPublicUrl(currentPerson.url_imagem);
+    if (previousKey && previousKey !== upload.key) await removeStorageObjects(env, [previousKey]);
 
     return response({
       data: {

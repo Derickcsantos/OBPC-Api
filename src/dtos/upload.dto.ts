@@ -1,10 +1,12 @@
 import { z } from 'zod';
 
+const imageContentTypeSchema = z.enum(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
 export const uploadImageSchema = z.object({
-  fileName: z.string().min(1),
-  contentType: z.string().min(1).default('application/octet-stream'),
-  base64: z.string().min(1),
-  folder: z.string().min(1).optional(),
+  fileName: z.string().trim().min(1).max(255),
+  contentType: imageContentTypeSchema,
+  base64: z.string().min(1).max(14_000_000),
+  folder: z.string().trim().min(1).max(300).optional(),
 });
 
 export const eventImageUploadSchema = uploadImageSchema.extend({
