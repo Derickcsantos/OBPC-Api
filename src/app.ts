@@ -9,6 +9,9 @@ import { BibleService } from './services/bible.service.js';
 import { BibleServiceContract, CrudServiceContract, ResourceName } from './types/crud.types.js';
 import { registerRoutes } from './routes/index.js';
 import { dashboardHtml } from './frontend/dashboard.js';
+import { AuthServiceContract } from './types/auth.types.js';
+import { AuthService } from './services/auth.service.js';
+import { env } from './config/env.js';
 
 const resourceMap: Record<ResourceName, { table: string; idField: string }> = {
   ministerios: { table: 'ministerios', idField: 'ministerio_id' },
@@ -27,6 +30,7 @@ const resourceMap: Record<ResourceName, { table: string; idField: string }> = {
 export interface AppDependencies {
   crudServices?: Partial<Record<ResourceName, CrudServiceContract>>;
   bibleService?: BibleServiceContract;
+  authService?: AuthServiceContract;
 }
 
 export const createApp = async (dependencies?: AppDependencies): Promise<FastifyInstance> => {
@@ -66,6 +70,12 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
       ...(dependencies?.crudServices ?? {}),
     },
     bibleService: dependencies?.bibleService ?? new BibleService(supabase),
+    authService: dependencies?.authService ?? new AuthService(supabase, {
+      googleClientIds: env.GOOGLE_CLIENT_IDS,
+      jwtSecret: env.AUTH_JWT_SECRET,
+      jwtExpiresIn: env.AUTH_JWT_EXPIRES_IN_SECONDS,
+      issuer: env.BACKEND_URL ?? 'books-api',
+    }),
   };
 
   await app.register(

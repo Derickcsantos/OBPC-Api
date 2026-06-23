@@ -27,13 +27,24 @@ create table if not exists ministerios (
 create table if not exists usuarios (
   usuario_id uuid primary key default gen_random_uuid(),
   nome_usuario varchar(150) not null,
-  telefone_usuario varchar(20) not null,
-  senha_usuario text not null,
+  telefone_usuario varchar(20),
+  senha_usuario text,
   email_usuario varchar(255) not null unique,
-  data_nascimento date not null,
+  data_nascimento date,
+  google_sub varchar(255) unique,
+  avatar_url text,
+  auth_provider varchar(30) not null default 'local',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table usuarios alter column telefone_usuario drop not null;
+alter table usuarios alter column senha_usuario drop not null;
+alter table usuarios alter column data_nascimento drop not null;
+alter table usuarios add column if not exists google_sub varchar(255);
+alter table usuarios add column if not exists avatar_url text;
+alter table usuarios add column if not exists auth_provider varchar(30) not null default 'local';
+create unique index if not exists idx_usuarios_google_sub on usuarios (google_sub) where google_sub is not null;
 
 create table if not exists eventos (
   evento_id uuid primary key default gen_random_uuid(),

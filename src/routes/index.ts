@@ -14,10 +14,13 @@ import { usuariosRoutes } from './usuarios.routes.js';
 import { uploadsRoutes } from './uploads.routes.js';
 import { BibleServiceContract, CrudServiceContract, ResourceName } from '../types/crud.types.js';
 import { getSupabaseClient } from '../lib/supabase.js';
+import { authRoutes } from './auth.routes.js';
+import { AuthServiceContract } from '../types/auth.types.js';
 
 interface RouteServices {
   crudServices: Record<ResourceName, CrudServiceContract>;
   bibleService: BibleServiceContract;
+  authService: AuthServiceContract;
 }
 
 export const registerRoutes = async (
@@ -35,6 +38,7 @@ export const registerRoutes = async (
   fotosMinisteriosRoutes(app, opts.services.crudServices.fotos_ministerios);
   pessoasRoutes(app, opts.services.crudServices.pessoas);
   usuariosRoutes(app, opts.services.crudServices.usuarios);
+  authRoutes(app, opts.services.authService);
   eventosRoutes(app, opts.services.crudServices.eventos);
   eventosImagensRoutes(app, opts.services.crudServices.eventos_imagens);
   eventosInscricoesRoutes(app, opts.services.crudServices.eventos_inscricoes);

@@ -3,11 +3,14 @@ import { FastifyInstance } from 'fastify';
 import { beforeAll, afterAll, describe, expect, it } from 'vitest';
 import { BibleServiceContract, CrudServiceContract } from '../src/types/crud.types.js';
 import { FakeCrudService } from './helpers/fake-crud.service.js';
+import { AuthServiceContract } from '../src/types/auth.types.js';
 
 process.env.NODE_ENV = 'test';
 process.env.SUPABASE_URL = 'https://example.supabase.co';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-key';
 process.env.BIBLE_API_KEY = 'test-bible-key';
+process.env.GOOGLE_CLIENT_ID = 'test-client-id.apps.googleusercontent.com';
+process.env.AUTH_JWT_SECRET = 'test-secret-with-at-least-thirty-two-characters';
 
 const bibleStub: BibleServiceContract = {
   getTestaments: async () => [{ id: 1, name: 'Antigo Testamento' }],
@@ -31,6 +34,20 @@ const bibleStub: BibleServiceContract = {
   searchExactWords: async () => ({ verses: [{ verse_id: 1, text: 'Deus criou' }] }),
 };
 
+const authStub: AuthServiceContract = {
+  loginWithGoogle: async () => ({
+    access_token: 'api-jwt',
+    token_type: 'Bearer',
+    expires_in: 604800,
+    user: {
+      usuario_id: '11111111-1111-4111-8111-111111111111',
+      nome_usuario: 'Usuario Google',
+      email_usuario: 'usuario@example.com',
+      auth_provider: 'google',
+    },
+  }),
+};
+
 describe('API', () => {
   let app: FastifyInstance;
 
@@ -51,6 +68,7 @@ describe('API', () => {
         fotos_ministerios: fakeService,
       },
       bibleService: bibleStub,
+      authService: authStub,
     });
 
     await app.ready();
@@ -93,6 +111,21 @@ describe('API', () => {
     const response = await request(app.server).get('/api/biblia/versions');
     expect(response.statusCode).toBe(200);
     expect(response.body.data[0].name).toBe('ACF');
+  });
+
+  it('deve autenticar com um id_token do Google', async () => {
+    const response = await request(app.server).post('/api/auth/google').send({
+      id_token: 'google-id-token',
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.access_token).toBe('api-jwt');
+    expect(response.body.user.email_usuario).toBe('usuario@example.com');
+  });
+
+  it('deve rejeitar login Google sem id_token', async () => {
+    const response = await request(app.server).post('/api/auth/google').send({});
+    expect(response.statusCode).toBe(400);
   });
 
   it('deve retornar versos de um livro sem erro interno', async () => {

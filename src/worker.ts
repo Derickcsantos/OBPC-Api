@@ -1,11 +1,19 @@
 import { dashboardHtml } from './frontend/dashboard.js';
 import { bibleApiExamples } from './docs/bible-api-examples.js';
 import { eventsApiExamples } from './docs/events-api-examples.js';
+import { signApiToken, verifyGoogleIdToken } from './services/google-token.service.js';
+import { AppError } from './utils/app-error.js';
 
 interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
   SUPABASE_STORAGE_BUCKET?: string;
+  BACKEND_URL?: string;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_IDS?: string;
+  GOOGLE_SECRET_KEY?: string;
+  AUTH_JWT_SECRET?: string;
+  AUTH_JWT_EXPIRES_IN_SECONDS?: string;
 }
 
 interface ResourceConfig {
@@ -481,6 +489,113 @@ const supabaseFetchWithCount = async (
 const parseBody = async (request: Request): Promise<Record<string, unknown>> => {
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
   return body && typeof body === 'object' ? body : {};
+};
+
+const authUserColumns = [
+  'usuario_id',
+  'nome_usuario',
+  'email_usuario',
+  'telefone_usuario',
+  'data_nascimento',
+  'avatar_url',
+  'auth_provider',
+].join(',');
+
+const handleGoogleLogin = async (request: Request, env: Env): Promise<Response> => {
+  if (request.method !== 'POST') {
+    return response({ message: 'Metodo nao permitido' }, { status: 405 });
+  }
+
+  try {
+    const body = await parseBody(request);
+    if (typeof body.id_token !== 'string' || !body.id_token) {
+      return response({ message: 'O id_token do Google e obrigatorio.' }, { status: 400 });
+    }
+
+    const googleClientIds = [
+      ...(env.GOOGLE_CLIENT_IDS?.split(',') ?? []),
+      env.GOOGLE_CLIENT_ID,
+    ].filter((value): value is string => Boolean(value?.trim())).map((value) => value.trim());
+    const jwtSecret = env.AUTH_JWT_SECRET ?? env.GOOGLE_SECRET_KEY;
+    if (googleClientIds.length === 0 || !jwtSecret || jwtSecret.length < 32) {
+      return response({ message: 'Autenticacao Google nao configurada no servidor.' }, { status: 500 });
+    }
+
+    const identity = await verifyGoogleIdToken(body.id_token, googleClientIds);
+    const bySub = await supabaseFetch(
+      env,
+      `usuarios?select=${authUserColumns}&google_sub=eq.${encodeURIComponent(identity.sub)}&limit=1`,
+    );
+    if (bySub instanceof Response) return bySub;
+
+    let user = (bySub as Record<string, unknown>[])[0];
+    if (!user) {
+      const byEmail = await supabaseFetch(
+        env,
+        `usuarios?select=${authUserColumns}&email_usuario=eq.${encodeURIComponent(identity.email)}&limit=1`,
+      );
+      if (byEmail instanceof Response) return byEmail;
+      user = (byEmail as Record<string, unknown>[])[0];
+
+      if (user) {
+        const linked = await supabaseFetch(
+          env,
+          `usuarios?usuario_id=eq.${encodeURIComponent(String(user.usuario_id))}&select=${authUserColumns}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({
+              google_sub: identity.sub,
+              avatar_url: identity.picture ?? null,
+              updated_at: new Date().toISOString(),
+            }),
+          },
+        );
+        if (linked instanceof Response) return linked;
+        user = (linked as Record<string, unknown>[])[0];
+      } else {
+        const created = await supabaseFetch(env, `usuarios?select=${authUserColumns}`, {
+          method: 'POST',
+          body: JSON.stringify({
+            nome_usuario: identity.name,
+            email_usuario: identity.email,
+            google_sub: identity.sub,
+            avatar_url: identity.picture ?? null,
+            auth_provider: 'google',
+          }),
+        });
+        if (created instanceof Response) return created;
+        user = (created as Record<string, unknown>[])[0];
+      }
+    }
+
+    if (!user) {
+      return response({ message: 'Nao foi possivel autenticar o usuario.' }, { status: 500 });
+    }
+
+    const expiresIn = Number(env.AUTH_JWT_EXPIRES_IN_SECONDS ?? 604800);
+    const accessToken = await signApiToken(
+      {
+        sub: user.usuario_id,
+        email: user.email_usuario,
+        provider: 'google',
+      },
+      jwtSecret,
+      expiresIn,
+      env.BACKEND_URL ?? 'books-api',
+    );
+
+    return response({
+      access_token: accessToken,
+      token_type: 'Bearer',
+      expires_in: expiresIn,
+      user,
+    });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return response({ message: error.message }, { status: error.statusCode });
+    }
+    return response({ message: 'Erro interno do servidor' }, { status: 500 });
+  }
 };
 
 const onlyAllowedFields = (payload: Record<string, unknown>, fields: string[]): Record<string, unknown> =>
@@ -1038,6 +1153,7 @@ export default {
 
     if (url.pathname === '/') return html(dashboardHtml);
     if (url.pathname === '/health') return response({ status: 'ok' });
+    if (url.pathname === '/api/auth/google') return handleGoogleLogin(request, env);
     if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
     if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });
     const uploadResponse = await handleUploadRoutes(request, env, parts);
