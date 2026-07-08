@@ -1,6 +1,7 @@
 import { dashboardHtml } from './frontend/dashboard.js';
 import { bibleApiExamples } from './docs/bible-api-examples.js';
 import { eventsApiExamples } from './docs/events-api-examples.js';
+import { studyPlansApiDocumentation } from './docs/study-plans-api-documentation.js';
 import { signApiToken, verifyGoogleIdToken } from './services/google-token.service.js';
 import { AppError } from './utils/app-error.js';
 
@@ -1125,6 +1126,198 @@ const getVerseComparisons = async (env: Env, params: URLSearchParams): Promise<R
   return response(paginate(rows, result.total, page, limit));
 };
 
+const isUuid = (value: string): boolean =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(value);
+
+const getStudyPlan = async (env: Env, plan: string): Promise<Record<string, unknown> | Response> => {
+  const query = new URLSearchParams({
+    select: 'plano_estudo_id,titulo,slug,descricao,tipo,duracao_dias,ativo,metadata,created_at,updated_at',
+    limit: '1',
+  });
+  query.set(isUuid(plan) ? 'plano_estudo_id' : 'slug', `eq.${plan}`);
+
+  const data = await supabaseFetch(env, `planos_estudo?${query.toString()}`);
+  if (data instanceof Response) return data;
+
+  const item = (data as Record<string, unknown>[])[0];
+  return item ?? response({ message: 'Plano de estudo nao encontrado' }, { status: 404 });
+};
+
+const getStudyPlanDays = async (env: Env, planId: unknown): Promise<Record<string, unknown>[] | Response> => {
+  const query = new URLSearchParams({
+    select: 'plano_estudo_dia_id,plano_estudo_id,dia,titulo,created_at,updated_at',
+    plano_estudo_id: `eq.${String(planId)}`,
+    order: 'dia.asc',
+  });
+
+  const data = await supabaseFetch(env, `planos_estudo_dias?${query.toString()}`);
+  if (data instanceof Response) return data;
+  return data as Record<string, unknown>[];
+};
+
+const getStudyPlanDay = async (env: Env, planId: unknown, day: string): Promise<Record<string, unknown> | Response> => {
+  const query = new URLSearchParams({
+    select: 'plano_estudo_dia_id,plano_estudo_id,dia,titulo,created_at,updated_at',
+    plano_estudo_id: `eq.${String(planId)}`,
+    dia: `eq.${day}`,
+    limit: '1',
+  });
+
+  const data = await supabaseFetch(env, `planos_estudo_dias?${query.toString()}`);
+  if (data instanceof Response) return data;
+
+  const item = (data as Record<string, unknown>[])[0];
+  return item ?? response({ message: 'Dia do plano de estudo nao encontrado' }, { status: 404 });
+};
+
+const getStudyPlanReadings = async (env: Env, dayId: unknown): Promise<Record<string, unknown>[] | Response> => {
+  const query = new URLSearchParams({
+    select: 'plano_estudo_leitura_id,plano_estudo_dia_id,ordem,book_id,chapter,verse_start,verse_end,versao,versiculo_inicio_id,versiculo_fim_id,created_at,updated_at',
+    plano_estudo_dia_id: `eq.${String(dayId)}`,
+    order: 'ordem.asc',
+  });
+
+  const data = await supabaseFetch(env, `planos_estudo_leituras?${query.toString()}`);
+  if (data instanceof Response) return data;
+  return data as Record<string, unknown>[];
+};
+
+const enrichStudyPlanReading = async (
+  env: Env,
+  reading: Record<string, unknown>,
+  versionOverride?: string,
+): Promise<Record<string, unknown> | Response> => {
+  const originalVersion = String(reading.versao ?? 'ara');
+  const version = versionOverride ?? originalVersion;
+  const bookId = String(reading.book_id);
+  const chapter = String(reading.chapter);
+  const verseStart = String(reading.verse_start ?? 1);
+  const verseEnd = reading.verse_end ? String(reading.verse_end) : '';
+
+  const query = new URLSearchParams({
+    select: 'id,version,testament,book,book_name,book_abbrev,chapter,verse,text,global_order',
+    version: `eq.${version}`,
+    book: `eq.${bookId}`,
+    chapter: `eq.${chapter}`,
+    verse: `gte.${verseStart}`,
+    order: 'verse.asc',
+  });
+  if (verseEnd) query.append('verse', `lte.${verseEnd}`);
+
+  const data = await supabaseFetch(env, `verses_normalized?${query.toString()}`);
+  if (data instanceof Response) return data;
+
+  const verses = (data as Record<string, unknown>[]).map(sanitizeVerse);
+  const first = verses[0];
+  const referenceRange = verseEnd ? `:${verseStart}-${verseEnd}` : '';
+
+  return {
+    ...reading,
+    versao: version,
+    versao_original: originalVersion,
+    referencia: first ? `${first.book_name} ${chapter}${referenceRange}` : `${bookId} ${chapter}${referenceRange}`,
+    texto: {
+      version,
+      testament: first?.testament ?? null,
+      book: Number(bookId),
+      book_name: first?.book_name ?? null,
+      book_abbrev: first?.book_abbrev ?? null,
+      chapter: Number(chapter),
+      verse_start: Number(verseStart),
+      verse_end: verseEnd ? Number(verseEnd) : null,
+      verses,
+      chapter_text: verses.map((verse) => verse.text).filter(Boolean).join('\n'),
+    },
+  };
+};
+
+const handleStudyPlans = async (env: Env, pathname: string, params: URLSearchParams): Promise<Response> => {
+  if (pathname === '/api/planos-estudo/docs') return response({ data: studyPlansApiDocumentation });
+
+  if (pathname === '/api/planos-estudo') {
+    const plans = await supabaseFetch(env, 'planos_estudo?select=plano_estudo_id,titulo,slug,descricao,tipo,duracao_dias,ativo,metadata,created_at,updated_at&ativo=eq.true&order=created_at.desc');
+    if (plans instanceof Response) return plans;
+
+    const rows = plans as Record<string, unknown>[];
+    const planIds = rows.map((plan) => String(plan.plano_estudo_id));
+    const days = planIds.length > 0
+      ? await supabaseFetch(env, `planos_estudo_dias?select=plano_estudo_id,dia&plano_estudo_id=in.(${planIds.join(',')})`)
+      : [];
+    if (days instanceof Response) return days;
+
+    const counts = (days as Record<string, unknown>[]).reduce<Record<string, number>>((acc, day) => {
+      const planId = String(day.plano_estudo_id);
+      acc[planId] = (acc[planId] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    return response({
+      data: rows.map((plan) => ({
+        ...plan,
+        quantidade_dias: counts[String(plan.plano_estudo_id)] ?? 0,
+      })),
+    });
+  }
+
+  const textMatch = pathname.match(/^\/api\/planos-estudo\/([^/]+)\/dias\/(\d+)\/textos$/);
+  const dayMatch = pathname.match(/^\/api\/planos-estudo\/([^/]+)\/dias\/(\d+)$/);
+  const planMatch = pathname.match(/^\/api\/planos-estudo\/([^/]+)$/);
+
+  if (textMatch || dayMatch) {
+    const match = textMatch ?? dayMatch;
+    if (!match) return response({ message: 'Rota nao encontrada' }, { status: 404 });
+
+    const plan = await getStudyPlan(env, decodeURIComponent(match[1]));
+    if (plan instanceof Response) return plan;
+    const day = await getStudyPlanDay(env, plan.plano_estudo_id, match[2]);
+    if (day instanceof Response) return day;
+    const readings = await getStudyPlanReadings(env, day.plano_estudo_dia_id);
+    if (readings instanceof Response) return readings;
+
+    const version = params.get('version') ?? params.get('versao') ?? undefined;
+    const finalReadings = textMatch
+      ? await Promise.all(readings.map((reading) => enrichStudyPlanReading(env, reading, version)))
+      : readings;
+    const firstError = finalReadings.find((reading) => reading instanceof Response);
+    if (firstError instanceof Response) return firstError;
+
+    return response({
+      data: {
+        plano: {
+          plano_estudo_id: plan.plano_estudo_id,
+          titulo: plan.titulo,
+          slug: plan.slug,
+          tipo: plan.tipo,
+          duracao_dias: plan.duracao_dias,
+        },
+        dia: {
+          ...day,
+          versao: version ?? null,
+          quantidade_leituras: finalReadings.length,
+          leituras: finalReadings,
+        },
+      },
+    });
+  }
+
+  if (planMatch) {
+    const plan = await getStudyPlan(env, decodeURIComponent(planMatch[1]));
+    if (plan instanceof Response) return plan;
+    const days = await getStudyPlanDays(env, plan.plano_estudo_id);
+    if (days instanceof Response) return days;
+
+    return response({
+      data: {
+        ...plan,
+        quantidade_dias: days.length,
+        dias: days,
+      },
+    });
+  }
+
+  return response({ message: 'Rota nao encontrada' }, { status: 404 });
+};
+
 const handleBible = async (env: Env, pathname: string, params: URLSearchParams): Promise<Response> => {
   if (pathname === '/api/biblia/examples') return response({ data: bibleApiExamples });
   if (pathname === '/api/biblia/testaments') return getBible(env, 'testaments', params);
@@ -1155,6 +1348,7 @@ export default {
     if (url.pathname === '/health') return response({ status: 'ok' });
     if (url.pathname === '/api/auth/google') return handleGoogleLogin(request, env);
     if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
+    if (url.pathname.startsWith('/api/planos-estudo')) return handleStudyPlans(env, url.pathname, url.searchParams);
     if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });
     const uploadResponse = await handleUploadRoutes(request, env, parts);
     if (uploadResponse) return uploadResponse;

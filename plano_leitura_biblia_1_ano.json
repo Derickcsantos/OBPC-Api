@@ -1,0 +1,8961 @@
+[
+  {
+    "day": 1,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 2,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 3,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 4,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 5,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 6,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 7,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 8,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 9,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 35,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 36,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 10,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 37,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 38,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 39,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 40,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 11,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 41,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 42,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 43,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 44,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 12,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 45,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 46,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 47,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 48,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 13,
+    "readings": [
+      {
+        "book": 1,
+        "chapter": 49,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 1,
+        "chapter": 50,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 14,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 15,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 16,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 17,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 18,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 19,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 20,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 21,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 22,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 35,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 36,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 37,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 38,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 23,
+    "readings": [
+      {
+        "book": 2,
+        "chapter": 39,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 2,
+        "chapter": 40,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 24,
+    "readings": [
+      {
+        "book": 3,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 25,
+    "readings": [
+      {
+        "book": 3,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 26,
+    "readings": [
+      {
+        "book": 3,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 27,
+    "readings": [
+      {
+        "book": 3,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 28,
+    "readings": [
+      {
+        "book": 3,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 29,
+    "readings": [
+      {
+        "book": 3,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 3,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 30,
+    "readings": [
+      {
+        "book": 3,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 31,
+    "readings": [
+      {
+        "book": 4,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 32,
+    "readings": [
+      {
+        "book": 4,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 33,
+    "readings": [
+      {
+        "book": 4,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 34,
+    "readings": [
+      {
+        "book": 4,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 35,
+    "readings": [
+      {
+        "book": 4,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 36,
+    "readings": [
+      {
+        "book": 4,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 37,
+    "readings": [
+      {
+        "book": 4,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 38,
+    "readings": [
+      {
+        "book": 4,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 4,
+        "chapter": 35,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 39,
+    "readings": [
+      {
+        "book": 4,
+        "chapter": 36,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 40,
+    "readings": [
+      {
+        "book": 5,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 41,
+    "readings": [
+      {
+        "book": 5,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 42,
+    "readings": [
+      {
+        "book": 5,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 43,
+    "readings": [
+      {
+        "book": 5,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 44,
+    "readings": [
+      {
+        "book": 5,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 45,
+    "readings": [
+      {
+        "book": 5,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 46,
+    "readings": [
+      {
+        "book": 5,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 47,
+    "readings": [
+      {
+        "book": 5,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 5,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 48,
+    "readings": [
+      {
+        "book": 6,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 49,
+    "readings": [
+      {
+        "book": 6,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 50,
+    "readings": [
+      {
+        "book": 6,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 51,
+    "readings": [
+      {
+        "book": 6,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 52,
+    "readings": [
+      {
+        "book": 6,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 53,
+    "readings": [
+      {
+        "book": 6,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 6,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 54,
+    "readings": [
+      {
+        "book": 7,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 55,
+    "readings": [
+      {
+        "book": 7,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 56,
+    "readings": [
+      {
+        "book": 7,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 57,
+    "readings": [
+      {
+        "book": 7,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 58,
+    "readings": [
+      {
+        "book": 7,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 7,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 59,
+    "readings": [
+      {
+        "book": 8,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 8,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 8,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 8,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 60,
+    "readings": [
+      {
+        "book": 9,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 61,
+    "readings": [
+      {
+        "book": 9,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 62,
+    "readings": [
+      {
+        "book": 9,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 63,
+    "readings": [
+      {
+        "book": 9,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 64,
+    "readings": [
+      {
+        "book": 9,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 65,
+    "readings": [
+      {
+        "book": 9,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 66,
+    "readings": [
+      {
+        "book": 9,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 67,
+    "readings": [
+      {
+        "book": 9,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 9,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 68,
+    "readings": [
+      {
+        "book": 10,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 69,
+    "readings": [
+      {
+        "book": 10,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 70,
+    "readings": [
+      {
+        "book": 10,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 71,
+    "readings": [
+      {
+        "book": 10,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 72,
+    "readings": [
+      {
+        "book": 10,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 73,
+    "readings": [
+      {
+        "book": 10,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 10,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 74,
+    "readings": [
+      {
+        "book": 11,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 75,
+    "readings": [
+      {
+        "book": 11,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 76,
+    "readings": [
+      {
+        "book": 11,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 77,
+    "readings": [
+      {
+        "book": 11,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 78,
+    "readings": [
+      {
+        "book": 11,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 11,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 79,
+    "readings": [
+      {
+        "book": 11,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 80,
+    "readings": [
+      {
+        "book": 12,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 81,
+    "readings": [
+      {
+        "book": 12,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 82,
+    "readings": [
+      {
+        "book": 12,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 83,
+    "readings": [
+      {
+        "book": 12,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 84,
+    "readings": [
+      {
+        "book": 12,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 85,
+    "readings": [
+      {
+        "book": 12,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 12,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 86,
+    "readings": [
+      {
+        "book": 13,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 87,
+    "readings": [
+      {
+        "book": 13,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 88,
+    "readings": [
+      {
+        "book": 13,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 89,
+    "readings": [
+      {
+        "book": 13,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 90,
+    "readings": [
+      {
+        "book": 13,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 91,
+    "readings": [
+      {
+        "book": 13,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 92,
+    "readings": [
+      {
+        "book": 13,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 13,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 93,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 94,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 95,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 96,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 97,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 98,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 99,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 100,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 101,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 102,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 103,
+    "readings": [
+      {
+        "book": 14,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 35,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 14,
+        "chapter": 36,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 104,
+    "readings": [
+      {
+        "book": 15,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 15,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 15,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 105,
+    "readings": [
+      {
+        "book": 15,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 15,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 15,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 106,
+    "readings": [
+      {
+        "book": 15,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 15,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 15,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 107,
+    "readings": [
+      {
+        "book": 15,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 16,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 16,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 108,
+    "readings": [
+      {
+        "book": 16,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 16,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 16,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 109,
+    "readings": [
+      {
+        "book": 16,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 16,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 16,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 110,
+    "readings": [
+      {
+        "book": 16,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 16,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 16,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 111,
+    "readings": [
+      {
+        "book": 16,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 16,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 17,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 112,
+    "readings": [
+      {
+        "book": 17,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 17,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 17,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 113,
+    "readings": [
+      {
+        "book": 17,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 17,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 17,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 114,
+    "readings": [
+      {
+        "book": 17,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 17,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 17,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 115,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 116,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 117,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 118,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 119,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 120,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 121,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 122,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 123,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 124,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 125,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 126,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 35,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 36,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 127,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 37,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 38,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 39,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 128,
+    "readings": [
+      {
+        "book": 18,
+        "chapter": 40,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 41,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 18,
+        "chapter": 42,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 129,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 130,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 131,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 132,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 133,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 134,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 135,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 136,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 137,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 138,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 139,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 140,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 35,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 36,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 141,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 37,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 38,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 39,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 142,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 40,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 41,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 42,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 143,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 43,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 44,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 45,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 144,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 46,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 47,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 48,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 145,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 49,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 50,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 51,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 146,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 52,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 53,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 54,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 147,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 55,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 56,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 57,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 148,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 58,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 59,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 60,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 149,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 61,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 62,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 63,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 150,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 64,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 65,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 66,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 151,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 67,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 68,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 69,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 152,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 70,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 71,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 72,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 153,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 73,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 74,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 75,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 154,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 76,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 77,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 78,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 155,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 79,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 80,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 81,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 156,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 82,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 83,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 84,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 157,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 85,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 86,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 87,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 158,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 88,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 89,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 90,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 159,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 91,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 92,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 93,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 160,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 94,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 95,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 96,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 161,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 97,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 98,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 99,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 162,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 100,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 101,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 102,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 163,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 103,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 104,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 105,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 164,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 106,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 107,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 108,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 165,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 109,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 110,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 111,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 166,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 112,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 113,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 114,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 167,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 115,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 116,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 117,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 168,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 118,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 119,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 120,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 169,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 121,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 122,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 123,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 170,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 124,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 125,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 126,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 171,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 127,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 128,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 129,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 172,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 130,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 131,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 132,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 173,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 133,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 134,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 135,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 174,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 136,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 137,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 138,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 175,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 139,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 140,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 141,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 176,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 142,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 143,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 144,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 177,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 145,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 146,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 147,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 178,
+    "readings": [
+      {
+        "book": 19,
+        "chapter": 148,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 149,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 19,
+        "chapter": 150,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 179,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 180,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 181,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 182,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 183,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 184,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 185,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 186,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 187,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 188,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 20,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 189,
+    "readings": [
+      {
+        "book": 20,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 21,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 21,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 190,
+    "readings": [
+      {
+        "book": 21,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 21,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 21,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 191,
+    "readings": [
+      {
+        "book": 21,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 21,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 21,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 192,
+    "readings": [
+      {
+        "book": 21,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 21,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 21,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 193,
+    "readings": [
+      {
+        "book": 21,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 22,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 22,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 194,
+    "readings": [
+      {
+        "book": 22,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 22,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 22,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 195,
+    "readings": [
+      {
+        "book": 22,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 22,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 22,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 196,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 197,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 198,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 199,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 200,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 201,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 202,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 203,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 204,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 205,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 206,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 207,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 35,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 36,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 208,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 37,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 38,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 39,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 209,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 40,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 41,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 42,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 210,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 43,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 44,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 45,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 211,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 46,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 47,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 48,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 212,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 49,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 50,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 51,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 213,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 52,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 53,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 54,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 214,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 55,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 56,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 57,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 215,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 58,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 59,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 60,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 216,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 61,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 62,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 63,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 217,
+    "readings": [
+      {
+        "book": 23,
+        "chapter": 64,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 65,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 23,
+        "chapter": 66,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 218,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 219,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 220,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 221,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 222,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 223,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 224,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 225,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 226,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 227,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 228,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 229,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 35,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 36,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 230,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 37,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 38,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 39,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 231,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 40,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 41,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 42,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 232,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 43,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 44,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 45,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 233,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 46,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 47,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 48,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 234,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 49,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 50,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 24,
+        "chapter": 51,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 235,
+    "readings": [
+      {
+        "book": 24,
+        "chapter": 52,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 25,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 25,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 236,
+    "readings": [
+      {
+        "book": 25,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 25,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 25,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 237,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 238,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 239,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 240,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 241,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 242,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 243,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 244,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 245,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 246,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 29,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 30,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 247,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 31,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 32,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 33,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 248,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 34,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 35,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 36,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 249,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 37,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 38,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 39,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 250,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 40,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 41,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 42,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 251,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 43,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 44,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 45,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 252,
+    "readings": [
+      {
+        "book": 26,
+        "chapter": 46,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 47,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 26,
+        "chapter": 48,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 253,
+    "readings": [
+      {
+        "book": 27,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 27,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 27,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 254,
+    "readings": [
+      {
+        "book": 27,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 27,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 27,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 255,
+    "readings": [
+      {
+        "book": 27,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 27,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 27,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 256,
+    "readings": [
+      {
+        "book": 27,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 27,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 27,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 257,
+    "readings": [
+      {
+        "book": 28,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 28,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 28,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 258,
+    "readings": [
+      {
+        "book": 28,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 28,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 28,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 259,
+    "readings": [
+      {
+        "book": 28,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 28,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 28,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 260,
+    "readings": [
+      {
+        "book": 28,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 28,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 28,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 261,
+    "readings": [
+      {
+        "book": 28,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 28,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 29,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 262,
+    "readings": [
+      {
+        "book": 29,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 29,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 30,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 263,
+    "readings": [
+      {
+        "book": 30,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 30,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 30,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 264,
+    "readings": [
+      {
+        "book": 30,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 30,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 30,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 265,
+    "readings": [
+      {
+        "book": 30,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 30,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 31,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 266,
+    "readings": [
+      {
+        "book": 32,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 32,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 32,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 267,
+    "readings": [
+      {
+        "book": 32,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 33,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 33,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 268,
+    "readings": [
+      {
+        "book": 33,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 33,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 33,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 269,
+    "readings": [
+      {
+        "book": 33,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 33,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 34,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 270,
+    "readings": [
+      {
+        "book": 34,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 34,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 35,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 271,
+    "readings": [
+      {
+        "book": 35,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 35,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 36,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 272,
+    "readings": [
+      {
+        "book": 36,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 36,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 37,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 273,
+    "readings": [
+      {
+        "book": 37,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 274,
+    "readings": [
+      {
+        "book": 38,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 275,
+    "readings": [
+      {
+        "book": 38,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 276,
+    "readings": [
+      {
+        "book": 38,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 277,
+    "readings": [
+      {
+        "book": 38,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 38,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 278,
+    "readings": [
+      {
+        "book": 39,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 39,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 39,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 279,
+    "readings": [
+      {
+        "book": 39,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 280,
+    "readings": [
+      {
+        "book": 40,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 281,
+    "readings": [
+      {
+        "book": 40,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 282,
+    "readings": [
+      {
+        "book": 40,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 283,
+    "readings": [
+      {
+        "book": 40,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 284,
+    "readings": [
+      {
+        "book": 40,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 285,
+    "readings": [
+      {
+        "book": 40,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 286,
+    "readings": [
+      {
+        "book": 40,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 287,
+    "readings": [
+      {
+        "book": 40,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 288,
+    "readings": [
+      {
+        "book": 40,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 40,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 289,
+    "readings": [
+      {
+        "book": 41,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 290,
+    "readings": [
+      {
+        "book": 41,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 291,
+    "readings": [
+      {
+        "book": 41,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 292,
+    "readings": [
+      {
+        "book": 41,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 293,
+    "readings": [
+      {
+        "book": 41,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 41,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 294,
+    "readings": [
+      {
+        "book": 42,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 295,
+    "readings": [
+      {
+        "book": 42,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 296,
+    "readings": [
+      {
+        "book": 42,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 297,
+    "readings": [
+      {
+        "book": 42,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 298,
+    "readings": [
+      {
+        "book": 42,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 299,
+    "readings": [
+      {
+        "book": 42,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 300,
+    "readings": [
+      {
+        "book": 42,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 301,
+    "readings": [
+      {
+        "book": 42,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 42,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 302,
+    "readings": [
+      {
+        "book": 43,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 303,
+    "readings": [
+      {
+        "book": 43,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 304,
+    "readings": [
+      {
+        "book": 43,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 305,
+    "readings": [
+      {
+        "book": 43,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 306,
+    "readings": [
+      {
+        "book": 43,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 307,
+    "readings": [
+      {
+        "book": 43,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 308,
+    "readings": [
+      {
+        "book": 43,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 43,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 309,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 310,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 311,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 312,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 313,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 314,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 315,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 316,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 23,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 24,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 317,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 25,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 26,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 44,
+        "chapter": 27,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 318,
+    "readings": [
+      {
+        "book": 44,
+        "chapter": 28,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 319,
+    "readings": [
+      {
+        "book": 45,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 320,
+    "readings": [
+      {
+        "book": 45,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 321,
+    "readings": [
+      {
+        "book": 45,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 322,
+    "readings": [
+      {
+        "book": 45,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 323,
+    "readings": [
+      {
+        "book": 45,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 45,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 324,
+    "readings": [
+      {
+        "book": 46,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 325,
+    "readings": [
+      {
+        "book": 46,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 326,
+    "readings": [
+      {
+        "book": 46,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 327,
+    "readings": [
+      {
+        "book": 46,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 328,
+    "readings": [
+      {
+        "book": 46,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 46,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 329,
+    "readings": [
+      {
+        "book": 47,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 47,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 47,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 330,
+    "readings": [
+      {
+        "book": 47,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 47,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 47,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 331,
+    "readings": [
+      {
+        "book": 47,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 47,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 47,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 332,
+    "readings": [
+      {
+        "book": 47,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 47,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 47,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 333,
+    "readings": [
+      {
+        "book": 47,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 48,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 48,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 334,
+    "readings": [
+      {
+        "book": 48,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 48,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 48,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 335,
+    "readings": [
+      {
+        "book": 48,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 49,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 49,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 336,
+    "readings": [
+      {
+        "book": 49,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 49,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 49,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 337,
+    "readings": [
+      {
+        "book": 49,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 50,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 50,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 338,
+    "readings": [
+      {
+        "book": 50,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 50,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 51,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 339,
+    "readings": [
+      {
+        "book": 51,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 51,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 51,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 340,
+    "readings": [
+      {
+        "book": 52,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 52,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 52,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 341,
+    "readings": [
+      {
+        "book": 52,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 52,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 53,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 342,
+    "readings": [
+      {
+        "book": 53,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 53,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 54,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 343,
+    "readings": [
+      {
+        "book": 54,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 54,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 54,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 344,
+    "readings": [
+      {
+        "book": 54,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 54,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 55,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 345,
+    "readings": [
+      {
+        "book": 55,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 55,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 55,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 346,
+    "readings": [
+      {
+        "book": 56,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 56,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 56,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 347,
+    "readings": [
+      {
+        "book": 57,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 58,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 58,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 348,
+    "readings": [
+      {
+        "book": 58,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 58,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 58,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 349,
+    "readings": [
+      {
+        "book": 58,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 58,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 58,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 350,
+    "readings": [
+      {
+        "book": 58,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 58,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 58,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 351,
+    "readings": [
+      {
+        "book": 58,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 58,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 59,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 352,
+    "readings": [
+      {
+        "book": 59,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 59,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 59,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 353,
+    "readings": [
+      {
+        "book": 59,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 60,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 60,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 354,
+    "readings": [
+      {
+        "book": 60,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 60,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 60,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 355,
+    "readings": [
+      {
+        "book": 61,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 61,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 61,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 356,
+    "readings": [
+      {
+        "book": 62,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 62,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 62,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 357,
+    "readings": [
+      {
+        "book": 62,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 62,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 63,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 358,
+    "readings": [
+      {
+        "book": 64,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 65,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 1,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 359,
+    "readings": [
+      {
+        "book": 66,
+        "chapter": 2,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 3,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 4,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 360,
+    "readings": [
+      {
+        "book": 66,
+        "chapter": 5,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 6,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 7,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 361,
+    "readings": [
+      {
+        "book": 66,
+        "chapter": 8,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 9,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 10,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 362,
+    "readings": [
+      {
+        "book": 66,
+        "chapter": 11,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 12,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 13,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 363,
+    "readings": [
+      {
+        "book": 66,
+        "chapter": 14,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 15,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 16,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 364,
+    "readings": [
+      {
+        "book": 66,
+        "chapter": 17,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 18,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 19,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  },
+  {
+    "day": 365,
+    "readings": [
+      {
+        "book": 66,
+        "chapter": 20,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 21,
+        "verse_start": 1,
+        "verse_end": null
+      },
+      {
+        "book": 66,
+        "chapter": 22,
+        "verse_start": 1,
+        "verse_end": null
+      }
+    ]
+  }
+]

@@ -56,3 +56,10 @@ export interface BibleServiceContract {
   compareVerses(params: Record<string, string>): Promise<unknown>;
   searchExactWords(params: Record<string, string>): Promise<unknown>;
 }
+
+export interface StudyPlanServiceContract {
+  listPlans(): Promise<unknown>;
+  getPlan(plan: string): Promise<unknown>;
+  getPlanDay(plan: string, day: number): Promise<unknown>;
+  getPlanDayTexts(plan: string, day: number, version?: string): Promise<unknown>;
+}

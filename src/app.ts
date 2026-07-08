@@ -6,7 +6,8 @@ import { errorHandler } from './middlewares/error-handler.middleware.js';
 import { getSupabaseClient } from './lib/supabase.js';
 import { SupabaseCrudService } from './services/crud.service.js';
 import { BibleService } from './services/bible.service.js';
-import { BibleServiceContract, CrudServiceContract, ResourceName } from './types/crud.types.js';
+import { StudyPlanService } from './services/study-plan.service.js';
+import { BibleServiceContract, CrudServiceContract, ResourceName, StudyPlanServiceContract } from './types/crud.types.js';
 import { registerRoutes } from './routes/index.js';
 import { dashboardHtml } from './frontend/dashboard.js';
 import { AuthServiceContract } from './types/auth.types.js';
@@ -30,6 +31,7 @@ const resourceMap: Record<ResourceName, { table: string; idField: string }> = {
 export interface AppDependencies {
   crudServices?: Partial<Record<ResourceName, CrudServiceContract>>;
   bibleService?: BibleServiceContract;
+  studyPlanService?: StudyPlanServiceContract;
   authService?: AuthServiceContract;
 }
 
@@ -70,6 +72,7 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
       ...(dependencies?.crudServices ?? {}),
     },
     bibleService: dependencies?.bibleService ?? new BibleService(supabase),
+    studyPlanService: dependencies?.studyPlanService ?? new StudyPlanService(supabase),
     authService: dependencies?.authService ?? new AuthService(supabase, {
       googleClientIds: env.GOOGLE_CLIENT_IDS,
       jwtSecret: env.AUTH_JWT_SECRET,

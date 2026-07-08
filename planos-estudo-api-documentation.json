@@ -1,0 +1,157 @@
+{
+  "resource": "planos-estudo",
+  "basePath": "/api/planos-estudo",
+  "description": "API publica para consultar planos de leitura biblica, dias do plano e textos de leitura do dia.",
+  "identifiers": {
+    "plano": "Aceita plano_estudo_id em UUID ou slug do plano, por exemplo plano-leitura-biblia-1-ano."
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/planos-estudo",
+      "summary": "Lista planos de leitura ativos.",
+      "response": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "plano_estudo_id": "uuid",
+              "titulo": "Plano de leitura da Biblia em 1 ano",
+              "slug": "plano-leitura-biblia-1-ano",
+              "descricao": "Plano de estudo para leitura completa da Biblia em 365 dias.",
+              "tipo": "biblia",
+              "duracao_dias": 365,
+              "ativo": true,
+              "metadata": {},
+              "created_at": "timestamp",
+              "updated_at": "timestamp",
+              "quantidade_dias": 365
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/planos-estudo/{plano}",
+      "summary": "Retorna informacoes do plano e a lista resumida de dias.",
+      "pathParams": {
+        "plano": "uuid ou slug"
+      },
+      "example": "/api/planos-estudo/plano-leitura-biblia-1-ano"
+    },
+    {
+      "method": "GET",
+      "path": "/api/planos-estudo/{plano}/dias/{dia}",
+      "summary": "Retorna informacoes do dia especifico e as leituras sem carregar os textos completos.",
+      "pathParams": {
+        "plano": "uuid ou slug",
+        "dia": "numero positivo"
+      },
+      "example": "/api/planos-estudo/plano-leitura-biblia-1-ano/dias/1"
+    },
+    {
+      "method": "GET",
+      "path": "/api/planos-estudo/{plano}/dias/{dia}/textos",
+      "summary": "Retorna o dia especifico com os textos biblicos que o usuario deve ler.",
+      "pathParams": {
+        "plano": "uuid ou slug",
+        "dia": "numero positivo"
+      },
+      "queryParams": {
+        "version": "Codigo da versao da Biblia. Opcional. Exemplos: ara, nvi, arc, naa, kja.",
+        "versao": "Alias de version. Opcional."
+      },
+      "example": "/api/planos-estudo/plano-leitura-biblia-1-ano/dias/1/textos?version=nvi",
+      "response": {
+        "statusCode": 200,
+        "body": {
+          "data": {
+            "plano": {
+              "plano_estudo_id": "uuid",
+              "titulo": "Plano de leitura da Biblia em 1 ano",
+              "slug": "plano-leitura-biblia-1-ano",
+              "tipo": "biblia",
+              "duracao_dias": 365
+            },
+            "dia": {
+              "plano_estudo_dia_id": "uuid",
+              "plano_estudo_id": "uuid",
+              "dia": 1,
+              "titulo": "Dia 1",
+              "versao": "nvi",
+              "quantidade_leituras": 4,
+              "leituras": [
+                {
+                  "plano_estudo_leitura_id": "uuid",
+                  "plano_estudo_dia_id": "uuid",
+                  "ordem": 1,
+                  "book_id": 1,
+                  "chapter": 1,
+                  "verse_start": 1,
+                  "verse_end": null,
+                  "versao": "nvi",
+                  "versao_original": "ara",
+                  "referencia": "Genesis 1",
+                  "texto": {
+                    "version": "nvi",
+                    "testament": 1,
+                    "book": 1,
+                    "book_name": "Genesis",
+                    "book_abbrev": "gn",
+                    "chapter": 1,
+                    "verse_start": 1,
+                    "verse_end": null,
+                    "verses": [
+                      {
+                        "id": 1,
+                        "version": "nvi",
+                        "testament": 1,
+                        "book": 1,
+                        "book_name": "Genesis",
+                        "book_abbrev": "gn",
+                        "chapter": 1,
+                        "verse": 1,
+                        "text": "No principio, criou Deus os ceus e a terra.",
+                        "global_order": 1
+                      }
+                    ],
+                    "chapter_text": "Texto completo do capitulo ou trecho solicitado."
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/planos-estudo/docs",
+      "summary": "Retorna esta documentacao em JSON."
+    }
+  ],
+  "errors": [
+    {
+      "statusCode": 400,
+      "body": {
+        "message": "Erro de validacao",
+        "details": "Detalhes de validacao dos parametros."
+      }
+    },
+    {
+      "statusCode": 404,
+      "body": {
+        "message": "Plano de estudo nao encontrado | Dia do plano de estudo nao encontrado",
+        "details": null
+      }
+    },
+    {
+      "statusCode": 500,
+      "body": {
+        "message": "Erro interno ao consultar Supabase",
+        "details": "Detalhes tecnicos do Supabase quando disponiveis."
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { FastifyInstance } from 'fastify';
 import { beforeAll, afterAll, describe, expect, it } from 'vitest';
-import { BibleServiceContract, CrudServiceContract } from '../src/types/crud.types.js';
+import { BibleServiceContract, CrudServiceContract, StudyPlanServiceContract } from '../src/types/crud.types.js';
 import { FakeCrudService } from './helpers/fake-crud.service.js';
 import { AuthServiceContract } from '../src/types/auth.types.js';
 
@@ -48,6 +48,39 @@ const authStub: AuthServiceContract = {
   }),
 };
 
+const studyPlanStub: StudyPlanServiceContract = {
+  listPlans: async () => [
+    {
+      plano_estudo_id: '22222222-2222-4222-8222-222222222222',
+      titulo: 'Plano de leitura da Biblia em 1 ano',
+      slug: 'plano-leitura-biblia-1-ano',
+      duracao_dias: 365,
+      quantidade_dias: 365,
+    },
+  ],
+  getPlan: async () => ({
+    plano_estudo_id: '22222222-2222-4222-8222-222222222222',
+    titulo: 'Plano de leitura da Biblia em 1 ano',
+    slug: 'plano-leitura-biblia-1-ano',
+    quantidade_dias: 365,
+    dias: [{ dia: 1, titulo: 'Dia 1' }],
+  }),
+  getPlanDay: async () => ({
+    dia: {
+      dia: 1,
+      quantidade_leituras: 1,
+      leituras: [{ ordem: 1, book_id: 1, chapter: 1 }],
+    },
+  }),
+  getPlanDayTexts: async () => ({
+    dia: {
+      dia: 1,
+      quantidade_leituras: 1,
+      leituras: [{ ordem: 1, referencia: 'Genesis 1', texto: { chapter_text: 'No principio...' } }],
+    },
+  }),
+};
+
 describe('API', () => {
   let app: FastifyInstance;
 
@@ -66,8 +99,11 @@ describe('API', () => {
         oracoes: fakeService,
         pessoas: fakeService,
         fotos_ministerios: fakeService,
+        eventos_imagens: fakeService,
+        eventos_inscricoes: fakeService,
       },
       bibleService: bibleStub,
+      studyPlanService: studyPlanStub,
       authService: authStub,
     });
 
@@ -170,5 +206,18 @@ describe('API', () => {
 
     expect(response.statusCode).toBe(201);
     expect(response.body.data.url_imagem).toBe('https://example.com/foto.webp');
+  });
+
+  it('deve listar planos de estudo', async () => {
+    const response = await request(app.server).get('/api/planos-estudo');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data[0].slug).toBe('plano-leitura-biblia-1-ano');
+    expect(response.body.data[0].quantidade_dias).toBe(365);
+  });
+
+  it('deve retornar textos do dia do plano de estudo', async () => {
+    const response = await request(app.server).get('/api/planos-estudo/plano-leitura-biblia-1-ano/dias/1/textos');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data.dia.leituras[0].texto.chapter_text).toBe('No principio...');
   });
 });

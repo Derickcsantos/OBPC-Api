@@ -12,7 +12,8 @@ import { oracoesRoutes } from './oracoes.routes.js';
 import { noticiasRoutes } from './noticias.routes.js';
 import { usuariosRoutes } from './usuarios.routes.js';
 import { uploadsRoutes } from './uploads.routes.js';
-import { BibleServiceContract, CrudServiceContract, ResourceName } from '../types/crud.types.js';
+import { planosEstudoRoutes } from './planos-estudo.routes.js';
+import { BibleServiceContract, CrudServiceContract, ResourceName, StudyPlanServiceContract } from '../types/crud.types.js';
 import { getSupabaseClient } from '../lib/supabase.js';
 import { authRoutes } from './auth.routes.js';
 import { AuthServiceContract } from '../types/auth.types.js';
@@ -20,6 +21,7 @@ import { AuthServiceContract } from '../types/auth.types.js';
 interface RouteServices {
   crudServices: Record<ResourceName, CrudServiceContract>;
   bibleService: BibleServiceContract;
+  studyPlanService: StudyPlanServiceContract;
   authService: AuthServiceContract;
 }
 
@@ -47,5 +49,6 @@ export const registerRoutes = async (
   mensagensRoutes(app, opts.services.crudServices.mensagens);
   oracoesRoutes(app, opts.services.crudServices.oracoes);
   bibliaRoutes(app, opts.services.bibleService);
+  planosEstudoRoutes(app, opts.services.studyPlanService);
   uploadsRoutes(app, getSupabaseClient());
 };
