@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "books-api",
+  "name": "obpc",
   "main": "dist/src/worker.js",
   "compatibility_date": "2026-05-24",
   "observability": {
