@@ -454,8 +454,53 @@ export const dashboardHtml = `<!doctype html>
 
     .filters {
       display: grid;
-      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
       gap: 10px;
+    }
+
+    .bible-results {
+      display: grid;
+      gap: 14px;
+      padding: 0 14px 14px;
+    }
+
+    .result-block {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--panel);
+    }
+
+    .result-block h3 {
+      margin: 0;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .result-list {
+      display: grid;
+    }
+
+    .result-item {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .result-item:last-child {
+      border-bottom: 0;
+    }
+
+    .result-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .result-meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
     }
 
     pre {
@@ -525,12 +570,20 @@ export const dashboardHtml = `<!doctype html>
               <label>Livro <input id="bible-book" type="number" min="1"></label>
               <label>Capitulo <input id="bible-chapter" type="number" min="1"></label>
               <label>Versiculo <input id="bible-verse" type="number" min="1"></label>
+              <label>Escopo
+                <select id="bible-scope">
+                  <option value="all">Tudo</option>
+                  <option value="books">Livros</option>
+                  <option value="verses">Versiculos</option>
+                </select>
+              </label>
             </div>
             <label>Texto <input id="bible-keyword" type="search"></label>
             <div class="actions">
               <button id="bible-fetch" type="button" class="primary">Buscar</button>
             </div>
           </div>
+          <div id="bible-results" class="bible-results"></div>
           <pre id="bible-output">{}</pre>
         </section>
       </div>
@@ -1103,6 +1156,62 @@ export const dashboardHtml = `<!doctype html>
       });
     }
 
+    function renderBibleSearchResults(json) {
+      const container = document.querySelector('#bible-results');
+      const books = Array.isArray(json.books)
+        ? json.books
+        : json.meta?.scope === 'books' && Array.isArray(json.data)
+          ? json.data
+          : [];
+      const verses = json.meta?.scope === 'books' ? [] : Array.isArray(json.data) ? json.data : [];
+
+      if (!books.length && !verses.length) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const booksHtml = books.length ? \`
+        <div class="result-block">
+          <h3>Livros encontrados</h3>
+          <div class="result-list">
+            \${books.map((book) => \`
+              <div class="result-item">
+                <div class="result-title">\${escapeHtml(book.name || '')}</div>
+                <div class="result-meta">ID \${escapeHtml(book.id || '')} · \${escapeHtml(book.abbrev || '')} · Testamento \${escapeHtml(book.testament || '')}</div>
+              </div>
+            \`).join('')}
+          </div>
+        </div>
+      \` : '';
+
+      const versesHtml = verses.length ? \`
+        <div class="result-block">
+          <h3>Versiculos encontrados</h3>
+          <div class="result-list">
+            \${verses.map((verse) => \`
+              <div class="result-item">
+                <div class="result-title">\${escapeHtml(verse.book_name || verse.book || '')} \${escapeHtml(verse.chapter || '')}:\${escapeHtml(verse.verse || '')}</div>
+                <div class="result-meta">\${escapeHtml(verse.version || '')} · \${escapeHtml(verse.book_abbrev || '')}</div>
+                <div>\${escapeHtml(verse.text || '')}</div>
+              </div>
+            \`).join('')}
+          </div>
+        </div>
+      \` : '';
+
+      container.innerHTML = booksHtml + versesHtml;
+    }
+
+    function renderBibleResponse(endpoint, json) {
+      if (endpoint.includes('search')) {
+        renderBibleSearchResults(json);
+      } else {
+        document.querySelector('#bible-results').innerHTML = '';
+      }
+
+      document.querySelector('#bible-output').textContent = JSON.stringify(json, null, 2);
+    }
+
     async function fetchBible() {
       const endpoint = document.querySelector('#bible-endpoint').value;
       const params = new URLSearchParams();
@@ -1111,19 +1220,22 @@ export const dashboardHtml = `<!doctype html>
       const chapter = document.querySelector('#bible-chapter').value;
       const verse = document.querySelector('#bible-verse').value;
       const keyword = document.querySelector('#bible-keyword').value;
+      const scope = document.querySelector('#bible-scope').value;
 
       if (endpoint.includes('books') && testament) params.set('testament_id', testament);
       if ((endpoint.includes('chapters') || endpoint.includes('verses') || endpoint.includes('search')) && book) params.set('book_id', book);
       if ((endpoint.includes('verses') || endpoint.includes('search')) && chapter) params.set('chapter_id', chapter);
       if (endpoint.includes('verses') && verse) params.set('verse', verse);
       if ((endpoint.includes('verses') || endpoint.includes('search')) && keyword) params.set('keyword', keyword);
+      if (endpoint.includes('search')) params.set('scope', scope || 'all');
 
       const url = endpoint + (params.toString() ? '?' + params.toString() : '');
       try {
         const json = await request(url);
-        document.querySelector('#bible-output').textContent = JSON.stringify(json, null, 2);
+        renderBibleResponse(endpoint, json);
         setStatus(url);
       } catch (error) {
+        document.querySelector('#bible-results').innerHTML = '';
         document.querySelector('#bible-output').textContent = JSON.stringify({ error: error.message }, null, 2);
         setStatus(error.message, true);
       }
@@ -1157,6 +1269,7 @@ export const dashboardHtml = `<!doctype html>
     });
     document.querySelector('#bible-fetch').addEventListener('click', fetchBible);
     document.querySelector('#bible-endpoint').addEventListener('change', fetchBible);
+    document.querySelector('#bible-scope').addEventListener('change', fetchBible);
 
     renderNav();
     renderForm();
@@ -1164,3 +1277,4 @@ export const dashboardHtml = `<!doctype html>
   </script>
 </body>
 </html>`;
+

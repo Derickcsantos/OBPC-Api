@@ -87,6 +87,7 @@ export const bibleSearchQuerySchema = z
     version: bibleVersion,
     version_id: positiveInt.optional(),
     keyword: z.string().min(1),
+    scope: z.enum(['all', 'verses', 'books']).default('all'),
     book_id: positiveInt.optional(),
     chapter_id: positiveInt.optional(),
     verse_start: positiveInt.optional(),

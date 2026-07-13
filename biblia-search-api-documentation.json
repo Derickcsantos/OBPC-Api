@@ -1,0 +1,201 @@
+{
+  "resource": "biblia-search",
+  "basePath": "/api/biblia/search",
+  "description": "API de busca biblica para encontrar versiculos por texto e livros por nome ou abreviacao.",
+  "queryParams": {
+    "keyword": {
+      "type": "string",
+      "required": true,
+      "description": "Texto digitado pelo usuario. Pode ser uma palavra do versiculo ou o nome/abreviacao de um livro."
+    },
+    "scope": {
+      "type": "string",
+      "required": false,
+      "default": "all",
+      "allowedValues": ["all", "verses", "books"],
+      "description": "Controla o tipo de resultado. all retorna versiculos em data e livros em books; verses retorna apenas versiculos; books retorna apenas livros em data."
+    },
+    "version": {
+      "type": "string",
+      "required": false,
+      "default": "nvi",
+      "description": "Versao da Biblia usada na busca de versiculos. Exemplos: nvi, ara, arc, naa, kja."
+    },
+    "book_id": {
+      "type": "number",
+      "required": false,
+      "description": "Filtra versiculos por livro."
+    },
+    "chapter_id": {
+      "type": "number",
+      "required": false,
+      "description": "Filtra versiculos por capitulo."
+    },
+    "testament_id": {
+      "type": "number",
+      "required": false,
+      "description": "Filtra livros por testamento. 1 = Antigo Testamento, 2 = Novo Testamento."
+    },
+    "page": {
+      "type": "number",
+      "required": false,
+      "default": 1
+    },
+    "limit": {
+      "type": "number",
+      "required": false,
+      "default": 100,
+      "max": 100
+    }
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/biblia/search?keyword=genesis&scope=books",
+      "description": "Busca somente livros pelo nome ou abreviacao.",
+      "response": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "id": 1,
+              "name": "Genesis",
+              "abbrev": "gn",
+              "testament": 1
+            }
+          ],
+          "pagination": {
+            "page": 1,
+            "limit": 100,
+            "total": 1,
+            "totalPages": 1,
+            "hasNextPage": false,
+            "hasPreviousPage": false
+          },
+          "meta": {
+            "scope": "books",
+            "keyword": "genesis",
+            "version": "nvi"
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/biblia/search?keyword=graca&scope=verses&version=nvi",
+      "description": "Busca somente versiculos por texto.",
+      "response": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "id": 62124,
+              "version": "nvi",
+              "testament": 2,
+              "book": 66,
+              "book_name": "Apocalipse",
+              "book_abbrev": "ap",
+              "chapter": 22,
+              "verse": 21,
+              "text": "A graca do Senhor Jesus seja com todos. Amem.",
+              "global_order": 31102
+            }
+          ],
+          "pagination": {
+            "page": 1,
+            "limit": 100,
+            "total": 1,
+            "totalPages": 1,
+            "hasNextPage": false,
+            "hasPreviousPage": false
+          },
+          "meta": {
+            "scope": "verses",
+            "keyword": "graca",
+            "version": "nvi"
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/biblia/search?keyword=joao&scope=all&version=nvi",
+      "description": "Busca versiculos e tambem livros. Versiculos ficam em data; livros ficam em books.",
+      "response": {
+        "statusCode": 200,
+        "body": {
+          "data": [
+            {
+              "id": 1,
+              "version": "nvi",
+              "testament": 2,
+              "book": 43,
+              "book_name": "Joao",
+              "book_abbrev": "jo",
+              "chapter": 1,
+              "verse": 1,
+              "text": "No principio era aquele que e a Palavra...",
+              "global_order": 26047
+            }
+          ],
+          "pagination": {
+            "page": 1,
+            "limit": 100,
+            "total": 1,
+            "totalPages": 1,
+            "hasNextPage": false,
+            "hasPreviousPage": false
+          },
+          "books": [
+            {
+              "id": 43,
+              "name": "Joao",
+              "abbrev": "jo",
+              "testament": 2
+            },
+            {
+              "id": 62,
+              "name": "1 Joao",
+              "abbrev": "1jo",
+              "testament": 2
+            }
+          ],
+          "books_pagination": {
+            "page": 1,
+            "limit": 100,
+            "total": 2,
+            "totalPages": 1,
+            "hasNextPage": false,
+            "hasPreviousPage": false
+          },
+          "meta": {
+            "scope": "all",
+            "keyword": "joao",
+            "version": "nvi"
+          }
+        }
+      }
+    }
+  ],
+  "clientUsage": {
+    "searchOnlyBooks": "Use scope=books e renderize response.data como lista de livros.",
+    "searchOnlyVerses": "Use scope=verses e renderize response.data como lista de versiculos.",
+    "globalSearch": "Use scope=all. Renderize response.books como atalhos de livros e response.data como versiculos encontrados."
+  },
+  "errors": [
+    {
+      "statusCode": 400,
+      "body": {
+        "message": "Erro de validacao",
+        "details": "keyword e obrigatorio; scope deve ser all, verses ou books."
+      }
+    },
+    {
+      "statusCode": 500,
+      "body": {
+        "message": "Erro ao buscar livros da Biblia ou Erro ao buscar versos da Biblia",
+        "details": "Detalhes tecnicos do Supabase quando disponiveis."
+      }
+    }
+  ]
+}

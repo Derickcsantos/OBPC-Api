@@ -31,7 +31,24 @@ const bibleStub: BibleServiceContract = {
   }),
   getVerses: async () => ({ verses: [{ verse_id: 1, text: 'No princípio...' }] }),
   compareVerses: async () => ({ data: [{ book: 1, chapter: 1, verse: 1, texts_by_version: { nvi: 'No principio...' } }] }),
-  searchExactWords: async () => ({ verses: [{ verse_id: 1, text: 'Deus criou' }] }),
+  searchExactWords: async (params) => (params.scope === 'books'
+    ? {
+        data: [{ id: 1, name: 'Genesis', abbrev: 'gn', testament: 1 }],
+        pagination: {
+          page: 1,
+          limit: 100,
+          total: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+        meta: {
+          scope: 'books',
+          keyword: params.keyword,
+          version: params.version,
+        },
+      }
+    : { verses: [{ verse_id: 1, text: 'Deus criou' }] }),
 };
 
 const authStub: AuthServiceContract = {
@@ -147,6 +164,13 @@ describe('API', () => {
     const response = await request(app.server).get('/api/biblia/versions');
     expect(response.statusCode).toBe(200);
     expect(response.body.data[0].name).toBe('ACF');
+  });
+
+  it('deve buscar livro da biblia pelo nome', async () => {
+    const response = await request(app.server).get('/api/biblia/search?keyword=genesis&scope=books');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data[0].name).toBe('Genesis');
+    expect(response.body.meta.scope).toBe('books');
   });
 
   it('deve autenticar com um id_token do Google', async () => {

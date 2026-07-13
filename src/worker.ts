@@ -430,20 +430,78 @@ const restHeaders = (env: Env): HeadersInit => ({
   Prefer: 'return=representation',
 });
 
+const parseResponseBody = (text: string): unknown => {
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return text;
+  }
+};
+
+const supabaseRestUrl = (env: Env, path: string): string | Response => {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
+    return response({
+      message: 'Supabase nao configurado no Worker',
+      details: 'Configure SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY nos secrets/vars do Cloudflare Worker.',
+    }, { status: 500 });
+  }
+
+  let baseUrl: URL;
+  try {
+    baseUrl = new URL(env.SUPABASE_URL);
+  } catch {
+    return response({
+      message: 'SUPABASE_URL invalida no Worker',
+      details: 'Use a URL completa do projeto Supabase, por exemplo https://<project-ref>.supabase.co.',
+    }, { status: 500 });
+  }
+
+  if (!baseUrl.hostname.endsWith('.supabase.co')) {
+    return response({
+      message: 'SUPABASE_URL parece incorreta',
+      details: {
+        hostname: baseUrl.hostname,
+        expected: 'https://<project-ref>.supabase.co',
+      },
+    }, { status: 500 });
+  }
+
+  return `${baseUrl.origin}/rest/v1/${path}`;
+};
+
 const supabaseFetch = async (env: Env, path: string, init?: RequestInit): Promise<unknown> => {
-  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
-    ...init,
-    headers: {
-      ...restHeaders(env),
-      ...(init?.headers ?? {}),
-    },
-  });
+  const url = supabaseRestUrl(env, path);
+  if (url instanceof Response) return url;
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...init,
+      headers: {
+        ...restHeaders(env),
+        ...(init?.headers ?? {}),
+      },
+    });
+  } catch (error) {
+    return response({
+      message: 'Erro de rede ao acessar Supabase',
+      details: error instanceof Error ? error.message : String(error),
+    }, { status: 502 });
+  }
 
   const text = await res.text();
-  const data = text ? (JSON.parse(text) as unknown) : null;
+  const data = parseResponseBody(text);
 
   if (!res.ok) {
-    return response({ message: 'Erro ao acessar Supabase', details: data }, { status: res.status });
+    return response({
+      message: 'Erro ao acessar Supabase',
+      details: data,
+      status: res.status,
+    }, { status: res.status === 530 || res.status === 522 || res.status === 523 ? 502 : res.status });
   }
 
   return data;
@@ -465,25 +523,47 @@ const supabaseFetchWithCount = async (
   path: string,
   init?: RequestInit,
 ): Promise<{ data: Record<string, unknown>[]; total: number } | Response> => {
-  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
-    ...init,
-    headers: {
-      ...restHeaders(env),
-      Prefer: 'count=exact',
-      ...(init?.headers ?? {}),
-    },
-  });
+  const url = supabaseRestUrl(env, path);
+  if (url instanceof Response) return url;
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...init,
+      headers: {
+        ...restHeaders(env),
+        Prefer: 'count=exact',
+        ...(init?.headers ?? {}),
+      },
+    });
+  } catch (error) {
+    return response({
+      message: 'Erro de rede ao acessar Supabase',
+      details: error instanceof Error ? error.message : String(error),
+    }, { status: 502 });
+  }
 
   const text = await res.text();
-  const data = text ? (JSON.parse(text) as Record<string, unknown>[]) : [];
+  const parsed = parseResponseBody(text);
 
   if (!res.ok) {
-    return response({ message: 'Erro ao acessar Supabase', details: data }, { status: res.status });
+    return response({
+      message: 'Erro ao acessar Supabase',
+      details: parsed,
+      status: res.status,
+    }, { status: res.status === 530 || res.status === 522 || res.status === 523 ? 502 : res.status });
+  }
+
+  if (!Array.isArray(parsed)) {
+    return response({
+      message: 'Resposta inesperada do Supabase',
+      details: parsed,
+    }, { status: 502 });
   }
 
   return {
-    data,
-    total: parseContentRangeTotal(res.headers.get('content-range'), data.length),
+    data: parsed as Record<string, unknown>[],
+    total: parseContentRangeTotal(res.headers.get('content-range'), parsed.length),
   };
 };
 
@@ -1092,6 +1172,62 @@ const getVerses = async (env: Env, params: URLSearchParams): Promise<Response> =
   return response(paginate(rows, total, page, limit));
 };
 
+const sanitizeSearchPattern = (value: string): string => value.replace(/[,%*()]/g, ' ').trim();
+
+const getBibleBooksSearch = async (env: Env, params: URLSearchParams): Promise<{ data: Record<string, unknown>[]; pagination: Record<string, unknown> } | Response> => {
+  const keyword = sanitizeSearchPattern(params.get('keyword') ?? params.get('q') ?? params.get('text') ?? '');
+  const { page, limit, offset } = getPage(params);
+  const query = new URLSearchParams({
+    select: 'id,name,abbrev,testament',
+    order: 'id.asc',
+    limit: String(limit),
+    offset: String(offset),
+  });
+
+  const testament = params.get('testament_id') ?? params.get('testament');
+  if (testament) query.set('testament', `eq.${testament}`);
+  if (keyword) query.set('or', `(name.ilike.*${keyword}*,abbrev.ilike.*${keyword}*)`);
+
+  const result = await supabaseFetchWithCount(env, `books?${query.toString()}`);
+  if (result instanceof Response) return result;
+
+  return paginate(result.data, result.total, page, limit);
+};
+
+const getBibleSearch = async (env: Env, params: URLSearchParams): Promise<Response> => {
+  const scope = params.get('scope') ?? 'all';
+
+  if (scope === 'books') {
+    const books = await getBibleBooksSearch(env, params);
+    return books instanceof Response ? books : response({
+      ...books,
+      meta: {
+        scope,
+        keyword: params.get('keyword') ?? params.get('q') ?? params.get('text'),
+        version: params.get('version') ?? defaultVersion,
+      },
+    });
+  }
+
+  const versesResponse = await getVerses(env, params);
+  if (scope === 'verses') return versesResponse;
+
+  const books = await getBibleBooksSearch(env, params);
+  if (books instanceof Response) return books;
+
+  const verses = await versesResponse.json() as Record<string, unknown>;
+  return response({
+    ...verses,
+    books: books.data,
+    books_pagination: books.pagination,
+    meta: {
+      scope,
+      keyword: params.get('keyword') ?? params.get('q') ?? params.get('text'),
+      version: params.get('version') ?? defaultVersion,
+    },
+  });
+};
+
 const getVerseComparisons = async (env: Env, params: URLSearchParams): Promise<Response> => {
   const versions = params.get('versions')?.split(',').map((version) => version.trim().toLowerCase()).filter(Boolean);
   const { page, limit, offset } = getPage(params);
@@ -1331,7 +1467,8 @@ const handleBible = async (env: Env, pathname: string, params: URLSearchParams):
   if (pathname === '/api/biblia/books') return getBible(env, 'books', params);
   if (pathname === '/api/biblia/chapters') return getChapters(env, params);
   if (pathname === '/api/biblia/compare') return getVerseComparisons(env, params);
-  if (pathname === '/api/biblia/verses' || pathname === '/api/biblia/search') return getVerses(env, params);
+  if (pathname === '/api/biblia/search') return getBibleSearch(env, params);
+  if (pathname === '/api/biblia/verses') return getVerses(env, params);
   if (pathname === '/api/biblia/versions') return getBibleVersions(env);
 
   return response({ message: 'Rota nao encontrada' }, { status: 404 });
@@ -1339,24 +1476,37 @@ const handleBible = async (env: Env, pathname: string, params: URLSearchParams):
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    if (request.method === 'OPTIONS') return new Response(null, { headers: jsonHeaders });
+    try {
+      if (request.method === 'OPTIONS') return new Response(null, { headers: jsonHeaders });
 
-    const url = new URL(request.url);
-    const parts = url.pathname.split('/').filter(Boolean);
+      const url = new URL(request.url);
+      const parts = url.pathname.split('/').filter(Boolean);
 
-    if (url.pathname === '/') return html(dashboardHtml);
-    if (url.pathname === '/health') return response({ status: 'ok' });
-    if (url.pathname === '/api/auth/google') return handleGoogleLogin(request, env);
-    if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
-    if (url.pathname.startsWith('/api/planos-estudo')) return handleStudyPlans(env, url.pathname, url.searchParams);
-    if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });
-    const uploadResponse = await handleUploadRoutes(request, env, parts);
-    if (uploadResponse) return uploadResponse;
-    if (parts[0] === 'api' && parts[1] === 'eventos' && parts[2] && parts[3] === 'inscricoes') {
-      return handleEventRegistration(request, env, parts[2]);
+      if (url.pathname === '/') return html(dashboardHtml);
+      if (url.pathname === '/health') return response({ status: 'ok' });
+      if (url.pathname === '/api/auth/google') return handleGoogleLogin(request, env);
+      if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
+      if (url.pathname.startsWith('/api/planos-estudo')) return handleStudyPlans(env, url.pathname, url.searchParams);
+      if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });
+      const uploadResponse = await handleUploadRoutes(request, env, parts);
+      if (uploadResponse) return uploadResponse;
+      if (parts[0] === 'api' && parts[1] === 'eventos' && parts[2] && parts[3] === 'inscricoes') {
+        return handleEventRegistration(request, env, parts[2]);
+      }
+      if (parts[0] === 'api' && parts[1]) return handleCrud(request, env, parts[1], parts[2]);
+
+      return response({ message: 'Rota nao encontrada' }, { status: 404 });
+    } catch (error) {
+      return response({
+        message: 'Erro interno do Worker',
+        details: error instanceof Error
+          ? {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            }
+          : String(error),
+      }, { status: 500 });
     }
-    if (parts[0] === 'api' && parts[1]) return handleCrud(request, env, parts[1], parts[2]);
-
-    return response({ message: 'Rota nao encontrada' }, { status: 404 });
   },
 };

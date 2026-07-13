@@ -116,6 +116,8 @@ const versionsFilter = (params: Record<string, string>): string[] | undefined =>
     .map((version) => version.trim().toLowerCase())
     .filter(Boolean);
 
+const sanitizeSearchPattern = (value: string): string => value.replace(/[,%*()]/g, ' ').trim();
+
 export class BibleService implements BibleServiceContract {
   constructor(private readonly client: SupabaseClient) {}
 
@@ -313,10 +315,70 @@ export class BibleService implements BibleServiceContract {
   }
 
   async searchExactWords(params: Record<string, string>): Promise<unknown> {
-    return this.queryVerses({
+    const normalizedParams: Record<string, string> = {
       ...params,
       keyword: params.keyword ?? params.q ?? params.text,
-    });
+    };
+    const scope = normalizedParams.scope ?? 'all';
+
+    if (scope === 'books') {
+      return this.queryBooks(normalizedParams);
+    }
+
+    const verses = await this.queryVerses(normalizedParams);
+
+    if (scope === 'verses') {
+      return {
+        ...verses,
+        meta: {
+          scope,
+          keyword: normalizedParams.keyword,
+          version: normalizedParams.version ?? defaultVersion,
+        },
+      };
+    }
+
+    const books = await this.queryBooks(normalizedParams);
+
+    return {
+      ...verses,
+      books: books.data,
+      books_pagination: books.pagination,
+      meta: {
+        scope,
+        keyword: normalizedParams.keyword,
+        version: normalizedParams.version ?? defaultVersion,
+      },
+    };
+  }
+
+  private async queryBooks(params: Record<string, string>): Promise<PaginatedResult> {
+    const keyword = params.keyword?.trim();
+    const testamentId = toInt(params.testament_id ?? params.testament);
+    const { page, limit, from, to } = paginationFrom(params);
+
+    let query = this.client
+      .from('books')
+      .select('id,name,abbrev,testament', { count: 'exact' })
+      .order('id', { ascending: true })
+      .range(from, to);
+
+    if (testamentId) {
+      query = query.eq('testament', testamentId);
+    }
+
+    if (keyword) {
+      const pattern = sanitizeSearchPattern(keyword);
+      query = query.or(`name.ilike.%${pattern}%,abbrev.ilike.%${pattern}%`);
+    }
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      throw new AppError(500, 'Erro ao buscar livros da Biblia', error);
+    }
+
+    return paginated((data ?? []) as unknown as EntityRecord[], count, page, limit);
   }
 
   private async queryVerses(params: Record<string, string>): Promise<PaginatedResult> {
