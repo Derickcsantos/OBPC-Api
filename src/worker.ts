@@ -2,7 +2,7 @@ import { dashboardHtml } from './frontend/dashboard.js';
 import { bibleApiExamples } from './docs/bible-api-examples.js';
 import { eventsApiExamples } from './docs/events-api-examples.js';
 import { studyPlansApiDocumentation } from './docs/study-plans-api-documentation.js';
-import { signApiToken, verifyGoogleIdToken } from './services/google-token.service.js';
+import { signApiToken, verifyApiToken, verifyGoogleIdToken } from './services/google-token.service.js';
 import { AppError } from './utils/app-error.js';
 
 interface Env {
@@ -203,6 +203,85 @@ const storageHeaders = (env: Env, contentType = 'application/json'): HeadersInit
 
 const publicStorageUrl = (env: Env, bucket: string, key: string): string =>
   `${env.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/public/${bucket}/${encodeObjectKey(key)}`;
+const getWorkerUserId = async (request: Request, env: Env): Promise<string | Response> => {
+  const authorization = request.headers.get('authorization') ?? '';
+  const token = authorization.startsWith('Bearer ') ? authorization.slice(7).trim() : '';
+  const jwtSecret = env.AUTH_JWT_SECRET ?? env.GOOGLE_SECRET_KEY;
+  if (!token || !jwtSecret) {
+  return response({ message: 'Token de acesso obrigatorio.' }, { status: 401 });
+  }
+
+  try {
+  const claims = await verifyApiToken(token, jwtSecret, env.BACKEND_URL ?? 'books-api');
+  return claims.sub;
+  } catch (error) {
+  return response({ message: error instanceof AppError ? error.message : 'Token de acesso invalido ou expirado.' }, { status: 401 });
+  }
+};
+
+const handleRelationshipRoutes = async (request: Request, env: Env, parts: string[]): Promise<Response | null> => {
+  const isPrayer = parts[1] === 'oracoes' && Boolean(parts[2]) && parts[3] === 'orado';
+  const isInterest = parts[1] === 'ministerios' && Boolean(parts[2]) && parts[3] === 'interesse';
+  const isInterestedUsers = parts[1] === 'ministerios' && Boolean(parts[2]) && parts[3] === 'interessados';
+  const isMyInterests = parts[1] === 'usuarios' && parts[2] === 'me' && parts[3] === 'ministerios-interesse';
+  if (!isPrayer && !isInterest && !isInterestedUsers && !isMyInterests) return null;
+  if ((isPrayer && request.method !== 'POST') || (isInterest && !['POST', 'DELETE'].includes(request.method))
+    || (isInterestedUsers && request.method !== 'GET') || (isMyInterests && request.method !== 'GET')) {
+    return response({ message: 'Metodo nao permitido' }, { status: 405 });
+  }
+
+  const userId = await getWorkerUserId(request, env);
+  if (userId instanceof Response) return userId;
+
+  if (isPrayer) {
+    const prayer = await supabaseFetch(env, `oracoes?select=oracao_id&oracao_id=eq.${encodeURIComponent(parts[2])}&limit=1`);
+    if (prayer instanceof Response) return prayer;
+    if (!(prayer as Record<string, unknown>[])[0]) return response({ message: 'Pedido de oração nao encontrado.' }, { status: 404 });
+    const data = await supabaseFetch(env, 'usuario_oracoes_oradas?on_conflict=usuario_id,oracao_id&select=usuario_id,oracao_id,created_at', {
+      method: 'POST',
+      body: JSON.stringify({ usuario_id: userId, oracao_id: parts[2] }),
+      headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+    });
+    if (data instanceof Response) return data;
+    return response({ data: { ...((data as Record<string, unknown>[])[0] ?? {}), orado: true } }, { status: 201 });
+  }
+
+  if (isInterest || isInterestedUsers) {
+    const ministry = await supabaseFetch(env, `ministerios?select=ministerio_id&ministerio_id=eq.${encodeURIComponent(parts[2])}&limit=1`);
+    if (ministry instanceof Response) return ministry;
+    if (!(ministry as Record<string, unknown>[])[0]) return response({ message: 'Ministerio nao encontrado.' }, { status: 404 });
+  }
+
+  if (isInterest && request.method === 'POST') {
+    const data = await supabaseFetch(env, 'usuario_ministerios_interesse?on_conflict=usuario_id,ministerio_id&select=usuario_id,ministerio_id,created_at', {
+      method: 'POST',
+      body: JSON.stringify({ usuario_id: userId, ministerio_id: parts[2] }),
+      headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+    });
+    return data instanceof Response ? data : response({ data: (data as Record<string, unknown>[])[0] }, { status: 201 });
+  }
+
+  if (isInterest && request.method === 'DELETE') {
+    const data = await supabaseFetch(env, `usuario_ministerios_interesse?usuario_id=eq.${encodeURIComponent(userId)}&ministerio_id=eq.${encodeURIComponent(parts[2])}&select=usuario_id,ministerio_id,created_at`, { method: 'DELETE' });
+    if (data instanceof Response) return data;
+    return response({ data: (data as Record<string, unknown>[])[0] ?? { usuario_id: userId, ministerio_id: parts[2], removido: false } });
+  }
+
+  if (isMyInterests) {
+    const data = await supabaseFetch(env, `usuario_ministerios_interesse?select=ministerio_id,created_at,ministerios(*)&usuario_id=eq.${encodeURIComponent(userId)}&order=created_at.asc`);
+    return data instanceof Response ? data : response({ data });
+  }
+
+  const data = await supabaseFetch(env, `usuario_ministerios_interesse?select=created_at,usuarios(${authUserColumns})&ministerio_id=eq.${encodeURIComponent(parts[2])}&order=created_at.asc`);
+  if (data instanceof Response) return data;
+  return response({
+    data: (data as Array<{ created_at: string; usuarios?: Record<string, unknown>[] }>).map((item) => ({
+      ...(item.usuarios?.[0] ?? {}),
+      interesse_created_at: item.created_at,
+    })),
+  });
+};
+
 
 const ensurePublicBucket = async (env: Env, bucket: string): Promise<Response | null> => {
   if (storageBucketCache.has(bucket)) {
@@ -1488,6 +1567,8 @@ export default {
       if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
       if (url.pathname.startsWith('/api/planos-estudo')) return handleStudyPlans(env, url.pathname, url.searchParams);
       if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });
+      const relationshipResponse = await handleRelationshipRoutes(request, env, parts);
+      if (relationshipResponse) return relationshipResponse;
       const uploadResponse = await handleUploadRoutes(request, env, parts);
       if (uploadResponse) return uploadResponse;
       if (parts[0] === 'api' && parts[1] === 'eventos' && parts[2] && parts[3] === 'inscricoes') {

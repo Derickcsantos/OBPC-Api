@@ -136,6 +136,20 @@ create table if not exists oracoes (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists usuario_oracoes_oradas (
+  usuario_id uuid not null references usuarios(usuario_id) on delete cascade,
+  oracao_id uuid not null references oracoes(oracao_id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (usuario_id, oracao_id)
+);
+
+create table if not exists usuario_ministerios_interesse (
+  usuario_id uuid not null references usuarios(usuario_id) on delete cascade,
+  ministerio_id uuid not null references ministerios(ministerio_id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (usuario_id, ministerio_id)
+);
+
 create index if not exists idx_ministerios_created_at on ministerios (created_at desc);
 create index if not exists idx_usuarios_created_at on usuarios (created_at desc);
 create index if not exists idx_eventos_created_at on eventos (created_at desc);
@@ -152,6 +166,10 @@ create index if not exists idx_louvores_created_at on louvores (created_at desc)
 create index if not exists idx_mensagens_created_at on mensagens (created_at desc);
 create index if not exists idx_oracoes_created_at on oracoes (created_at desc);
 create index if not exists idx_oracoes_status on oracoes (status);
+create index if not exists idx_usuario_oracoes_oradas_oracao_created_at
+  on usuario_oracoes_oradas (oracao_id, created_at asc);
+create index if not exists idx_usuario_ministerios_interesse_ministerio_created_at
+  on usuario_ministerios_interesse (ministerio_id, created_at asc);
 
 drop trigger if exists trg_ministerios_updated_at on ministerios;
 create trigger trg_ministerios_updated_at

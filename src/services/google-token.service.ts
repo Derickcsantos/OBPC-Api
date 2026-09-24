@@ -169,3 +169,47 @@ export const signApiToken = async (
   const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${header}.${body}`));
   return `${header}.${body}.${encodeBase64Url(new Uint8Array(signature))}`;
 };
+
+export const verifyApiToken = async (
+  token: string,
+  secret: string,
+  issuer: string,
+): Promise<{ sub: string; email?: string; provider?: string }> => {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) throw new Error('JWT malformado');
+
+    const header = decodeJsonPart<{ alg?: string }>(parts[0]);
+    const payload = decodeJsonPart<{
+      sub?: string;
+      email?: string;
+      provider?: string;
+      iss?: string;
+      aud?: string;
+      exp?: number;
+    }>(parts[1]);
+    if (header.alg !== 'HS256' || payload.iss !== issuer || payload.aud !== 'obpc-mobile' || !payload.sub) {
+      throw new Error('Claims invalidas');
+    }
+
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify'],
+    );
+    const validSignature = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      toArrayBuffer(decodeBase64Url(parts[2])),
+      new TextEncoder().encode(`${parts[0]}.${parts[1]}`),
+    );
+    const now = Math.floor(Date.now() / 1000);
+    if (!validSignature || !payload.exp || payload.exp <= now) throw new Error('Token expirado');
+
+    return { sub: payload.sub, email: payload.email, provider: payload.provider };
+  } catch {
+    throw new AppError(401, 'Token de acesso invalido ou expirado.');
+  }
+};

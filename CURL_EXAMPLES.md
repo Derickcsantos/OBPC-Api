@@ -44,6 +44,44 @@ curl -X PUT http://localhost:3333/api/ministerios/{id} \
 curl -X DELETE http://localhost:3333/api/ministerios/{id}
 ```
 
+### Relacionamentos autenticados
+
+Use o `access_token` retornado por `POST /api/auth/google` no header `Authorization`.
+
+#### Marcar pedido de oração como orado
+```bash
+curl -X POST http://localhost:3333/api/oracoes/{oracao_id}/orado \
+  -H "Authorization: Bearer {access_token}"
+```
+
+Essa operação é idempotente e a marcação é individual por usuário.
+
+#### Adicionar ministério aos interesses
+```bash
+curl -X POST http://localhost:3333/api/ministerios/{ministerio_id}/interesse \
+  -H "Authorization: Bearer {access_token}"
+```
+
+#### Remover ministério dos interesses
+```bash
+curl -X DELETE http://localhost:3333/api/ministerios/{ministerio_id}/interesse \
+  -H "Authorization: Bearer {access_token}"
+```
+
+#### Listar os próprios interesses
+```bash
+curl -X GET http://localhost:3333/api/usuarios/me/ministerios-interesse \
+  -H "Authorization: Bearer {access_token}"
+```
+
+#### Listar interessados por ministério
+```bash
+curl -X GET http://localhost:3333/api/ministerios/{ministerio_id}/interessados \
+  -H "Authorization: Bearer {access_token}"
+```
+
+A resposta é ordenada do primeiro cadastro para o último e não inclui senhas.
+
 ## 3. Usuários
 
 ### Criar

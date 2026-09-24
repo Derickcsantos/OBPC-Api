@@ -13,6 +13,8 @@ import { dashboardHtml } from './frontend/dashboard.js';
 import { AuthServiceContract } from './types/auth.types.js';
 import { AuthService } from './services/auth.service.js';
 import { env } from './config/env.js';
+import { RelationshipServiceContract } from './types/relationship.types.js';
+import { SupabaseRelationshipService } from './services/relationship.service.js';
 
 const resourceMap: Record<ResourceName, { table: string; idField: string }> = {
   ministerios: { table: 'ministerios', idField: 'ministerio_id' },
@@ -33,6 +35,7 @@ export interface AppDependencies {
   bibleService?: BibleServiceContract;
   studyPlanService?: StudyPlanServiceContract;
   authService?: AuthServiceContract;
+  relationshipService?: RelationshipServiceContract;
 }
 
 export const createApp = async (dependencies?: AppDependencies): Promise<FastifyInstance> => {
@@ -79,6 +82,7 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
       jwtExpiresIn: env.AUTH_JWT_EXPIRES_IN_SECONDS,
       issuer: env.BACKEND_URL ?? 'books-api',
     }),
+    relationshipService: dependencies?.relationshipService ?? new SupabaseRelationshipService(supabase),
   };
 
   await app.register(

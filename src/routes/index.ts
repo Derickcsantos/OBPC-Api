@@ -17,12 +17,15 @@ import { BibleServiceContract, CrudServiceContract, ResourceName, StudyPlanServi
 import { getSupabaseClient } from '../lib/supabase.js';
 import { authRoutes } from './auth.routes.js';
 import { AuthServiceContract } from '../types/auth.types.js';
+import { relationshipRoutes } from './relationship.routes.js';
+import { RelationshipServiceContract } from '../types/relationship.types.js';
 
 interface RouteServices {
   crudServices: Record<ResourceName, CrudServiceContract>;
   bibleService: BibleServiceContract;
   studyPlanService: StudyPlanServiceContract;
   authService: AuthServiceContract;
+  relationshipService: RelationshipServiceContract;
 }
 
 export const registerRoutes = async (
@@ -48,6 +51,7 @@ export const registerRoutes = async (
   louvoresRoutes(app, opts.services.crudServices.louvores);
   mensagensRoutes(app, opts.services.crudServices.mensagens);
   oracoesRoutes(app, opts.services.crudServices.oracoes);
+  relationshipRoutes(app, opts.services.relationshipService);
   bibliaRoutes(app, opts.services.bibleService);
   planosEstudoRoutes(app, opts.services.studyPlanService);
   uploadsRoutes(app, getSupabaseClient());

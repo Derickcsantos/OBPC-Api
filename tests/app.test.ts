@@ -4,6 +4,9 @@ import { beforeAll, afterAll, describe, expect, it } from 'vitest';
 import { BibleServiceContract, CrudServiceContract, StudyPlanServiceContract } from '../src/types/crud.types.js';
 import { FakeCrudService } from './helpers/fake-crud.service.js';
 import { AuthServiceContract } from '../src/types/auth.types.js';
+import { RelationshipServiceContract } from '../src/types/relationship.types.js';
+import { signApiToken } from '../src/services/google-token.service.js';
+import { env } from '../src/config/env.js';
 
 process.env.NODE_ENV = 'test';
 process.env.SUPABASE_URL = 'https://example.supabase.co';
@@ -65,6 +68,18 @@ const authStub: AuthServiceContract = {
   }),
 };
 
+let markedByUser: string | undefined;
+const relationshipStub: RelationshipServiceContract = {
+  markPrayerAsPrayed: async (userId, prayerId) => {
+    markedByUser = userId;
+    return { usuario_id: userId, oracao_id: prayerId, orado: true };
+  },
+  addMinistryInterest: async (userId, ministryId) => ({ usuario_id: userId, ministerio_id: ministryId }),
+  removeMinistryInterest: async (userId, ministryId) => ({ usuario_id: userId, ministerio_id: ministryId, removido: true }),
+  listMinistryInterests: async () => [],
+  listMinistryInterestedUsers: async () => [],
+};
+
 const studyPlanStub: StudyPlanServiceContract = {
   listPlans: async () => [
     {
@@ -122,6 +137,7 @@ describe('API', () => {
       bibleService: bibleStub,
       studyPlanService: studyPlanStub,
       authService: authStub,
+      relationshipService: relationshipStub,
     });
 
     await app.ready();
@@ -206,6 +222,30 @@ describe('API', () => {
     expect(response.statusCode).toBe(201);
     expect(response.body.data.nome_pedido).toBe('Saúde');
     expect(response.body.data.status).toBe('em andamento');
+  });
+
+  it('deve exigir autenticação para marcar oração como feita', async () => {
+    const response = await request(app.server)
+      .post('/api/oracoes/33333333-3333-4333-8333-333333333333/orado');
+
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('deve usar o usuário do JWT ao marcar oração como feita', async () => {
+    const userId = '11111111-1111-4111-8111-111111111111';
+    const token = await signApiToken(
+      { sub: userId, email: 'usuario@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET,
+      600,
+      env.BACKEND_URL ?? 'books-api',
+    );
+
+    const response = await request(app.server)
+      .post('/api/oracoes/33333333-3333-4333-8333-333333333333/orado')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.statusCode).toBe(201);
+    expect(markedByUser).toBe(userId);
   });
 
   it('deve criar pessoa', async () => {
