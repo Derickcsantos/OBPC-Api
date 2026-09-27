@@ -1,7 +1,8 @@
 {
   "application": {
     "name": "Church Mobile API",
-    "description": "API para aplicativo mobile de igreja com CRUDs, uploads no Supabase Storage e Bíblia multi-versão armazenada no Supabase.",
+    "description": "API para aplicativo mobile de igreja com administração protegida, orações, anotações e destaques bíblicos, uploads e Bíblia multi-versão.",
+    "userContentDocumentation": "user-content-api-documentation.json",
     "basePath": "/api",
     "healthPath": "/health",
     "stack": [
@@ -12,7 +13,9 @@
       "Supabase"
     ],
     "features": [
-      "CRUD de ministérios, fotos de ministérios, pessoas, usuários, eventos, notícias, louvores, mensagens e orações",
+      "CRUD administrativo protegido de ministérios, pessoas, eventos, notícias, louvores, mensagens e orações",
+      "Anotações e destaques bíblicos privados por usuário",
+      "Marcação e contagem de pedidos de oração",
       "Upload de imagens para o bucket público imagens antes da persistência da URL",
       "Validação de PNG, JPEG, WebP e GIF, com limite de 10 MB e URL pública do Supabase",
       "Consulta multi-versão de livros, capítulos, versículos, busca textual e comparação da Bíblia",

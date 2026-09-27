@@ -19,6 +19,12 @@ export class RelationshipController {
     reply.status(201).send({ data });
   };
 
+  unmarkPrayerAsPrayed = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    const { id } = parseWithSchema(idParamSchema, request.params);
+    const data = await this.service.unmarkPrayerAsPrayed(this.userId(request), id);
+    reply.send({ data });
+  };
+
   addMinistryInterest = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const { id } = parseWithSchema(idParamSchema, request.params);
     const data = await this.service.addMinistryInterest(this.userId(request), id);

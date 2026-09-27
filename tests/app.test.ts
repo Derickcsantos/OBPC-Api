@@ -7,6 +7,7 @@ import { AuthServiceContract } from '../src/types/auth.types.js';
 import { RelationshipServiceContract } from '../src/types/relationship.types.js';
 import { signApiToken } from '../src/services/google-token.service.js';
 import { env } from '../src/config/env.js';
+import { AdminServiceContract, UserContentServiceContract } from '../src/types/user-content.types.js';
 
 process.env.NODE_ENV = 'test';
 process.env.SUPABASE_URL = 'https://example.supabase.co';
@@ -64,6 +65,7 @@ const authStub: AuthServiceContract = {
       nome_usuario: 'Usuario Google',
       email_usuario: 'usuario@example.com',
       auth_provider: 'google',
+      role: 'user',
     },
   }),
 };
@@ -74,10 +76,36 @@ const relationshipStub: RelationshipServiceContract = {
     markedByUser = userId;
     return { usuario_id: userId, oracao_id: prayerId, orado: true };
   },
+  unmarkPrayerAsPrayed: async (userId, prayerId) => ({ usuario_id: userId, oracao_id: prayerId, orado: false }),
   addMinistryInterest: async (userId, ministryId) => ({ usuario_id: userId, ministerio_id: ministryId }),
   removeMinistryInterest: async (userId, ministryId) => ({ usuario_id: userId, ministerio_id: ministryId, removido: true }),
   listMinistryInterests: async () => [],
   listMinistryInterestedUsers: async () => [],
+};
+
+const adminStub: AdminServiceContract = {
+  isAdmin: async (id) => id === '99999999-9999-4999-8999-999999999999',
+  listUsers: async () => ({ data: [], pagination: {} }),
+  getUser: async (id) => ({ usuario_id: id, role: 'user' }),
+  updateUserRole: async (_actorId, id, role) => ({ usuario_id: id, role }),
+};
+
+const userContentStub: UserContentServiceContract = {
+  listPublicPrayers: async (userId) => ({
+    data: [{ oracao_id: '33333333-3333-4333-8333-333333333333', ...(userId ? { orado_por_mim: true } : {}) }],
+    pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+  }),
+  listMyPrayers: async () => ({ data: [], pagination: {} }),
+  listUserPrayerStatus: async () => ({ data: [], pagination: {} }),
+  listAdminPrayers: async () => ({ data: [], pagination: {} }),
+  listAnnotations: async () => ({ data: [], pagination: {} }),
+  getAnnotation: async (_userId, id) => ({ anotacao_id: id }),
+  createAnnotation: async (userId, input) => ({ usuario_id: userId, ...input }),
+  updateAnnotation: async (userId, id, input) => ({ usuario_id: userId, anotacao_id: id, ...input }),
+  deleteAnnotation: async (_userId, id) => ({ anotacao_id: id }),
+  listHighlights: async () => ({ data: [], pagination: {} }),
+  upsertHighlight: async (userId, input) => ({ usuario_id: userId, ...input }),
+  deleteHighlight: async (_userId, id) => ({ destaque_id: id }),
 };
 
 const studyPlanStub: StudyPlanServiceContract = {
@@ -115,6 +143,7 @@ const studyPlanStub: StudyPlanServiceContract = {
 
 describe('API', () => {
   let app: FastifyInstance;
+  let adminToken: string;
 
   beforeAll(async () => {
     const { createApp } = await import('../src/app.js');
@@ -138,9 +167,15 @@ describe('API', () => {
       studyPlanService: studyPlanStub,
       authService: authStub,
       relationshipService: relationshipStub,
+      adminService: adminStub,
+      userContentService: userContentStub,
     });
 
     await app.ready();
+    adminToken = await signApiToken(
+      { sub: '99999999-9999-4999-8999-999999999999', email: 'admin@example.com', provider: 'google', role: 'admin' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
   });
 
   afterAll(async () => {
@@ -154,7 +189,7 @@ describe('API', () => {
   });
 
   it('deve criar ministério', async () => {
-    const response = await request(app.server).post('/api/ministerios').send({
+    const response = await request(app.server).post('/api/ministerios').set('Authorization', `Bearer ${adminToken}`).send({
       nome_ministerio: 'Jovens',
       descricao_ministerio: 'Ministério de jovens',
       url_ministerio: 'https://igreja.com/jovens',
@@ -173,7 +208,7 @@ describe('API', () => {
       data_nascimento: '1990-01-01',
     });
 
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(404);
   });
 
   it('deve retornar versões da bíblia', async () => {
@@ -197,6 +232,7 @@ describe('API', () => {
     expect(response.statusCode).toBe(200);
     expect(response.body.access_token).toBe('api-jwt');
     expect(response.body.user.email_usuario).toBe('usuario@example.com');
+    expect(response.body.user.role).toBe('user');
   });
 
   it('deve rejeitar login Google sem id_token', async () => {
@@ -211,7 +247,7 @@ describe('API', () => {
   });
 
   it('deve criar oração', async () => {
-    const response = await request(app.server).post('/api/oracoes').send({
+    const response = await request(app.server).post('/api/oracoes').set('Authorization', `Bearer ${adminToken}`).send({
       nome_pedido: 'Saúde',
       descricao_pedido: 'Pedido de oração pela saúde da família',
       mostrar_grupo: true,
@@ -248,8 +284,123 @@ describe('API', () => {
     expect(markedByUser).toBe(userId);
   });
 
+  it('deve impedir usuario comum de criar conteudo administrativo', async () => {
+    const token = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'usuario@example.com', provider: 'google', role: 'user' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const response = await request(app.server).post('/api/oracoes').set('Authorization', `Bearer ${token}`).send({
+      nome_pedido: 'Teste', descricao_pedido: 'Teste de permissao',
+    });
+    expect(response.statusCode).toBe(403);
+  });
+
+  it('deve desmarcar oracao de forma idempotente com orado false', async () => {
+    const token = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'usuario@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const response = await request(app.server)
+      .delete('/api/oracoes/33333333-3333-4333-8333-333333333333/orado')
+      .set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data.orado).toBe(false);
+  });
+
+  it('deve negar upload administrativo para usuario comum', async () => {
+    const token = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'usuario@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const response = await request(app.server).post('/api/admin/uploads')
+      .set('Authorization', `Bearer ${token}`)
+      .field('context', 'eventos')
+      .attach('file', Buffer.from('not-an-image'), 'arquivo.png');
+    expect(response.statusCode).toBe(403);
+  });
+
+  it('deve validar o conteudo real do upload administrativo', async () => {
+    const response = await request(app.server).post('/api/admin/uploads')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .field('context', 'eventos')
+      .attach('file', Buffer.from('<html>nao e imagem</html>'), 'arquivo.png');
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('deve rejeitar upload administrativo maior que 8 MB', async () => {
+    const response = await request(app.server).post('/api/admin/uploads')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .field('context', 'eventos')
+      .attach('file', Buffer.alloc((8 * 1024 * 1024) + 1, 1), 'grande.jpg');
+    expect(response.statusCode).toBe(413);
+  });
+
+  it('deve listar somente as oracoes do usuario autenticado', async () => {
+    const token = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'usuario@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const response = await request(app.server).get('/api/usuarios/me/oracoes-oradas').set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data).toEqual([]);
+  });
+
+  it('deve incluir orado_por_mim na lista publica autenticada', async () => {
+    const token = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'usuario@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const response = await request(app.server).get('/api/oracoes?page=1&limit=20').set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data[0].orado_por_mim).toBe(true);
+    expect(response.body.pagination.totalPages).toBe(1);
+  });
+
+  it('deve isolar anotacoes usando sempre o usuario do JWT', async () => {
+    const first = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'um@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const second = await signApiToken(
+      { sub: '22222222-2222-4222-8222-222222222222', email: 'dois@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const body = { conteudo: 'Privada', versiculos: [{ version: 'nvi', book: 1, chapter: 1, verse: 1 }] };
+    const firstResponse = await request(app.server).post('/api/usuarios/me/anotacoes').set('Authorization', `Bearer ${first}`).send({ ...body, usuario_id: 'forjado' });
+    const secondResponse = await request(app.server).post('/api/usuarios/me/anotacoes').set('Authorization', `Bearer ${second}`).send({ ...body, usuario_id: 'forjado' });
+    expect(firstResponse.body.data.usuario_id).toBe('11111111-1111-4111-8111-111111111111');
+    expect(secondResponse.body.data.usuario_id).toBe('22222222-2222-4222-8222-222222222222');
+  });
+
+  it('deve aceitar anotacao vinculada a varios versiculos', async () => {
+    const token = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'usuario@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const response = await request(app.server).post('/api/usuarios/me/anotacoes').set('Authorization', `Bearer ${token}`).send({
+      conteudo: 'Minha anotacao',
+      versiculos: [
+        { version: 'nvi', book: 1, chapter: 1, verse: 1 },
+        { version: 'nvi', book: 1, chapter: 1, verse: 3 },
+      ],
+    });
+    expect(response.statusCode).toBe(201);
+    expect(response.body.data.versiculos).toHaveLength(2);
+  });
+
+  it('deve rejeitar cor de destaque fora da paleta', async () => {
+    const token = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'usuario@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const response = await request(app.server).put('/api/usuarios/me/destaques').set('Authorization', `Bearer ${token}`).send({
+      version: 'nvi', book: 1, chapter: 1, verse: 1, estilo: 'background', cor: 'orange',
+    });
+    expect(response.statusCode).toBe(400);
+  });
+
   it('deve criar pessoa', async () => {
-    const response = await request(app.server).post('/api/pessoas').send({
+    const response = await request(app.server).post('/api/pessoas').set('Authorization', `Bearer ${adminToken}`).send({
       nome: 'Maria Silva',
       cargo: 'Lider',
       sobre: 'Responsavel pelo ministerio.',
@@ -262,7 +413,7 @@ describe('API', () => {
   });
 
   it('deve criar registro de foto de ministerio', async () => {
-    const response = await request(app.server).post('/api/fotos-ministerios').send({
+    const response = await request(app.server).post('/api/fotos-ministerios').set('Authorization', `Bearer ${adminToken}`).send({
       ministerio_id: '11111111-1111-4111-8111-111111111111',
       url_imagem: 'https://example.com/foto.webp',
       ordem: 0,

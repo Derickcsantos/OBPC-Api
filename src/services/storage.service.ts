@@ -15,6 +15,8 @@ export interface UploadImageResult {
   url: string;
 }
 
+export type AdminUploadContext = 'ministerios' | 'eventos' | 'noticias' | 'mensagens' | 'louvores';
+
 const bucketName = 'imagens';
 const maxFileSizeBytes = 10 * 1024 * 1024;
 const extensionByContentType: Record<string, string> = {
@@ -65,6 +67,80 @@ const matchesImageSignature = (bytes: Uint8Array, contentType: string): boolean 
   }
 
   return false;
+};
+
+const detectImageType = (bytes: Uint8Array): 'image/jpeg' | 'image/png' | 'image/webp' | null => {
+  for (const type of ['image/jpeg', 'image/png', 'image/webp'] as const) {
+    if (matchesImageSignature(bytes, type)) return type;
+  }
+  return null;
+};
+
+const stripJpegMetadata = (bytes: Uint8Array): Uint8Array => {
+  const output: Uint8Array[] = [bytes.subarray(0, 2)];
+  let offset = 2;
+  while (offset + 3 < bytes.length) {
+    if (bytes[offset] !== 0xff) throw new AppError(400, 'JPEG invalido');
+    const marker = bytes[offset + 1];
+    if (marker === 0xda) {
+      output.push(bytes.subarray(offset));
+      return Uint8Array.from(Buffer.concat(output.map((part) => Buffer.from(part))));
+    }
+    const length = (bytes[offset + 2] << 8) | bytes[offset + 3];
+    if (length < 2 || offset + 2 + length > bytes.length) throw new AppError(400, 'JPEG invalido');
+    if (!(marker >= 0xe1 && marker <= 0xef) && marker !== 0xfe) {
+      output.push(bytes.subarray(offset, offset + 2 + length));
+    }
+    offset += 2 + length;
+  }
+  throw new AppError(400, 'JPEG invalido');
+};
+
+const stripPngMetadata = (bytes: Uint8Array): Uint8Array => {
+  const output: Uint8Array[] = [bytes.subarray(0, 8)];
+  let offset = 8;
+  const allowed = new Set(['IHDR', 'PLTE', 'IDAT', 'IEND']);
+  while (offset + 12 <= bytes.length) {
+    const length = (bytes[offset] * 0x1000000) + (bytes[offset + 1] << 16) + (bytes[offset + 2] << 8) + bytes[offset + 3];
+    const end = offset + 12 + length;
+    if (end > bytes.length) throw new AppError(400, 'PNG invalido');
+    const type = Buffer.from(bytes.subarray(offset + 4, offset + 8)).toString('ascii');
+    if (allowed.has(type)) output.push(bytes.subarray(offset, end));
+    offset = end;
+    if (type === 'IEND') break;
+  }
+  return Uint8Array.from(Buffer.concat(output.map((part) => Buffer.from(part))));
+};
+
+const stripWebpMetadata = (bytes: Uint8Array): Uint8Array => {
+  const chunks: Uint8Array[] = [];
+  let offset = 12;
+  while (offset + 8 <= bytes.length) {
+    const type = Buffer.from(bytes.subarray(offset, offset + 4)).toString('ascii');
+    const length = bytes[offset + 4] | (bytes[offset + 5] << 8) | (bytes[offset + 6] << 16) | (bytes[offset + 7] << 24);
+    const end = offset + 8 + length + (length % 2);
+    if (length < 0 || end > bytes.length) throw new AppError(400, 'WebP invalido');
+    if (!['EXIF', 'XMP ', 'ICCP'].includes(type)) {
+      const chunk = bytes.slice(offset, end);
+      if (type === 'VP8X' && chunk.length > 8) chunk[8] &= ~0x2c;
+      chunks.push(chunk);
+    }
+    offset = end;
+  }
+  const body = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk)));
+  const result = Buffer.alloc(12 + body.length);
+  result.write('RIFF', 0, 'ascii');
+  result.writeUInt32LE(result.length - 8, 4);
+  result.write('WEBP', 8, 'ascii');
+  body.copy(result, 12);
+  return new Uint8Array(result);
+};
+
+const sanitizeImageBytes = (bytes: Uint8Array, type: string): Uint8Array => {
+  if (type === 'image/jpeg') return stripJpegMetadata(bytes);
+  if (type === 'image/png') return stripPngMetadata(bytes);
+  if (type === 'image/webp') return stripWebpMetadata(bytes);
+  throw new AppError(400, 'Formato de imagem nao suportado');
 };
 
 const base64ToBytes = (value: string, contentType: string): Uint8Array => {
@@ -165,6 +241,27 @@ export class StorageService {
       key,
       url: data.publicUrl,
     };
+  }
+
+  async uploadAdminFile(bytes: Uint8Array, context: AdminUploadContext): Promise<UploadImageResult & { contentType: string; size: number }> {
+    if (bytes.length === 0) throw new AppError(400, 'O arquivo esta vazio');
+    if (bytes.length > 8 * 1024 * 1024) throw new AppError(413, 'O arquivo deve ter no maximo 8 MB');
+    const contentType = detectImageType(bytes);
+    if (!contentType) throw new AppError(400, 'Envie uma imagem JPEG, PNG ou WebP valida');
+    const sanitized = sanitizeImageBytes(bytes, contentType);
+    const extension = extensionByContentType[contentType];
+    const key = `admin/${context}/${randomUUID()}.${extension}`;
+    await this.ensurePublicBucket(bucketName);
+    const { error } = await this.client.storage.from(bucketName).upload(key, sanitized, {
+      contentType, cacheControl: '31536000', upsert: false,
+    });
+    if (error) throw new AppError(503, 'Storage temporariamente indisponivel', error);
+    const { data } = this.client.storage.from(bucketName).getPublicUrl(key);
+    if (!data.publicUrl?.startsWith('https://')) {
+      await this.client.storage.from(bucketName).remove([key]);
+      throw new AppError(500, 'Erro ao gerar URL HTTPS publica da imagem');
+    }
+    return { key, url: data.publicUrl, contentType, size: sanitized.length };
   }
 
   async getObject(key: string): Promise<Response> {

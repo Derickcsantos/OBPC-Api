@@ -13,6 +13,7 @@ export interface AuthUser {
   data_nascimento?: string | null;
   avatar_url?: string | null;
   auth_provider?: string | null;
+  role: 'user' | 'admin';
 }
 
 export interface GoogleLoginResult {

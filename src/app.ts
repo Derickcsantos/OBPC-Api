@@ -2,6 +2,7 @@ import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import sensible from '@fastify/sensible';
+import multipart from '@fastify/multipart';
 import { errorHandler } from './middlewares/error-handler.middleware.js';
 import { getSupabaseClient } from './lib/supabase.js';
 import { SupabaseCrudService } from './services/crud.service.js';
@@ -15,6 +16,9 @@ import { AuthService } from './services/auth.service.js';
 import { env } from './config/env.js';
 import { RelationshipServiceContract } from './types/relationship.types.js';
 import { SupabaseRelationshipService } from './services/relationship.service.js';
+import { AdminService } from './services/admin.service.js';
+import { UserContentService } from './services/user-content.service.js';
+import { AdminServiceContract, UserContentServiceContract } from './types/user-content.types.js';
 
 const resourceMap: Record<ResourceName, { table: string; idField: string }> = {
   ministerios: { table: 'ministerios', idField: 'ministerio_id' },
@@ -36,6 +40,8 @@ export interface AppDependencies {
   studyPlanService?: StudyPlanServiceContract;
   authService?: AuthServiceContract;
   relationshipService?: RelationshipServiceContract;
+  userContentService?: UserContentServiceContract;
+  adminService?: AdminServiceContract;
 }
 
 export const createApp = async (dependencies?: AppDependencies): Promise<FastifyInstance> => {
@@ -54,6 +60,9 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
     },
   });
   await app.register(sensible);
+  await app.register(multipart, {
+    limits: { files: 1, fields: 1, fileSize: 8 * 1024 * 1024 },
+  });
 
   app.get('/', async (_request, reply) => {
     reply.type('text/html; charset=utf-8').send(dashboardHtml);
@@ -83,6 +92,8 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
       issuer: env.BACKEND_URL ?? 'books-api',
     }),
     relationshipService: dependencies?.relationshipService ?? new SupabaseRelationshipService(supabase),
+    userContentService: dependencies?.userContentService ?? new UserContentService(supabase),
+    adminService: dependencies?.adminService ?? new AdminService(supabase),
   };
 
   await app.register(

@@ -84,7 +84,7 @@ const resources: Record<string, ResourceConfig> = {
   mensagens: {
     table: 'mensagens',
     idField: 'mensagem_id',
-    fields: ['nome_mensagem', 'texto_mensagem'],
+    fields: ['nome_mensagem', 'texto_mensagem', 'url_capa'],
   },
   oracoes: {
     table: 'oracoes',
@@ -195,6 +195,68 @@ const hasImageSignature = (bytes: Uint8Array, contentType: string): boolean => {
   return false;
 };
 
+const concatBytes = (parts: Uint8Array[]): Uint8Array => {
+  const result = new Uint8Array(parts.reduce((total, part) => total + part.length, 0));
+  let offset = 0;
+  for (const part of parts) { result.set(part, offset); offset += part.length; }
+  return result;
+};
+
+const sanitizeAdminImage = (input: Uint8Array): { bytes: Uint8Array; contentType: string; extension: string } | Response => {
+  const detected = (['image/jpeg', 'image/png', 'image/webp'] as const).find((type) => hasImageSignature(input, type));
+  if (!detected) return response({ message: 'Envie uma imagem JPEG, PNG ou WebP valida' }, { status: 400 });
+  if (detected === 'image/jpeg') {
+    const output: Uint8Array[] = [input.subarray(0, 2)];
+    let offset = 2;
+    while (offset + 3 < input.length) {
+      if (input[offset] !== 0xff) return response({ message: 'JPEG invalido' }, { status: 400 });
+      const marker = input[offset + 1];
+      if (marker === 0xda) { output.push(input.subarray(offset)); return { bytes: concatBytes(output), contentType: detected, extension: 'jpg' }; }
+      const length = (input[offset + 2] << 8) | input[offset + 3];
+      if (length < 2 || offset + 2 + length > input.length) return response({ message: 'JPEG invalido' }, { status: 400 });
+      if (!(marker >= 0xe1 && marker <= 0xef) && marker !== 0xfe) output.push(input.subarray(offset, offset + 2 + length));
+      offset += 2 + length;
+    }
+    return response({ message: 'JPEG invalido' }, { status: 400 });
+  }
+  if (detected === 'image/png') {
+    const output = [input.subarray(0, 8)];
+    const allowed = new Set(['IHDR', 'PLTE', 'IDAT', 'IEND']);
+    let offset = 8;
+    while (offset + 12 <= input.length) {
+      const length = (input[offset] * 0x1000000) + (input[offset + 1] << 16) + (input[offset + 2] << 8) + input[offset + 3];
+      const end = offset + 12 + length;
+      if (end > input.length) return response({ message: 'PNG invalido' }, { status: 400 });
+      const type = bytesToAscii(input, offset + 4, offset + 8);
+      if (allowed.has(type)) output.push(input.subarray(offset, end));
+      offset = end;
+      if (type === 'IEND') break;
+    }
+    return { bytes: concatBytes(output), contentType: detected, extension: 'png' };
+  }
+  const chunks: Uint8Array[] = [];
+  let offset = 12;
+  while (offset + 8 <= input.length) {
+    const type = bytesToAscii(input, offset, offset + 4);
+    const length = input[offset + 4] | (input[offset + 5] << 8) | (input[offset + 6] << 16) | (input[offset + 7] << 24);
+    const end = offset + 8 + length + (length % 2);
+    if (length < 0 || end > input.length) return response({ message: 'WebP invalido' }, { status: 400 });
+    if (!['EXIF', 'XMP ', 'ICCP'].includes(type)) {
+      const chunk = input.slice(offset, end);
+      if (type === 'VP8X' && chunk.length > 8) chunk[8] &= ~0x2c;
+      chunks.push(chunk);
+    }
+    offset = end;
+  }
+  const body = concatBytes(chunks);
+  const bytes = new Uint8Array(12 + body.length);
+  bytes.set(new TextEncoder().encode('RIFF'), 0);
+  new DataView(bytes.buffer).setUint32(4, bytes.length - 8, true);
+  bytes.set(new TextEncoder().encode('WEBP'), 8);
+  bytes.set(body, 12);
+  return { bytes, contentType: detected, extension: 'webp' };
+};
+
 const storageHeaders = (env: Env, contentType = 'application/json'): HeadersInit => ({
   apikey: env.SUPABASE_SERVICE_ROLE_KEY,
   Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
@@ -219,13 +281,21 @@ const getWorkerUserId = async (request: Request, env: Env): Promise<string | Res
   }
 };
 
+const requireWorkerAdmin = async (request: Request, env: Env): Promise<string | Response> => {
+  const userId = await getWorkerUserId(request, env);
+  if (userId instanceof Response) return userId;
+  const users = await supabaseFetch(env, `usuarios?select=usuario_id&usuario_id=eq.${encodeURIComponent(userId)}&role=eq.admin&limit=1`);
+  if (users instanceof Response) return users;
+  return (users as Record<string, unknown>[])[0] ? userId : response({ message: 'Acesso restrito a administradores.' }, { status: 403 });
+};
+
 const handleRelationshipRoutes = async (request: Request, env: Env, parts: string[]): Promise<Response | null> => {
   const isPrayer = parts[1] === 'oracoes' && Boolean(parts[2]) && parts[3] === 'orado';
   const isInterest = parts[1] === 'ministerios' && Boolean(parts[2]) && parts[3] === 'interesse';
   const isInterestedUsers = parts[1] === 'ministerios' && Boolean(parts[2]) && parts[3] === 'interessados';
   const isMyInterests = parts[1] === 'usuarios' && parts[2] === 'me' && parts[3] === 'ministerios-interesse';
   if (!isPrayer && !isInterest && !isInterestedUsers && !isMyInterests) return null;
-  if ((isPrayer && request.method !== 'POST') || (isInterest && !['POST', 'DELETE'].includes(request.method))
+  if ((isPrayer && !['POST', 'DELETE'].includes(request.method)) || (isInterest && !['POST', 'DELETE'].includes(request.method))
     || (isInterestedUsers && request.method !== 'GET') || (isMyInterests && request.method !== 'GET')) {
     return response({ message: 'Metodo nao permitido' }, { status: 405 });
   }
@@ -237,6 +307,11 @@ const handleRelationshipRoutes = async (request: Request, env: Env, parts: strin
     const prayer = await supabaseFetch(env, `oracoes?select=oracao_id&oracao_id=eq.${encodeURIComponent(parts[2])}&limit=1`);
     if (prayer instanceof Response) return prayer;
     if (!(prayer as Record<string, unknown>[])[0]) return response({ message: 'Pedido de oração nao encontrado.' }, { status: 404 });
+    if (request.method === 'DELETE') {
+      const removed = await supabaseFetch(env, `usuario_oracoes_oradas?usuario_id=eq.${encodeURIComponent(userId)}&oracao_id=eq.${encodeURIComponent(parts[2])}&select=usuario_id,oracao_id,created_at`, { method: 'DELETE' });
+      if (removed instanceof Response) return removed;
+      return response({ data: { usuario_id: userId, oracao_id: parts[2], orado: false } });
+    }
     const data = await supabaseFetch(env, 'usuario_oracoes_oradas?on_conflict=usuario_id,oracao_id&select=usuario_id,oracao_id,created_at', {
       method: 'POST',
       body: JSON.stringify({ usuario_id: userId, oracao_id: parts[2] }),
@@ -280,6 +355,142 @@ const handleRelationshipRoutes = async (request: Request, env: Env, parts: strin
       interesse_created_at: item.created_at,
     })),
   });
+};
+
+const workerPagination = (params: URLSearchParams) => {
+  const page = Math.max(Number(params.get('page')) || 1, 1);
+  const limit = Math.min(Math.max(Number(params.get('limit')) || 20, 1), 100);
+  return { page, limit, offset: (page - 1) * limit };
+};
+
+const handleUserContentRoutes = async (request: Request, env: Env, url: URL): Promise<Response | null> => {
+  const path = url.pathname;
+  const isUserContent = path.startsWith('/api/usuarios/me/') || path.startsWith('/api/admin/');
+  if (!isUserContent) return null;
+  const adminRoute = path.startsWith('/api/admin/');
+  const auth = adminRoute ? await requireWorkerAdmin(request, env) : await getWorkerUserId(request, env);
+  if (auth instanceof Response) return auth;
+  const currentUserId = auth;
+  if (path === '/api/admin/uploads') {
+    if (request.method !== 'POST') return response({ message: 'Metodo nao permitido' }, { status: 405 });
+    let form: FormData;
+    try { form = await request.formData(); } catch { return response({ message: 'Envie multipart/form-data valido' }, { status: 400 }); }
+    const context = String(form.get('context') ?? '');
+    if (!['ministerios', 'eventos', 'noticias', 'mensagens', 'louvores'].includes(context)) return response({ message: 'Contexto de upload invalido' }, { status: 400 });
+    const file = form.get('file');
+    if (!(file instanceof File)) return response({ message: 'O campo file e obrigatorio' }, { status: 400 });
+    if (file.size > 8 * 1024 * 1024) return response({ message: 'O arquivo deve ter no maximo 8 MB' }, { status: 413 });
+    const sanitized = sanitizeAdminImage(new Uint8Array(await file.arrayBuffer()));
+    if (sanitized instanceof Response) return sanitized;
+    const bucket = getStorageBucket(env);
+    const bucketError = await ensurePublicBucket(env, bucket);
+    if (bucketError) return bucketError;
+    const key = `admin/${context}/${randomId()}.${sanitized.extension}`;
+    const uploaded = await fetch(`${env.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/${bucket}/${encodeObjectKey(key)}`, {
+      method: 'POST', headers: { ...storageHeaders(env, sanitized.contentType), 'x-upsert': 'false' }, body: toArrayBuffer(sanitized.bytes),
+    });
+    if (!uploaded.ok) return response({ message: 'Storage temporariamente indisponivel' }, { status: uploaded.status >= 500 ? 503 : 500 });
+    const url = publicStorageUrl(env, bucket, key);
+    if (!url.startsWith('https://')) { await removeStorageObjects(env, [key]); return response({ message: 'Erro ao gerar URL HTTPS publica da imagem' }, { status: 500 }); }
+    console.info(JSON.stringify({ event: 'admin_upload', usuario_id: currentUserId, context, mime: sanitized.contentType, size: sanitized.bytes.length, key }));
+    return response({ data: { url } }, { status: 201 });
+  }
+  const { page, limit, offset } = workerPagination(url.searchParams);
+  const pagination = (total: number) => ({ page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)), hasNextPage: page * limit < total, hasPreviousPage: page > 1 });
+
+  if (path === '/api/usuarios/me/oracoes-oradas' && request.method === 'GET') {
+    const result = await supabaseFetchWithCount(env, `usuario_oracoes_oradas?select=created_at,oracoes(*)&usuario_id=eq.${encodeURIComponent(currentUserId)}&order=created_at.desc&offset=${offset}&limit=${limit}`);
+    if (result instanceof Response) return result;
+    return response({ data: result.data.map((row) => ({ ...((row.oracoes as Row[] | undefined)?.[0] ?? row.oracoes ?? {}), orado_em: row.created_at })), pagination: pagination(result.total) });
+  }
+
+  const annotationMatch = path.match(/^\/api\/usuarios\/me\/anotacoes(?:\/([^/]+))?$/);
+  if (annotationMatch) {
+    const id = annotationMatch[1];
+    if (request.method === 'GET') {
+      const suffix = id ? `&anotacao_id=eq.${encodeURIComponent(id)}` : `&order=updated_at.desc&offset=${offset}&limit=${limit}`;
+      const result = await supabaseFetchWithCount(env, `anotacoes_biblicas?select=*,anotacoes_biblicas_versiculos(version,book,chapter,verse)&usuario_id=eq.${encodeURIComponent(currentUserId)}${suffix}`);
+      if (result instanceof Response) return result;
+      if (id && !result.data[0]) return response({ message: 'Anotacao nao encontrada.' }, { status: 404 });
+      return id ? response({ data: result.data[0] }) : response({ data: result.data, pagination: pagination(result.total) });
+    }
+    if (['POST', 'PUT'].includes(request.method) && (request.method === 'POST' || id)) {
+      const body = await parseBody(request);
+      if (typeof body.conteudo !== 'string' || !body.conteudo.trim() || !Array.isArray(body.versiculos) || body.versiculos.length < 1) return response({ message: 'Conteudo e versiculos sao obrigatorios.' }, { status: 400 });
+      const data = await supabaseFetch(env, 'rpc/upsert_bible_annotation', { method: 'POST', body: JSON.stringify({ p_usuario_id: currentUserId, p_anotacao_id: id ?? null, p_titulo: body.titulo ?? null, p_conteudo: body.conteudo, p_versiculos: body.versiculos }) });
+      if (data instanceof Response) return data;
+      return response({ data: { anotacao_id: data } }, { status: request.method === 'POST' ? 201 : 200 });
+    }
+    if (request.method === 'DELETE' && id) {
+      const data = await supabaseFetch(env, `anotacoes_biblicas?usuario_id=eq.${encodeURIComponent(currentUserId)}&anotacao_id=eq.${encodeURIComponent(id)}&select=anotacao_id`, { method: 'DELETE' });
+      if (data instanceof Response) return data;
+      return (data as Row[])[0] ? response({ data: (data as Row[])[0] }) : response({ message: 'Anotacao nao encontrada.' }, { status: 404 });
+    }
+  }
+
+  const highlightMatch = path.match(/^\/api\/usuarios\/me\/destaques(?:\/([^/]+))?$/);
+  if (highlightMatch) {
+    const id = highlightMatch[1];
+    if (request.method === 'GET' && !id) {
+      let filters = `usuario_id=eq.${encodeURIComponent(currentUserId)}`;
+      for (const field of ['version', 'book', 'chapter']) if (url.searchParams.get(field)) filters += `&${field}=eq.${encodeURIComponent(url.searchParams.get(field)!)}`;
+      const result = await supabaseFetchWithCount(env, `destaques_biblicos?select=*&${filters}&order=created_at.desc&offset=${offset}&limit=${limit}`);
+      return result instanceof Response ? result : response({ data: result.data, pagination: pagination(result.total) });
+    }
+    if (request.method === 'PUT' && !id) {
+      const body = await parseBody(request);
+      if (!['background', 'underline'].includes(String(body.estilo)) || !['yellow', 'green', 'blue', 'pink', 'purple'].includes(String(body.cor))) return response({ message: 'Estilo ou cor invalido.' }, { status: 400 });
+      const data = await supabaseFetch(env, 'destaques_biblicos?on_conflict=usuario_id,version,book,chapter,verse,estilo&select=*', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ usuario_id: currentUserId, version: body.version, book: body.book, chapter: body.chapter, verse: body.verse, estilo: body.estilo, cor: body.cor }) });
+      return data instanceof Response ? data : response({ data: (data as Row[])[0] });
+    }
+    if (request.method === 'DELETE' && id) {
+      const data = await supabaseFetch(env, `destaques_biblicos?usuario_id=eq.${encodeURIComponent(currentUserId)}&destaque_id=eq.${encodeURIComponent(id)}&select=destaque_id`, { method: 'DELETE' });
+      return data instanceof Response ? data : (data as Row[])[0] ? response({ data: (data as Row[])[0] }) : response({ message: 'Destaque nao encontrado.' }, { status: 404 });
+    }
+  }
+
+  if (path === '/api/admin/usuarios' && request.method === 'GET') {
+    const result = await supabaseFetchWithCount(env, `usuarios?select=usuario_id,nome_usuario,email_usuario,telefone_usuario,data_nascimento,avatar_url,auth_provider,role,created_at,updated_at&order=created_at.desc&offset=${offset}&limit=${limit}`);
+    return result instanceof Response ? result : response({ data: result.data, pagination: pagination(result.total) });
+  }
+  const adminUserMatch = path.match(/^\/api\/admin\/usuarios\/([^/]+)(?:\/(role|oracoes))?$/);
+  if (adminUserMatch) {
+    const targetId = adminUserMatch[1];
+    if (!adminUserMatch[2] && request.method === 'GET') {
+      const data = await supabaseFetch(env, `usuarios?select=usuario_id,nome_usuario,email_usuario,telefone_usuario,data_nascimento,avatar_url,auth_provider,role,created_at,updated_at&usuario_id=eq.${encodeURIComponent(targetId)}&limit=1`);
+      return data instanceof Response ? data : (data as Row[])[0] ? response({ data: (data as Row[])[0] }) : response({ message: 'Usuario nao encontrado.' }, { status: 404 });
+    }
+    if (adminUserMatch[2] === 'role' && request.method === 'PATCH') {
+      const body = await parseBody(request);
+      if (!['user', 'admin'].includes(String(body.role))) return response({ message: 'Papel invalido.' }, { status: 400 });
+      if (targetId === currentUserId && body.role === 'user') {
+        const admins = await supabaseFetchWithCount(env, 'usuarios?select=usuario_id&role=eq.admin&limit=1');
+        if (admins instanceof Response) return admins;
+        if (admins.total <= 1) return response({ message: 'Nao e permitido remover o ultimo administrador.' }, { status: 409 });
+      }
+      const data = await supabaseFetch(env, `usuarios?usuario_id=eq.${encodeURIComponent(targetId)}&select=usuario_id,nome_usuario,email_usuario,role`, { method: 'PATCH', body: JSON.stringify({ role: body.role }) });
+      return data instanceof Response ? data : (data as Row[])[0] ? response({ data: (data as Row[])[0] }) : response({ message: 'Usuario nao encontrado.' }, { status: 404 });
+    }
+    if (adminUserMatch[2] === 'oracoes' && request.method === 'GET') return handleWorkerAdminPrayers(env, targetId, page, limit, offset);
+  }
+  if (path === '/api/admin/oracoes' && request.method === 'GET') return handleWorkerAdminPrayers(env, currentUserId, page, limit, offset);
+  return response({ message: 'Metodo nao permitido' }, { status: 405 });
+};
+
+type Row = Record<string, unknown>;
+const handleWorkerAdminPrayers = async (env: Env, userId: string, page: number, limit: number, offset: number): Promise<Response> => {
+  const prayers = await supabaseFetchWithCount(env, `oracoes?select=*&order=created_at.desc&offset=${offset}&limit=${limit}`);
+  if (prayers instanceof Response) return prayers;
+  const ids = prayers.data.map((row) => String(row.oracao_id));
+  const marks = ids.length ? await supabaseFetch(env, `usuario_oracoes_oradas?select=oracao_id,usuario_id,created_at&oracao_id=in.(${ids.map(encodeURIComponent).join(',')})`) : [];
+  if (marks instanceof Response) return marks;
+  const rows = marks as Row[];
+  const totalPages = Math.max(1, Math.ceil(prayers.total / limit));
+  return response({ data: prayers.data.map((prayer) => {
+    const related = rows.filter((mark) => mark.oracao_id === prayer.oracao_id);
+    const mine = related.find((mark) => mark.usuario_id === userId);
+    return { ...prayer, total_oracoes: related.length, orado: Boolean(mine), orado_por_mim: Boolean(mine), orado_em: mine?.created_at ?? null, orado_por_mim_em: mine?.created_at ?? null };
+  }), pagination: { page, limit, total: prayers.total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 } });
 };
 
 
@@ -659,6 +870,7 @@ const authUserColumns = [
   'data_nascimento',
   'avatar_url',
   'auth_provider',
+  'role',
 ].join(',');
 
 const handleGoogleLogin = async (request: Request, env: Env): Promise<Response> => {
@@ -731,6 +943,7 @@ const handleGoogleLogin = async (request: Request, env: Env): Promise<Response> 
     if (!user) {
       return response({ message: 'Nao foi possivel autenticar o usuario.' }, { status: 500 });
     }
+    user = { ...user, role: user.role === 'admin' ? 'admin' : 'user' };
 
     const expiresIn = Number(env.AUTH_JWT_EXPIRES_IN_SECONDS ?? 604800);
     const accessToken = await signApiToken(
@@ -738,6 +951,7 @@ const handleGoogleLogin = async (request: Request, env: Env): Promise<Response> 
         sub: user.usuario_id,
         email: user.email_usuario,
         provider: 'google',
+        role: user.role ?? 'user',
       },
       jwtSecret,
       expiresIn,
@@ -817,7 +1031,39 @@ const handleCrud = async (
     return response({ message: 'Rota nao encontrada' }, { status: 404 });
   }
 
+  if (normalizedResourceName === 'usuarios') return response({ message: 'Rota nao encontrada' }, { status: 404 });
+
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
+    const admin = await requireWorkerAdmin(request, env);
+    if (admin instanceof Response) return admin;
+  }
+
   const select = 'select=*';
+
+  if (normalizedResourceName === 'oracoes' && request.method === 'GET' && !id) {
+    const url = new URL(request.url);
+    const { page, limit, offset } = workerPagination(url.searchParams);
+    const prayers = await supabaseFetchWithCount(env, `oracoes?select=*&order=created_at.desc&offset=${offset}&limit=${limit}`);
+    if (prayers instanceof Response) return prayers;
+    let userId: string | undefined;
+    if (request.headers.get('authorization')) {
+      const authenticated = await getWorkerUserId(request, env);
+      if (authenticated instanceof Response) return authenticated;
+      userId = authenticated;
+    }
+    let prayed = new Set<string>();
+    if (userId && prayers.data.length) {
+      const ids = prayers.data.map((item) => encodeURIComponent(String(item.oracao_id))).join(',');
+      const marks = await supabaseFetch(env, `usuario_oracoes_oradas?select=oracao_id&usuario_id=eq.${encodeURIComponent(userId)}&oracao_id=in.(${ids})`);
+      if (marks instanceof Response) return marks;
+      prayed = new Set((marks as Row[]).map((item) => String(item.oracao_id)));
+    }
+    const totalPages = Math.max(1, Math.ceil(prayers.total / limit));
+    return response({
+      data: prayers.data.map((item) => userId ? { ...item, orado_por_mim: prayed.has(String(item.oracao_id)) } : item),
+      pagination: { page, limit, total: prayers.total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 },
+    });
+  }
 
   if (request.method === 'GET' && !id) {
     const data = await supabaseFetch(env, `${config.table}?${select}&order=created_at.desc`);
@@ -903,6 +1149,15 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
   if (request.method !== 'POST') {
     return null;
   }
+
+  const isUploadMutation = parts[1] === 'uploads'
+    || (parts[1] === 'eventos' && Boolean(parts[2]) && ['capa', 'imagens'].includes(parts[3] ?? ''))
+    || (parts[1] === 'noticias' && Boolean(parts[2]) && parts[3] === 'capa')
+    || (parts[1] === 'ministerios' && Boolean(parts[2]) && parts[3] === 'fotos')
+    || (parts[1] === 'pessoas' && (parts[2] === 'com-imagem' || (Boolean(parts[2]) && parts[3] === 'imagem')));
+  if (!isUploadMutation) return null;
+  const admin = await requireWorkerAdmin(request, env);
+  if (admin instanceof Response) return admin;
 
   if (parts[1] === 'uploads') {
     const upload = await uploadImage(env, await parseBody(request) as { fileName: string; contentType?: string; base64: string; folder?: string });
@@ -1567,6 +1822,8 @@ export default {
       if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
       if (url.pathname.startsWith('/api/planos-estudo')) return handleStudyPlans(env, url.pathname, url.searchParams);
       if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });
+      const userContentResponse = await handleUserContentRoutes(request, env, url);
+      if (userContentResponse) return userContentResponse;
       const relationshipResponse = await handleRelationshipRoutes(request, env, parts);
       if (relationshipResponse) return relationshipResponse;
       const uploadResponse = await handleUploadRoutes(request, env, parts);

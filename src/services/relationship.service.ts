@@ -26,11 +26,19 @@ export class SupabaseRelationshipService implements RelationshipServiceContract 
 
     const { data, error } = await this.client
       .from('usuario_oracoes_oradas')
-      .insert({ usuario_id: userId, oracao_id: prayerId })
+      .upsert({ usuario_id: userId, oracao_id: prayerId }, { onConflict: 'usuario_id,oracao_id' })
       .select('usuario_id,oracao_id,created_at')
       .single();
     if (error) throw new AppError(500, 'Erro ao marcar pedido como orado.', error);
     return { ...data, orado: true } as Record<string, unknown>;
+  }
+
+  async unmarkPrayerAsPrayed(userId: string, prayerId: string): Promise<Record<string, unknown>> {
+    await this.assertExists('oracoes', 'oracao_id', prayerId, 'Pedido de oracao');
+    const { error } = await this.client.from('usuario_oracoes_oradas').delete()
+      .eq('usuario_id', userId).eq('oracao_id', prayerId);
+    if (error) throw new AppError(500, 'Erro ao desmarcar pedido como orado.', error);
+    return { usuario_id: userId, oracao_id: prayerId, orado: false };
   }
 
   async addMinistryInterest(userId: string, ministryId: string): Promise<Record<string, unknown>> {

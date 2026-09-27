@@ -3,6 +3,7 @@ import { z } from 'zod';
 const mensagemBaseSchema = z.object({
   nome_mensagem: z.string().min(1),
   texto_mensagem: z.string().min(1),
+  url_capa: z.string().url().nullable().optional(),
 });
 
 export const createMensagemSchema = mensagemBaseSchema;

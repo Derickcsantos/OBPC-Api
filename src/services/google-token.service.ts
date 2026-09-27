@@ -174,7 +174,7 @@ export const verifyApiToken = async (
   token: string,
   secret: string,
   issuer: string,
-): Promise<{ sub: string; email?: string; provider?: string }> => {
+): Promise<{ sub: string; email?: string; provider?: string; role?: 'user' | 'admin' }> => {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) throw new Error('JWT malformado');
@@ -184,6 +184,7 @@ export const verifyApiToken = async (
       sub?: string;
       email?: string;
       provider?: string;
+      role?: 'user' | 'admin';
       iss?: string;
       aud?: string;
       exp?: number;
@@ -208,7 +209,7 @@ export const verifyApiToken = async (
     const now = Math.floor(Date.now() / 1000);
     if (!validSignature || !payload.exp || payload.exp <= now) throw new Error('Token expirado');
 
-    return { sub: payload.sub, email: payload.email, provider: payload.provider };
+    return { sub: payload.sub, email: payload.email, provider: payload.provider, role: payload.role };
   } catch {
     throw new AppError(401, 'Token de acesso invalido ou expirado.');
   }

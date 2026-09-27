@@ -7,6 +7,7 @@ export const relationshipRoutes = (app: FastifyInstance, service: RelationshipSe
   const controller = new RelationshipController(service);
 
   app.post('/oracoes/:id/orado', { preHandler: requireAuth }, controller.markPrayerAsPrayed);
+  app.delete('/oracoes/:id/orado', { preHandler: requireAuth }, controller.unmarkPrayerAsPrayed);
   app.post('/ministerios/:id/interesse', { preHandler: requireAuth }, controller.addMinistryInterest);
   app.delete('/ministerios/:id/interesse', { preHandler: requireAuth }, controller.removeMinistryInterest);
   app.get('/ministerios/:id/interessados', { preHandler: requireAuth }, controller.listMinistryInterestedUsers);

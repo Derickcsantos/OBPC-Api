@@ -121,9 +121,12 @@ create table if not exists mensagens (
   mensagem_id uuid primary key default gen_random_uuid(),
   nome_mensagem varchar(150) not null,
   texto_mensagem text not null,
+  url_capa text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table mensagens add column if not exists url_capa text;
 
 create table if not exists oracoes (
   oracao_id uuid primary key default gen_random_uuid(),

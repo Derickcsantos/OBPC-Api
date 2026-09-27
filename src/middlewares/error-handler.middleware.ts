@@ -23,6 +23,13 @@ export const errorHandler = (
     return;
   }
 
+  if ('statusCode' in error && typeof error.statusCode === 'number' && error.statusCode >= 400 && error.statusCode < 600) {
+    reply.status(error.statusCode).send({
+      message: error.statusCode === 413 ? 'O arquivo deve ter no maximo 8 MB' : error.message,
+    });
+    return;
+  }
+
   reply.status(500).send({
     message: 'Erro interno do servidor',
   });

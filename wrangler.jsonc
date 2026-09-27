@@ -2,6 +2,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "obpc",
   "main": "dist/src/worker.js",
+  "vars": {
+    "AUTH_JWT_EXPIRES_IN_SECONDS": "604800",
+    "BACKEND_URL": "https://obpc.derickcampossantos1.workers.dev",
+    "NODE_ENV": "production",
+    "REDIS_CACHE_TTL_SECONDS": "604800"
+  },
   "compatibility_date": "2026-05-24",
   "observability": {
     "enabled": true

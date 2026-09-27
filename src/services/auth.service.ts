@@ -18,6 +18,7 @@ const userColumns = [
   'data_nascimento',
   'avatar_url',
   'auth_provider',
+  'role',
 ].join(',');
 
 export class AuthService implements AuthServiceContract {
@@ -84,11 +85,17 @@ export class AuthService implements AuthServiceContract {
       }
     }
 
+    user = {
+      ...user,
+      role: user.role === 'admin' ? 'admin' : 'user',
+    };
+
     const accessToken = await signApiToken(
       {
         sub: user.usuario_id,
         email: user.email_usuario,
         provider: 'google',
+        role: user.role,
       },
       this.config.jwtSecret,
       this.config.jwtExpiresIn,

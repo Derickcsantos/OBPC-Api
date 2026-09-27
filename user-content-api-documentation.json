@@ -1,0 +1,48 @@
+{
+  "authentication": "Bearer JWT",
+  "roles": ["user", "admin"],
+  "pagination": { "page": 1, "limit": 20, "maximumLimit": 100 },
+  "adminUpload": {
+    "method": "POST",
+    "path": "/api/admin/uploads",
+    "contentType": "multipart/form-data",
+    "fields": { "file": "JPEG, PNG ou WebP; maximo 8 MB", "context": "ministerios | eventos | noticias | mensagens | louvores" },
+    "response": { "data": { "url": "https://..." } }
+  },
+  "prayers": [
+    { "method": "POST", "path": "/api/oracoes/{id}/orado", "access": "authenticated", "description": "Marca idempotentemente que o usuario orou pelo pedido." },
+    { "method": "DELETE", "path": "/api/oracoes/{id}/orado", "access": "authenticated", "description": "Remove idempotentemente a marcacao." },
+    { "method": "GET", "path": "/api/usuarios/me/oracoes-oradas", "access": "authenticated", "description": "Lista os pedidos orados pelo usuario atual." },
+    { "method": "GET", "path": "/api/admin/oracoes", "access": "admin", "description": "Lista pedidos, contagem e situacao do administrador atual." },
+    { "method": "GET", "path": "/api/admin/usuarios/{id}/oracoes", "access": "admin", "description": "Lista todos os pedidos e a situacao de um usuario." }
+  ],
+  "annotations": {
+    "paths": [
+      "GET /api/usuarios/me/anotacoes",
+      "POST /api/usuarios/me/anotacoes",
+      "GET /api/usuarios/me/anotacoes/{id}",
+      "PUT /api/usuarios/me/anotacoes/{id}",
+      "DELETE /api/usuarios/me/anotacoes/{id}"
+    ],
+    "body": {
+      "titulo": "string|null, opcional, maximo 200",
+      "conteudo": "string obrigatoria, maximo 20000",
+      "versiculos": [{ "version": "nvi", "book": 1, "chapter": 1, "verse": 1 }]
+    }
+  },
+  "highlights": {
+    "paths": [
+      "GET /api/usuarios/me/destaques?version=nvi&book=1&chapter=1",
+      "PUT /api/usuarios/me/destaques",
+      "DELETE /api/usuarios/me/destaques/{id}"
+    ],
+    "styles": ["background", "underline"],
+    "colors": ["yellow", "green", "blue", "pink", "purple"],
+    "upsertKey": ["usuario", "version", "book", "chapter", "verse", "estilo"]
+  },
+  "adminUsers": [
+    "GET /api/admin/usuarios",
+    "GET /api/admin/usuarios/{id}",
+    "PATCH /api/admin/usuarios/{id}/role"
+  ]
+}

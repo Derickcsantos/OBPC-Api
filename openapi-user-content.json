@@ -1,0 +1,53 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "OBPC User Content API", "version": "1.1.0" },
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } },
+    "schemas": {
+      "Pagination": {
+        "type": "object",
+        "required": ["page", "limit", "total", "totalPages"],
+        "properties": {
+          "page": { "type": "integer", "minimum": 1 },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 100 },
+          "total": { "type": "integer", "minimum": 0 },
+          "totalPages": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "VerseReference": {
+        "type": "object",
+        "required": ["version", "book", "chapter", "verse"],
+        "properties": {
+          "version": { "type": "string" }, "book": { "type": "integer" },
+          "chapter": { "type": "integer" }, "verse": { "type": "integer" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/admin/uploads": {
+      "post": {
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object", "required": ["file", "context"],
+                "properties": {
+                  "file": { "type": "string", "format": "binary" },
+                  "context": { "type": "string", "enum": ["ministerios", "eventos", "noticias", "mensagens", "louvores"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "URL HTTPS publica" }, "400": { "description": "Arquivo invalido" }, "413": { "description": "Arquivo maior que 8 MB" } }
+      }
+    },
+    "/api/usuarios/me/anotacoes": { "get": { "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Lista privada" } } }, "post": { "security": [{ "bearerAuth": [] }], "responses": { "201": { "description": "Anotacao criada" } } } },
+    "/api/usuarios/me/destaques": { "get": { "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Lista privada" } } }, "put": { "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Destaque criado ou atualizado" } } } },
+    "/api/usuarios/me/oracoes-oradas": { "get": { "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Pedidos orados pelo usuario" } } } },
+    "/api/admin/oracoes": { "get": { "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Pedidos com contagem" }, "403": { "description": "Nao administrador" } } } }
+  }
+}

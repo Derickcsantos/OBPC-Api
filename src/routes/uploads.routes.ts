@@ -9,16 +9,58 @@ import {
   uploadImageSchema,
 } from '../dtos/upload.dto.js';
 import { parseWithSchema } from '../utils/validation.js';
-import { StorageService } from '../services/storage.service.js';
+import { AdminUploadContext, StorageService } from '../services/storage.service.js';
 import { AppError } from '../utils/app-error.js';
 import { createPessoaComImagemSchema } from '../dtos/pessoas.dto.js';
+import { AdminServiceContract } from '../types/user-content.types.js';
+import { requireAuth } from '../middlewares/auth.middleware.js';
 
 const uuidParamSchema = z.object({
   id: z.string().uuid(),
 });
 
-export const uploadsRoutes = (app: FastifyInstance, supabase: SupabaseClient): void => {
+export const uploadsRoutes = (app: FastifyInstance, supabase: SupabaseClient, adminService: AdminServiceContract): void => {
   const storage = new StorageService(supabase);
+  const requireAdmin = async (request: Parameters<typeof requireAuth>[0], reply: Parameters<typeof requireAuth>[1]) => {
+    await requireAuth(request, reply);
+    if (!await adminService.isAdmin(request.authUser!.usuario_id)) throw new AppError(403, 'Acesso restrito a administradores.');
+  };
+
+  app.post('/admin/uploads', { preHandler: requireAdmin }, async (request, reply) => {
+    let context: string | undefined;
+    let bytes: Uint8Array | undefined;
+    for await (const part of request.parts()) {
+      if (part.type === 'field') {
+        if (part.fieldname === 'context') context = String(part.value);
+        continue;
+      }
+      if (part.fieldname !== 'file') {
+        part.file.resume();
+        continue;
+      }
+      const chunks: Buffer[] = [];
+      let size = 0;
+      for await (const chunk of part.file) {
+        size += chunk.length;
+        if (size > 8 * 1024 * 1024) throw new AppError(413, 'O arquivo deve ter no maximo 8 MB');
+        chunks.push(chunk);
+      }
+      if (part.file.truncated) throw new AppError(413, 'O arquivo deve ter no maximo 8 MB');
+      bytes = new Uint8Array(Buffer.concat(chunks));
+    }
+    const contexts = new Set<AdminUploadContext>(['ministerios', 'eventos', 'noticias', 'mensagens', 'louvores']);
+    if (!context || !contexts.has(context as AdminUploadContext)) throw new AppError(400, 'Contexto de upload invalido');
+    if (!bytes) throw new AppError(400, 'O campo file e obrigatorio');
+    const upload = await storage.uploadAdminFile(bytes, context as AdminUploadContext);
+    request.log.info({
+      usuario_id: request.authUser!.usuario_id,
+      context,
+      mime: upload.contentType,
+      size: upload.size,
+      key: upload.key,
+    }, 'Upload administrativo concluido');
+    reply.status(201).send({ data: { url: upload.url } });
+  });
 
   const removePreviousImage = async (previousUrl: unknown, currentKey: string): Promise<void> => {
     const previousKey = storage.keyFromPublicUrl(previousUrl);
