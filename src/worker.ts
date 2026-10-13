@@ -414,7 +414,11 @@ const handleUserContentRoutes = async (request: Request, env: Env, url: URL): Pr
       const result = await supabaseFetchWithCount(env, `anotacoes_biblicas?select=*,anotacoes_biblicas_versiculos(version,book,chapter,verse)&usuario_id=eq.${encodeURIComponent(currentUserId)}${suffix}`);
       if (result instanceof Response) return result;
       if (id && !result.data[0]) return response({ message: 'Anotacao nao encontrada.' }, { status: 404 });
-      return id ? response({ data: result.data[0] }) : response({ data: result.data, pagination: pagination(result.total) });
+      const annotations = result.data.map((row) => {
+        const { anotacao_id, anotacoes_biblicas_versiculos, ...annotation } = row;
+        return { ...annotation, id: anotacao_id, versiculos: anotacoes_biblicas_versiculos ?? [] };
+      });
+      return id ? response({ data: annotations[0] }) : response({ data: annotations, pagination: pagination(result.total) });
     }
     if (['POST', 'PUT'].includes(request.method) && (request.method === 'POST' || id)) {
       const body = await parseBody(request);
