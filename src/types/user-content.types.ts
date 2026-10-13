@@ -1,10 +1,11 @@
 export interface PaginationInput { page: number; limit: number }
+export interface PublicPrayerFilters extends PaginationInput { q?: string; data?: string }
 export interface VerseSelection { version: string; book: number; chapter: number; verse: number }
 export interface AnnotationInput { titulo?: string | null; conteudo: string; versiculos: VerseSelection[] }
 export interface HighlightInput extends VerseSelection { estilo: 'background' | 'underline'; cor: 'yellow' | 'green' | 'blue' | 'pink' | 'purple' }
 
 export interface UserContentServiceContract {
-  listPublicPrayers(userId: string | undefined, pagination: PaginationInput): Promise<unknown>;
+  listPublicPrayers(userId: string | undefined, filters: PublicPrayerFilters): Promise<unknown>;
   listMyPrayers(userId: string, pagination: PaginationInput): Promise<unknown>;
   listUserPrayerStatus(userId: string, viewerId: string, pagination: PaginationInput): Promise<unknown>;
   listAdminPrayers(viewerId: string, pagination: PaginationInput): Promise<unknown>;
@@ -22,5 +23,6 @@ export interface AdminServiceContract {
   isAdmin(userId: string): Promise<boolean>;
   listUsers(pagination: PaginationInput): Promise<unknown>;
   getUser(id: string): Promise<unknown>;
+  updateUser(actorId: string, id: string, input: Record<string, unknown>): Promise<unknown>;
   updateUserRole(actorId: string, id: string, role: 'user' | 'admin'): Promise<unknown>;
 }

@@ -43,6 +43,12 @@
   "adminUsers": [
     "GET /api/admin/usuarios",
     "GET /api/admin/usuarios/{id}",
+    "PUT /api/admin/usuarios/{id}",
     "PATCH /api/admin/usuarios/{id}/role"
+  ],
+  "legacyAdminUserAliases": [
+    "GET /api/usuarios",
+    "GET /api/usuarios/{id}",
+    "PUT /api/usuarios/{id}"
   ]
 }

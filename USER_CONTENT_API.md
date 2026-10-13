@@ -2,6 +2,8 @@
 
 Todos os endpoints pessoais exigem `Authorization: Bearer <token>`. Operações de conteúdo e rotas sob `/api/admin` exigem que o usuário continue com `role = admin` no banco.
 
+O painel administrativo lista e edita usuários por `GET /api/admin/usuarios`, `GET /api/admin/usuarios/:id` e `PUT /api/admin/usuarios/:id`. Os equivalentes sem o prefixo `/admin` continuam disponíveis como aliases legados, também protegidos por administrador.
+
 Os contratos completos e os valores aceitos estão em `user-content-api-documentation.json`. A estrutura necessária está na migration `database/user_bible_content_admin_migration.sql`, que deve ser aplicada antes do deploy da API.
 
 O upload administrativo usa `POST /api/admin/uploads` em `multipart/form-data`, com os campos `file` e `context`. Consulte também `openapi-user-content.json` e `ADMIN_UPLOAD_CURL.md`.

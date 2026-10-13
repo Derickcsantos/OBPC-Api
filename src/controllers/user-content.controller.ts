@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { annotationSchema, highlightQuerySchema, highlightSchema, paginationSchema, roleSchema } from '../dtos/user-content.dto.js';
+import { adminUpdateUserSchema, annotationSchema, highlightQuerySchema, highlightSchema, paginationSchema, roleSchema } from '../dtos/user-content.dto.js';
 import { idParamSchema } from '../dtos/common.dto.js';
 import { AdminServiceContract, UserContentServiceContract } from '../types/user-content.types.js';
 import { AppError } from '../utils/app-error.js';
@@ -35,5 +35,6 @@ export class AdminController {
   constructor(private readonly service: AdminServiceContract) {}
   listUsers = async (req: FastifyRequest, reply: FastifyReply) => reply.send(await this.service.listUsers(parseWithSchema(paginationSchema, req.query)));
   getUser = async (req: FastifyRequest, reply: FastifyReply) => reply.send({ data: await this.service.getUser(parseWithSchema(idParamSchema, req.params).id) });
+  updateUser = async (req: FastifyRequest, reply: FastifyReply) => reply.send({ data: await this.service.updateUser(userId(req), parseWithSchema(idParamSchema, req.params).id, parseWithSchema(adminUpdateUserSchema, req.body)) });
   updateRole = async (req: FastifyRequest, reply: FastifyReply) => reply.send({ data: await this.service.updateUserRole(userId(req), parseWithSchema(idParamSchema, req.params).id, parseWithSchema(roleSchema, req.body).role) });
 }

@@ -23,6 +23,11 @@ export const userContentRoutes = (app: FastifyInstance, content: UserContentServ
   app.get('/admin/oracoes', { preHandler: requireAdmin }, controller.listAdminPrayers);
   app.get('/admin/usuarios', { preHandler: requireAdmin }, adminController.listUsers);
   app.get('/admin/usuarios/:id', { preHandler: requireAdmin }, adminController.getUser);
+  app.put('/admin/usuarios/:id', { preHandler: requireAdmin }, adminController.updateUser);
   app.patch('/admin/usuarios/:id/role', { preHandler: requireAdmin }, adminController.updateRole);
   app.get('/admin/usuarios/:id/oracoes', { preHandler: requireAdmin }, controller.listUserPrayers);
+  // Aliases administrativos mantidos para compatibilidade com o painel legado.
+  app.get('/usuarios', { preHandler: requireAdmin }, adminController.listUsers);
+  app.get('/usuarios/:id', { preHandler: requireAdmin }, adminController.getUser);
+  app.put('/usuarios/:id', { preHandler: requireAdmin }, adminController.updateUser);
 };

@@ -87,14 +87,19 @@ const adminStub: AdminServiceContract = {
   isAdmin: async (id) => id === '99999999-9999-4999-8999-999999999999',
   listUsers: async () => ({ data: [], pagination: {} }),
   getUser: async (id) => ({ usuario_id: id, role: 'user' }),
+  updateUser: async (_actorId, id, input) => ({ usuario_id: id, ...input }),
   updateUserRole: async (_actorId, id, role) => ({ usuario_id: id, role }),
 };
 
+let receivedPrayerFilters: { q?: string; data?: string; page: number; limit: number } | null = null;
 const userContentStub: UserContentServiceContract = {
-  listPublicPrayers: async (userId) => ({
+  listPublicPrayers: async (userId, filters) => {
+    receivedPrayerFilters = filters;
+    return ({
     data: [{ oracao_id: '33333333-3333-4333-8333-333333333333', ...(userId ? { orado_por_mim: true } : {}) }],
     pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
-  }),
+    });
+  },
   listMyPrayers: async () => ({ data: [], pagination: {} }),
   listUserPrayerStatus: async () => ({ data: [], pagination: {} }),
   listAdminPrayers: async () => ({ data: [], pagination: {} }),
@@ -319,6 +324,39 @@ describe('API', () => {
     expect(response.statusCode).toBe(403);
   });
 
+  it('deve listar usuarios no endpoint administrativo e no alias legado', async () => {
+    const [adminResponse, legacyResponse] = await Promise.all([
+      request(app.server).get('/api/admin/usuarios').set('Authorization', `Bearer ${adminToken}`),
+      request(app.server).get('/api/usuarios').set('Authorization', `Bearer ${adminToken}`),
+    ]);
+    expect(adminResponse.statusCode).toBe(200);
+    expect(legacyResponse.statusCode).toBe(200);
+    expect(adminResponse.body.data).toEqual([]);
+    expect(legacyResponse.body.data).toEqual([]);
+  });
+
+  it('deve permitir que administrador edite um usuario pelo painel', async () => {
+    const response = await request(app.server)
+      .put('/api/admin/usuarios/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ nome_usuario: 'Usuario editado', role: 'admin' });
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data).toMatchObject({
+      usuario_id: '11111111-1111-4111-8111-111111111111',
+      nome_usuario: 'Usuario editado',
+      role: 'admin',
+    });
+  });
+
+  it('deve negar a listagem de usuarios para usuario comum', async () => {
+    const token = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'usuario@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const response = await request(app.server).get('/api/usuarios').set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).toBe(403);
+  });
+
   it('deve validar o conteudo real do upload administrativo', async () => {
     const response = await request(app.server).post('/api/admin/uploads')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -354,6 +392,12 @@ describe('API', () => {
     expect(response.statusCode).toBe(200);
     expect(response.body.data[0].orado_por_mim).toBe(true);
     expect(response.body.pagination.totalPages).toBe(1);
+  });
+
+  it('deve aceitar busca e data na listagem pública de orações', async () => {
+    const response = await request(app.server).get('/api/oracoes?q=Sa%C3%BAde&data=2026-10-13&page=2&limit=10');
+    expect(response.statusCode).toBe(200);
+    expect(receivedPrayerFilters).toEqual({ q: 'Saúde', data: '2026-10-13', page: 2, limit: 10 });
   });
 
   it('deve isolar anotacoes usando sempre o usuario do JWT', async () => {

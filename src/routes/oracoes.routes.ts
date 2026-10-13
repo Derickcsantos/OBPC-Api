@@ -5,7 +5,7 @@ import { CrudServiceContract } from '../types/crud.types.js';
 import { registerCrudRoutes } from './crud-route.factory.js';
 import { UserContentServiceContract } from '../types/user-content.types.js';
 import { optionalAuth } from '../middlewares/auth.middleware.js';
-import { paginationSchema } from '../dtos/user-content.dto.js';
+import { publicPrayerQuerySchema } from '../dtos/user-content.dto.js';
 import { parseWithSchema } from '../utils/validation.js';
 
 export const oracoesRoutes = (app: FastifyInstance, service: CrudServiceContract, content: UserContentServiceContract): void => {
@@ -17,7 +17,7 @@ export const oracoesRoutes = (app: FastifyInstance, service: CrudServiceContract
   });
 
   app.get('/oracoes', { preHandler: optionalAuth }, async (request, reply) => {
-    reply.send(await content.listPublicPrayers(request.authUser?.usuario_id, parseWithSchema(paginationSchema, request.query)));
+    reply.send(await content.listPublicPrayers(request.authUser?.usuario_id, parseWithSchema(publicPrayerQuerySchema, request.query)));
   });
   registerCrudRoutes(app, '/oracoes', controller, undefined, false);
 };

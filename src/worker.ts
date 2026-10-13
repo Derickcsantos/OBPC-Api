@@ -364,13 +364,15 @@ const workerPagination = (params: URLSearchParams) => {
 };
 
 const handleUserContentRoutes = async (request: Request, env: Env, url: URL): Promise<Response | null> => {
-  const path = url.pathname;
-  const isUserContent = path.startsWith('/api/usuarios/me/') || path.startsWith('/api/admin/');
+  let path = url.pathname;
+  const legacyAdminUsersRoute = /^\/api\/usuarios(?:\/[^/]+)?$/.test(path) && path !== '/api/usuarios/me';
+  const isUserContent = path.startsWith('/api/usuarios/me/') || path.startsWith('/api/admin/') || legacyAdminUsersRoute;
   if (!isUserContent) return null;
-  const adminRoute = path.startsWith('/api/admin/');
+  const adminRoute = path.startsWith('/api/admin/') || legacyAdminUsersRoute;
   const auth = adminRoute ? await requireWorkerAdmin(request, env) : await getWorkerUserId(request, env);
   if (auth instanceof Response) return auth;
   const currentUserId = auth;
+  if (legacyAdminUsersRoute) path = path.replace('/api/usuarios', '/api/admin/usuarios');
   if (path === '/api/admin/uploads') {
     if (request.method !== 'POST') return response({ message: 'Metodo nao permitido' }, { status: 405 });
     let form: FormData;
@@ -458,6 +460,19 @@ const handleUserContentRoutes = async (request: Request, env: Env, url: URL): Pr
     const targetId = adminUserMatch[1];
     if (!adminUserMatch[2] && request.method === 'GET') {
       const data = await supabaseFetch(env, `usuarios?select=usuario_id,nome_usuario,email_usuario,telefone_usuario,data_nascimento,avatar_url,auth_provider,role,created_at,updated_at&usuario_id=eq.${encodeURIComponent(targetId)}&limit=1`);
+      return data instanceof Response ? data : (data as Row[])[0] ? response({ data: (data as Row[])[0] }) : response({ message: 'Usuario nao encontrado.' }, { status: 404 });
+    }
+    if (!adminUserMatch[2] && request.method === 'PUT') {
+      const body = await parseBody(request);
+      const allowed = ['nome_usuario', 'email_usuario', 'telefone_usuario', 'data_nascimento', 'role'];
+      const payload = Object.fromEntries(Object.entries(body).filter(([key]) => allowed.includes(key)));
+      if (payload.role && !['user', 'admin'].includes(String(payload.role))) return response({ message: 'Papel invalido.' }, { status: 400 });
+      if (targetId === currentUserId && payload.role === 'user') {
+        const admins = await supabaseFetchWithCount(env, 'usuarios?select=usuario_id&role=eq.admin&limit=1');
+        if (admins instanceof Response) return admins;
+        if (admins.total <= 1) return response({ message: 'Nao e permitido remover o ultimo administrador.' }, { status: 409 });
+      }
+      const data = await supabaseFetch(env, `usuarios?usuario_id=eq.${encodeURIComponent(targetId)}&select=usuario_id,nome_usuario,email_usuario,telefone_usuario,data_nascimento,avatar_url,auth_provider,role,created_at,updated_at`, { method: 'PATCH', body: JSON.stringify(payload) });
       return data instanceof Response ? data : (data as Row[])[0] ? response({ data: (data as Row[])[0] }) : response({ message: 'Usuario nao encontrado.' }, { status: 404 });
     }
     if (adminUserMatch[2] === 'role' && request.method === 'PATCH') {
@@ -1043,7 +1058,24 @@ const handleCrud = async (
   if (normalizedResourceName === 'oracoes' && request.method === 'GET' && !id) {
     const url = new URL(request.url);
     const { page, limit, offset } = workerPagination(url.searchParams);
-    const prayers = await supabaseFetchWithCount(env, `oracoes?select=*&order=created_at.desc&offset=${offset}&limit=${limit}`);
+    const search = url.searchParams.get('q')?.trim();
+    const date = url.searchParams.get('data')?.trim();
+    if (search && search.length > 160) return response({ message: 'A busca deve ter no máximo 160 caracteres.' }, { status: 400 });
+    const parsedDate = date ? new Date(`${date}T00:00:00-03:00`) : null;
+    if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !parsedDate || Number.isNaN(parsedDate.getTime()) || !parsedDate.toISOString().startsWith(date))) {
+      return response({ message: 'Informe a data no formato YYYY-MM-DD.' }, { status: 400 });
+    }
+    const prayerQuery = new URLSearchParams({ select: '*', order: 'created_at.desc', offset: String(offset), limit: String(limit) });
+    if (search) {
+      const term = search.replace(/[\\%_*,()]/g, '\\$&');
+      prayerQuery.set('or', `(nome_pedido.ilike.*${term}*,descricao_pedido.ilike.*${term}*)`);
+    }
+    if (date) {
+      const start = parsedDate!;
+      prayerQuery.set('created_at', `gte.${start.toISOString()}`);
+      prayerQuery.append('created_at', `lt.${new Date(start.getTime() + 24 * 60 * 60 * 1000).toISOString()}`);
+    }
+    const prayers = await supabaseFetchWithCount(env, `oracoes?${prayerQuery.toString()}`);
     if (prayers instanceof Response) return prayers;
     let userId: string | undefined;
     if (request.headers.get('authorization')) {

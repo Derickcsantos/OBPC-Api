@@ -1,8 +1,16 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { AnnotationInput, HighlightInput, PaginationInput, UserContentServiceContract, VerseSelection } from '../types/user-content.types.js';
+import { AnnotationInput, HighlightInput, PaginationInput, PublicPrayerFilters, UserContentServiceContract, VerseSelection } from '../types/user-content.types.js';
 import { AppError } from '../utils/app-error.js';
 
 type Row = Record<string, unknown>;
+
+const escapePostgrestLike = (value: string): string => value.replace(/[\\%_,()]/g, '\\$&');
+
+const saoPauloDayRange = (date: string): { start: string; end: string } => {
+  const start = new Date(`${date}T00:00:00-03:00`);
+  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+  return { start: start.toISOString(), end: end.toISOString() };
+};
 
 export class UserContentService implements UserContentServiceContract {
   constructor(private readonly client: SupabaseClient) {}
@@ -12,10 +20,18 @@ export class UserContentService implements UserContentServiceContract {
     return { page, limit, total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 };
   }
 
-  async listPublicPrayers(userId: string | undefined, { page, limit }: PaginationInput): Promise<unknown> {
+  async listPublicPrayers(userId: string | undefined, { page, limit, q, data }: PublicPrayerFilters): Promise<unknown> {
     const from = (page - 1) * limit;
-    const prayers = await this.client.from('oracoes').select('*', { count: 'exact' })
-      .order('created_at', { ascending: false }).range(from, from + limit - 1);
+    let query = this.client.from('oracoes').select('*', { count: 'exact' });
+    if (q) {
+      const term = escapePostgrestLike(q);
+      query = query.or(`nome_pedido.ilike.%${term}%,descricao_pedido.ilike.%${term}%`);
+    }
+    if (data) {
+      const range = saoPauloDayRange(data);
+      query = query.gte('created_at', range.start).lt('created_at', range.end);
+    }
+    const prayers = await query.order('created_at', { ascending: false }).range(from, from + limit - 1);
     if (prayers.error) throw new AppError(500, 'Erro ao listar pedidos de oracao.', prayers.error);
     const ids = (prayers.data ?? []).map((item) => item.oracao_id as string);
     let prayedIds = new Set<string>();

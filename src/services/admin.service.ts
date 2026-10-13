@@ -28,6 +28,19 @@ export class AdminService implements AdminServiceContract {
     return data;
   }
 
+  async updateUser(actorId: string, id: string, input: Record<string, unknown>): Promise<unknown> {
+    const current = await this.getUser(id) as { role?: 'user' | 'admin' };
+    if (input.role && input.role !== current.role) {
+      await this.updateUserRole(actorId, id, input.role as 'user' | 'admin');
+    }
+    const { role: _role, ...profile } = input;
+    if (Object.keys(profile).length === 0) return this.getUser(id);
+    const { data, error } = await this.client.from('usuarios').update(profile).eq('usuario_id', id).select(publicColumns).maybeSingle();
+    if (error) throw new AppError(error.code === '23505' ? 409 : 500, error.code === '23505' ? 'Este email ja esta em uso.' : 'Erro ao atualizar usuario.', error);
+    if (!data) throw new AppError(404, 'Usuario nao encontrado.');
+    return data;
+  }
+
   async updateUserRole(actorId: string, id: string, role: 'user' | 'admin'): Promise<unknown> {
     if (actorId === id && role === 'user') {
       const { count, error } = await this.client.from('usuarios').select('usuario_id', { count: 'exact', head: true }).eq('role', 'admin');

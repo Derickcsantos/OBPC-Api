@@ -39,12 +39,15 @@ const apiResources = [
     name: 'usuarios',
     label: 'Usuarios',
     idField: 'usuario_id',
+    endpoint: '/api/admin/usuarios',
+    canCreate: false,
+    canDelete: false,
     fields: [
       { name: 'nome_usuario', label: 'Nome', type: 'text', required: true },
-      { name: 'telefone_usuario', label: 'Telefone', type: 'text', required: true },
-      { name: 'senha_usuario', label: 'Senha', type: 'password', required: true },
+      { name: 'telefone_usuario', label: 'Telefone', type: 'text' },
       { name: 'email_usuario', label: 'Email', type: 'email', required: true },
-      { name: 'data_nascimento', label: 'Nascimento', type: 'date', required: true },
+      { name: 'data_nascimento', label: 'Nascimento', type: 'date' },
+      { name: 'role', label: 'Papel', type: 'select', options: ['user', 'admin'] },
     ],
   },
   {
@@ -522,33 +525,118 @@ export const dashboardHtml = `<!doctype html>
       .workspace { grid-template-columns: 1fr; }
       .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+
+    /* Direcao visual: central pastoral, precisa e silenciosa. */
+    :root {
+      --bg: #f4f6fa;
+      --panel: #ffffff;
+      --panel-2: #f0f4fa;
+      --ink: #101828;
+      --muted: #667085;
+      --line: #e4e9f1;
+      --accent: #173b68;
+      --accent-soft: #eaf1fa;
+      --accent-2: #b42318;
+      --focus: #2563eb;
+      --gold: #b88a3b;
+      --shadow: 0 18px 48px rgba(23, 59, 104, 0.08);
+    }
+
+    body { letter-spacing: -0.006em; }
+    .shell { grid-template-columns: 268px minmax(0, 1fr); }
+    aside { padding: 24px 18px; background: #0f2948; border: 0; color: #fff; }
+    .brand { font: 600 23px/1.1 Georgia, serif; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .brand-subtitle { margin: 0 0 24px; color: #9fb3ca; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    .brand-pulse { display: flex; gap: 3px; height: 14px; align-items: center; margin: 14px 0 24px; }
+    .brand-pulse i { display: block; width: 3px; height: 4px; border-radius: 99px; background: #d5b56e; }
+    .brand-pulse i:nth-child(2), .brand-pulse i:nth-child(6) { height: 10px; }
+    .brand-pulse i:nth-child(3), .brand-pulse i:nth-child(5) { height: 14px; }
+    .nav-button { border: 0; color: #c8d5e4; padding: 10px 12px; border-radius: 8px; }
+    .nav-button:hover { color: #fff; background: rgba(255,255,255,.07); }
+    .nav-button.active { color: #fff; background: rgba(255,255,255,.12); border: 0; box-shadow: inset 3px 0 #d5b56e; }
+    main { padding: 30px clamp(20px, 4vw, 54px); }
+    .eyebrow { color: var(--gold); text-transform: uppercase; letter-spacing: .13em; font-weight: 750; font-size: 10px; margin-bottom: 5px; }
+    h1 { font: 600 clamp(26px, 3vw, 38px)/1.1 Georgia, serif; letter-spacing: -.035em; }
+    section { border-radius: 14px; box-shadow: 0 1px 2px rgba(16,24,40,.02), var(--shadow); }
+    .topbar { margin-bottom: 22px; }
+    button { border-radius: 8px; padding: 0 13px; font-weight: 650; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+    button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(23,59,104,.10); }
+    button.primary { box-shadow: 0 7px 18px rgba(23,59,104,.20); }
+    input, textarea, select { border-radius: 8px; min-height: 40px; outline: none; transition: border-color .15s, box-shadow .15s; }
+    input:focus, textarea:focus, select:focus { border-color: var(--focus); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+    .auth-control { width: min(330px, 38vw); position: relative; }
+    .auth-control input { padding-left: 34px; background: rgba(255,255,255,.9); }
+    .auth-control::before { content: '◆'; position: absolute; left: 12px; top: 11px; color: var(--gold); font-size: 11px; z-index: 1; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-bottom: 14px; }
+    .metric-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+    .metric-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    .metric-value { margin-top: 6px; font: 600 28px/1 Georgia, serif; color: var(--accent); }
+    .metric-note { margin-top: 7px; color: var(--muted); font-size: 12px; }
+    .insight-row { display: grid; grid-template-columns: 180px minmax(0,1fr); gap: 18px; align-items: center; padding: 14px; border-bottom: 1px solid var(--line); }
+    .donut { --value: 0%; width: 102px; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(var(--accent) var(--value), #e9eef5 0); display: grid; place-items: center; }
+    .donut::after { content: attr(data-label); width: 72px; aspect-ratio: 1; border-radius: 50%; background: #fff; display: grid; place-items: center; font: 600 18px Georgia, serif; }
+    .bars { display: grid; gap: 9px; }
+    .bar-track { height: 8px; border-radius: 99px; background: #edf1f6; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), #557da9); }
+    .toolbar { display: flex; align-items: center; gap: 10px; width: min(460px, 100%); }
+    .toolbar input { background: var(--panel-2); }
+    .section-head { padding: 14px 16px; }
+    th { text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+    tr:hover td { background: #f8fafc; }
+    .modal { backdrop-filter: blur(5px); background: rgba(15,41,72,.48); }
+    .modal-panel { border-radius: 16px; border: 0; box-shadow: 0 28px 90px rgba(15,41,72,.28); }
+    .toast-stack { position: fixed; z-index: 50; right: 22px; bottom: 22px; display: grid; gap: 10px; width: min(360px, calc(100vw - 44px)); }
+    .toast { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 14px; box-shadow: 0 18px 45px rgba(15,41,72,.16); animation: toast-in .2s ease-out; }
+    .toast.error { border-left-color: var(--accent-2); }
+    .empty-state { padding: 46px 24px !important; text-align: center; color: var(--muted); }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+    @media (max-width: 940px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .metric-grid { grid-template-columns: 1fr; }
+      .insight-row { grid-template-columns: 1fr; }
+      .auth-control { width: 100%; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <aside>
-      <p class="brand">OBPC API</p>
+      <p class="brand">OBPC Central</p>
+      <p class="brand-subtitle">Gestao da comunidade</p>
+      <div class="brand-pulse" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <nav id="nav"></nav>
     </aside>
     <main>
       <div class="topbar">
-        <h1 id="title">Ministerios</h1>
+        <div><div class="eyebrow">Visao administrativa</div><h1 id="title">Ministerios</h1></div>
         <div class="actions">
+          <label class="auth-control" title="Token administrativo"><input id="access-token" type="password" placeholder="Cole o Bearer JWT administrativo"></label>
           <button id="reload" type="button">Atualizar</button>
           <button id="new-record" type="button" class="primary">Novo</button>
         </div>
       </div>
       <p id="status" class="status"></p>
       <div id="crud-view" class="workspace">
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-label">Registros visiveis</div><div id="metric-total" class="metric-value">0</div><div class="metric-note">na selecao atual</div></div>
+          <div class="metric-card"><div class="metric-label">Atualizados recentemente</div><div id="metric-recent" class="metric-value">0</div><div class="metric-note">nos ultimos 30 dias</div></div>
+          <div class="metric-card"><div class="metric-label">Completude</div><div id="metric-complete" class="metric-value">0%</div><div class="metric-note">campos principais preenchidos</div></div>
+        </div>
         <section>
           <div class="section-head">
             <span class="section-title">Dados</span>
+            <div class="toolbar"><input id="table-search" type="search" placeholder="Buscar nesta lista..."></div>
           </div>
+          <div class="insight-row"><div id="completeness-donut" class="donut" data-label="0%"></div><div class="bars"><div><span class="hint">Recentes</span><div class="bar-track"><div id="recent-bar" class="bar-fill" style="width:0%"></div></div></div><div><span class="hint">Demais registros</span><div class="bar-track"><div id="archive-bar" class="bar-fill" style="width:0%"></div></div></div></div></div>
           <div class="table-wrap">
             <table id="table"></table>
           </div>
         </section>
       </div>
+      <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
       <div id="bible-view" hidden>
         <section>
           <div class="section-head">
@@ -603,6 +691,7 @@ export const dashboardHtml = `<!doctype html>
     const bibleTab = { name: 'biblia', label: 'Biblia' };
     let current = resources[0];
     let editing = null;
+    let currentRows = [];
 
     const nav = document.querySelector('#nav');
     const title = document.querySelector('#title');
@@ -615,12 +704,28 @@ export const dashboardHtml = `<!doctype html>
     const bibleView = document.querySelector('#bible-view');
     const reloadBtn = document.querySelector('#reload');
     const newBtn = document.querySelector('#new-record');
+    const searchInput = document.querySelector('#table-search');
+    const tokenInput = document.querySelector('#access-token');
+    const toastStack = document.querySelector('#toast-stack');
     const eventCache = { all: [], withVacancy: [], loadedAt: 0 };
     const ministryCache = { all: [], loadedAt: 0 };
 
     function setStatus(message, isError = false) {
       statusEl.textContent = message || '';
       statusEl.style.color = isError ? '#b42318' : '#64707d';
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = 'toast' + (type === 'error' ? ' error' : '');
+      toast.textContent = message;
+      toastStack.appendChild(toast);
+      setTimeout(() => toast.remove(), 3600);
+    }
+
+    function resourceEndpoint(id = '') {
+      const base = current.endpoint || ('/api/' + current.name);
+      return base + (id ? '/' + id : '');
     }
 
     function openModal() {
@@ -663,10 +768,11 @@ export const dashboardHtml = `<!doctype html>
       title.textContent = current.label;
       crudView.hidden = false;
       bibleView.hidden = true;
-      newBtn.hidden = false;
+      newBtn.hidden = current.canCreate === false;
       reloadBtn.hidden = false;
       renderNav();
       renderForm();
+      searchInput.value = '';
       loadRows();
     }
 
@@ -861,12 +967,34 @@ export const dashboardHtml = `<!doctype html>
     async function loadRows() {
       setStatus('Carregando...');
       try {
-        const json = await request('/api/' + current.name);
-        renderTable(json.data || []);
-        setStatus((json.data || []).length + ' registro(s).');
+        const json = await request(resourceEndpoint() + (current.name === 'usuarios' ? '?limit=100' : ''));
+        currentRows = json.data || [];
+        renderTable(currentRows);
+        renderInsights(currentRows);
+        setStatus(currentRows.length + ' registro(s).');
       } catch (error) {
         setStatus(error.message, true);
+        showToast(error.message, 'error');
       }
+    }
+
+    function renderInsights(rows) {
+      const now = Date.now();
+      const recent = rows.filter((row) => {
+        const value = Date.parse(row.updated_at || row.created_at || '');
+        return Number.isFinite(value) && now - value <= 30 * 86400000;
+      }).length;
+      const fields = current.fields.filter((field) => !field.uploadOnly && !field.hidden);
+      const filled = rows.reduce((total, row) => total + fields.filter((field) => row[field.name] !== null && row[field.name] !== undefined && row[field.name] !== '').length, 0);
+      const complete = rows.length && fields.length ? Math.round((filled / (rows.length * fields.length)) * 100) : 0;
+      document.querySelector('#metric-total').textContent = String(rows.length);
+      document.querySelector('#metric-recent').textContent = String(recent);
+      document.querySelector('#metric-complete').textContent = complete + '%';
+      const donut = document.querySelector('#completeness-donut');
+      donut.style.setProperty('--value', complete + '%');
+      donut.dataset.label = complete + '%';
+      document.querySelector('#recent-bar').style.width = (rows.length ? Math.round(recent / rows.length * 100) : 0) + '%';
+      document.querySelector('#archive-bar').style.width = (rows.length ? Math.round((rows.length - recent) / rows.length * 100) : 0) + '%';
     }
 
     function renderTable(rows) {
@@ -875,9 +1003,10 @@ export const dashboardHtml = `<!doctype html>
       const keys = [...new Set([...defaultKeys, ...rows.flatMap((row) => Object.keys(row))])].filter((key) => !hiddenKeys.has(key));
       const body = rows.length
         ? rows.map((row) => {
-        return '<tr>' + keys.map((key) => '<td>' + renderCell(key, row[key]) + '</td>').join('') + '<td><div class="row-actions"><button type="button" data-edit="' + row[current.idField] + '">Editar</button><button class="danger" type="button" data-delete="' + row[current.idField] + '">Excluir</button></div></td></tr>';
+        const removeButton = current.canDelete === false ? '' : '<button class="danger" type="button" data-delete="' + row[current.idField] + '">Excluir</button>';
+        return '<tr>' + keys.map((key) => '<td>' + renderCell(key, row[key]) + '</td>').join('') + '<td><div class="row-actions"><button type="button" data-edit="' + row[current.idField] + '">Editar</button>' + removeButton + '</div></td></tr>';
       }).join('')
-        : '<tr><td colspan="' + (keys.length + 1) + '">Nenhum registro encontrado.</td></tr>';
+        : '<tr><td class="empty-state" colspan="' + (keys.length + 1) + '">Nenhum registro encontrado. Ajuste a busca ou cadastre o primeiro item.</td></tr>';
 
       table.innerHTML = '<thead><tr>' + keys.map((key) => '<th>' + key + '</th>').join('') + '<th>Acoes</th></tr></thead><tbody>' + body + '</tbody>';
 
@@ -908,31 +1037,35 @@ export const dashboardHtml = `<!doctype html>
 
     async function editRow(id) {
       try {
-        const json = await request('/api/' + current.name + '/' + id);
+        const json = await request(resourceEndpoint(id));
         editing = id;
         renderForm(json.data || {});
         openModal();
         setStatus('Registro selecionado.');
       } catch (error) {
         setStatus(error.message, true);
+        showToast(error.message, 'error');
       }
     }
 
     async function deleteRow(id) {
       if (!confirm('Excluir este registro?')) return;
       try {
-        await request('/api/' + current.name + '/' + id, { method: 'DELETE' });
+        await request(resourceEndpoint(id), { method: 'DELETE' });
         editing = null;
         renderForm();
         closeModal();
         await loadRows();
+        showToast('Registro excluido.');
       } catch (error) {
         setStatus(error.message, true);
+        showToast(error.message, 'error');
       }
     }
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
+      const wasEditing = Boolean(editing);
       const payload = {};
       for (const field of current.fields) {
         if (field.uploadOnly) continue;
@@ -942,6 +1075,8 @@ export const dashboardHtml = `<!doctype html>
           payload[field.name] = input.checked;
         } else if (input.value !== '') {
           payload[field.name] = input.value;
+        } else if (current.name === 'usuarios' && editing && ['telefone_usuario', 'data_nascimento'].includes(field.name)) {
+          payload[field.name] = null;
         }
       }
 
@@ -1008,7 +1143,7 @@ export const dashboardHtml = `<!doctype html>
             }),
           });
         } else {
-          saved = await request('/api/' + current.name + (editing ? '/' + editing : ''), {
+          saved = await request(resourceEndpoint(editing || ''), {
             method: editing ? 'PUT' : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -1077,8 +1212,10 @@ export const dashboardHtml = `<!doctype html>
         renderForm();
         closeModal();
         await loadRows();
+        showToast(wasEditing ? 'Alteracoes salvas.' : 'Registro criado.');
       } catch (error) {
         setStatus(error.message, true);
+        showToast(error.message, 'error');
       }
     });
 
@@ -1242,7 +1379,10 @@ export const dashboardHtml = `<!doctype html>
     }
 
     async function request(url, options = {}) {
-      const response = await fetch(url, options);
+      const token = tokenInput.value.trim().replace(/^Bearer\s+/i, '');
+      const headers = new Headers(options.headers || {});
+      if (token) headers.set('Authorization', 'Bearer ' + token);
+      const response = await fetch(url, { ...options, headers });
       const text = await response.text();
       const json = text ? JSON.parse(text) : {};
       if (!response.ok) {
@@ -1270,6 +1410,17 @@ export const dashboardHtml = `<!doctype html>
     document.querySelector('#bible-fetch').addEventListener('click', fetchBible);
     document.querySelector('#bible-endpoint').addEventListener('change', fetchBible);
     document.querySelector('#bible-scope').addEventListener('change', fetchBible);
+    searchInput.addEventListener('input', () => {
+      const term = searchInput.value.trim().toLocaleLowerCase('pt-BR');
+      const filtered = term ? currentRows.filter((row) => Object.values(row).some((value) => preview(value).toLocaleLowerCase('pt-BR').includes(term))) : currentRows;
+      renderTable(filtered);
+    });
+    tokenInput.value = sessionStorage.getItem('obpc-admin-token') || '';
+    tokenInput.addEventListener('change', () => {
+      sessionStorage.setItem('obpc-admin-token', tokenInput.value.trim().replace(/^Bearer\s+/i, ''));
+      showToast('Token administrativo atualizado.');
+      if (current.name !== 'biblia') loadRows();
+    });
 
     renderNav();
     renderForm();
