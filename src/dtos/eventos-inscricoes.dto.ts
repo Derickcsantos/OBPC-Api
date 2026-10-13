@@ -4,7 +4,7 @@ const eventoInscricaoBaseSchema = z.object({
   evento_id: z.string().uuid(),
   nome: z.string().min(1),
   email: z.string().email(),
-  telefone: z.string().min(8).max(20),
+  telefone: z.string().min(8).max(20).optional().nullable(),
   status: z.enum(['inscrito', 'cancelado']).optional().default('inscrito'),
 });
 

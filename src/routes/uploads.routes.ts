@@ -234,6 +234,22 @@ export const uploadsRoutes = (app: FastifyInstance, supabase: SupabaseClient, ad
     }
   });
 
+  app.put('/ministerios/:id/foto-principal', async (request, reply) => {
+    const { id } = parseWithSchema(uuidParamSchema, request.params);
+    const payload = parseWithSchema(z.object({ url_imagem: z.string().url() }), request.body);
+    const { data: ministerio, error: ministerioError } = await supabase.from('ministerios').select('ministerio_id').eq('ministerio_id', id).maybeSingle();
+    if (ministerioError) throw new AppError(500, 'Erro ao validar ministerio', ministerioError);
+    if (!ministerio) throw new AppError(404, 'Ministerio nao encontrado');
+    const { data: current, error: currentError } = await supabase.from('fotos_ministerios').select('foto_ministerio_id').eq('ministerio_id', id).order('ordem', { ascending: true }).limit(1).maybeSingle();
+    if (currentError) throw new AppError(500, 'Erro ao consultar foto do ministerio', currentError);
+    const query = current
+      ? supabase.from('fotos_ministerios').update({ url_imagem: payload.url_imagem }).eq('foto_ministerio_id', current.foto_ministerio_id)
+      : supabase.from('fotos_ministerios').insert({ ministerio_id: id, url_imagem: payload.url_imagem, ordem: 0 });
+    const { data, error } = await query.select('*').single();
+    if (error) throw new AppError(500, 'Erro ao atualizar foto do ministerio', error);
+    reply.send({ data });
+  });
+
   app.post('/pessoas/:id/imagem', async (request, reply) => {
     const { id } = parseWithSchema(uuidParamSchema, request.params);
     const { data: pessoa, error: pessoaError } = await supabase

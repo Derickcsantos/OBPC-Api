@@ -30,11 +30,20 @@ export const eventosRoutes = (app: FastifyInstance, service: CrudServiceContract
     const { id } = parseWithSchema(eventoIdParamSchema, request.params);
     const payload = parseWithSchema(createEventoInscricaoPublicSchema, request.body);
     const supabase = getSupabaseClient();
+    const { data: existing, error: existingError } = await supabase
+      .from('eventos_inscricoes')
+      .select('inscricao_id')
+      .eq('evento_id', id)
+      .eq('email', payload.email.trim().toLowerCase())
+      .neq('status', 'cancelado')
+      .maybeSingle();
+    if (existingError) throw new AppError(500, 'Erro ao verificar inscricao', existingError);
+    if (existing) throw new AppError(409, 'Voce ja esta inscrito neste evento.');
     const { data, error } = await supabase.rpc('inscrever_evento', {
       p_evento_id: id,
       p_nome: payload.nome,
       p_email: payload.email,
-      p_telefone: payload.telefone,
+      p_telefone: payload.telefone ?? null,
     });
 
     if (error) {

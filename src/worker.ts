@@ -1161,13 +1161,19 @@ const handleEventRegistration = async (request: Request, env: Env, eventId: stri
   }
 
   const payload = await parseBody(request);
+  if (typeof payload.nome !== 'string' || !payload.nome.trim() || typeof payload.email !== 'string' || !payload.email.trim()) {
+    return response({ message: 'Nome e email sao obrigatorios' }, { status: 400 });
+  }
+  const existing = await supabaseFetch(env, `eventos_inscricoes?select=inscricao_id&evento_id=eq.${encodeURIComponent(eventId)}&email=eq.${encodeURIComponent(payload.email.trim().toLowerCase())}&status=neq.cancelado&limit=1`);
+  if (existing instanceof Response) return existing;
+  if ((existing as Record<string, unknown>[])[0]) return response({ message: 'Voce ja esta inscrito neste evento.' }, { status: 409 });
   const data = await supabaseFetch(env, 'rpc/inscrever_evento', {
     method: 'POST',
     body: JSON.stringify({
       p_evento_id: eventId,
       p_nome: payload.nome,
       p_email: payload.email,
-      p_telefone: payload.telefone,
+      p_telefone: typeof payload.telefone === 'string' && payload.telefone.trim() ? payload.telefone : null,
     }),
   });
 
