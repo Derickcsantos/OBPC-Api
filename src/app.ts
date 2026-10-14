@@ -29,6 +29,7 @@ const resourceMap: Record<ResourceName, { table: string; idField: string }> = {
   mensagens: { table: 'mensagens', idField: 'mensagem_id' },
   oracoes: { table: 'oracoes', idField: 'oracao_id' },
   pessoas: { table: 'pessoas', idField: 'pessoa_id' },
+  pessoas_imagens: { table: 'pessoas_imagens', idField: 'pessoa_imagem_id' },
   fotos_ministerios: { table: 'fotos_ministerios', idField: 'foto_ministerio_id' },
   eventos_imagens: { table: 'eventos_imagens', idField: 'imagem_id' },
   eventos_inscricoes: { table: 'eventos_inscricoes', idField: 'inscricao_id' },

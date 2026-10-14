@@ -48,7 +48,7 @@ export const uploadsRoutes = (app: FastifyInstance, supabase: SupabaseClient, ad
       if (part.file.truncated) throw new AppError(413, 'O arquivo deve ter no maximo 8 MB');
       bytes = new Uint8Array(Buffer.concat(chunks));
     }
-    const contexts = new Set<AdminUploadContext>(['ministerios', 'eventos', 'noticias', 'mensagens', 'louvores']);
+    const contexts = new Set<AdminUploadContext>(['ministerios', 'eventos', 'noticias', 'mensagens', 'louvores', 'pessoas']);
     if (!context || !contexts.has(context as AdminUploadContext)) throw new AppError(400, 'Contexto de upload invalido');
     if (!bytes) throw new AppError(400, 'O campo file e obrigatorio');
     const upload = await storage.uploadAdminFile(bytes, context as AdminUploadContext);

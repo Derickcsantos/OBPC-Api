@@ -8,6 +8,7 @@ import { mensagensRoutes } from './mensagens.routes.js';
 import { ministeriosRoutes } from './ministerios.routes.js';
 import { fotosMinisteriosRoutes } from './fotos-ministerios.routes.js';
 import { pessoasRoutes } from './pessoas.routes.js';
+import { pessoasImagensRoutes } from './pessoas-imagens.routes.js';
 import { oracoesRoutes } from './oracoes.routes.js';
 import { noticiasRoutes } from './noticias.routes.js';
 import { uploadsRoutes } from './uploads.routes.js';
@@ -44,7 +45,7 @@ export const registerRoutes = async (
   }
 
   const adminOnlyResources = new Set([
-    'ministerios', 'fotos-ministerios', 'fotos_ministerios', 'pessoas', 'eventos',
+    'ministerios', 'fotos-ministerios', 'fotos_ministerios', 'pessoas', 'pessoas-imagens', 'pessoas_imagens', 'eventos',
     'eventos-imagens', 'eventos_imagens', 'eventos-inscricoes', 'eventos_inscricoes',
     'noticias', 'louvores', 'mensagens', 'oracoes', 'uploads',
   ]);
@@ -64,6 +65,7 @@ export const registerRoutes = async (
   ministeriosRoutes(app, opts.services.crudServices.ministerios);
   fotosMinisteriosRoutes(app, opts.services.crudServices.fotos_ministerios);
   pessoasRoutes(app, opts.services.crudServices.pessoas);
+  pessoasImagensRoutes(app, opts.services.crudServices.pessoas_imagens);
   authRoutes(app, opts.services.authService);
   eventosRoutes(app, opts.services.crudServices.eventos);
   eventosImagensRoutes(app, opts.services.crudServices.eventos_imagens);

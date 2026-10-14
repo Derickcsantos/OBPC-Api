@@ -39,6 +39,11 @@ const resources: Record<string, ResourceConfig> = {
     idField: 'pessoa_id',
     fields: ['url_imagem', 'nome', 'cargo', 'sobre', 'telefone', 'email'],
   },
+  pessoas_imagens: {
+    table: 'pessoas_imagens',
+    idField: 'pessoa_imagem_id',
+    fields: ['pessoa_id', 'url_imagem', 'ordem'],
+  },
   usuarios: {
     table: 'usuarios',
     idField: 'usuario_id',
@@ -378,7 +383,7 @@ const handleUserContentRoutes = async (request: Request, env: Env, url: URL): Pr
     let form: FormData;
     try { form = await request.formData(); } catch { return response({ message: 'Envie multipart/form-data valido' }, { status: 400 }); }
     const context = String(form.get('context') ?? '');
-    if (!['ministerios', 'eventos', 'noticias', 'mensagens', 'louvores'].includes(context)) return response({ message: 'Contexto de upload invalido' }, { status: 400 });
+    if (!['ministerios', 'eventos', 'noticias', 'mensagens', 'louvores', 'pessoas'].includes(context)) return response({ message: 'Contexto de upload invalido' }, { status: 400 });
     const file = form.get('file');
     if (!(file instanceof File)) return response({ message: 'O campo file e obrigatorio' }, { status: 400 });
     if (file.size > 8 * 1024 * 1024) return response({ message: 'O arquivo deve ter no maximo 8 MB' }, { status: 413 });
@@ -1007,6 +1012,8 @@ const attachRelatedImages = async (
     ? { table: 'eventos_imagens', foreignKey: 'evento_id', idField: 'evento_id', outputKey: 'imagens' }
     : resourceName === 'ministerios'
       ? { table: 'fotos_ministerios', foreignKey: 'ministerio_id', idField: 'ministerio_id', outputKey: 'fotos' }
+      : resourceName === 'pessoas'
+        ? { table: 'pessoas_imagens', foreignKey: 'pessoa_id', idField: 'pessoa_id', outputKey: 'imagens' }
       : null;
 
   if (!relation) {

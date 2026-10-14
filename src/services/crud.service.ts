@@ -50,6 +50,13 @@ export class SupabaseCrudService implements CrudServiceContract {
             outputKey: 'fotos',
             errorMessage: 'Erro ao listar fotos dos ministerios',
           }
+        : this.tableName === 'pessoas'
+          ? {
+              table: 'pessoas_imagens',
+              foreignKey: 'pessoa_id',
+              outputKey: 'imagens',
+              errorMessage: 'Erro ao listar imagens das pessoas',
+            }
         : null;
 
     if (!relation) {

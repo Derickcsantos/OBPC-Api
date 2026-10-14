@@ -15,7 +15,7 @@ export interface UploadImageResult {
   url: string;
 }
 
-export type AdminUploadContext = 'ministerios' | 'eventos' | 'noticias' | 'mensagens' | 'louvores';
+export type AdminUploadContext = 'ministerios' | 'eventos' | 'noticias' | 'mensagens' | 'louvores' | 'pessoas';
 
 const bucketName = 'imagens';
 const maxFileSizeBytes = 10 * 1024 * 1024;
