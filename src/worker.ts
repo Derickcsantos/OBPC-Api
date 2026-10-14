@@ -1195,14 +1195,15 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
     return key ? getObject(env, key) : response({ message: 'Informe a chave do arquivo' }, { status: 400 });
   }
 
-  if (request.method !== 'POST') {
+  const isMinistryMainPhotoUpdate = request.method === 'PUT' && parts[1] === 'ministerios' && Boolean(parts[2]) && parts[3] === 'foto-principal';
+  if (request.method !== 'POST' && !isMinistryMainPhotoUpdate) {
     return null;
   }
 
   const isUploadMutation = parts[1] === 'uploads'
     || (parts[1] === 'eventos' && Boolean(parts[2]) && ['capa', 'imagens'].includes(parts[3] ?? ''))
     || (parts[1] === 'noticias' && Boolean(parts[2]) && parts[3] === 'capa')
-    || (parts[1] === 'ministerios' && Boolean(parts[2]) && parts[3] === 'fotos')
+    || (parts[1] === 'ministerios' && Boolean(parts[2]) && ['fotos', 'foto-principal'].includes(parts[3] ?? ''))
     || (parts[1] === 'pessoas' && (parts[2] === 'com-imagem' || (Boolean(parts[2]) && parts[3] === 'imagem')));
   if (!isUploadMutation) return null;
   const admin = await requireWorkerAdmin(request, env);
@@ -1314,6 +1315,20 @@ const handleUploadRoutes = async (request: Request, env: Env, parts: string[]): 
     }
 
     return response({ data: inserted }, { status: 201 });
+  }
+
+  if (parts[1] === 'ministerios' && parts[2] && parts[3] === 'foto-principal') {
+    const existing = await supabaseFetch(env, `ministerios?select=ministerio_id&ministerio_id=eq.${encodeURIComponent(parts[2])}&limit=1`);
+    if (existing instanceof Response) return existing;
+    if (!(existing as Record<string, unknown>[])[0]) return response({ message: 'Ministerio nao encontrado' }, { status: 404 });
+    const body = await parseBody(request) as { url_imagem?: unknown };
+    if (typeof body.url_imagem !== 'string' || !/^https:\/\//.test(body.url_imagem)) return response({ message: 'URL de imagem invalida' }, { status: 400 });
+    const current = await supabaseFetch(env, `fotos_ministerios?select=foto_ministerio_id&ministerio_id=eq.${encodeURIComponent(parts[2])}&order=ordem.asc&limit=1`);
+    if (current instanceof Response) return current;
+    const first = (current as Record<string, unknown>[])[0];
+    const path = first ? `fotos_ministerios?foto_ministerio_id=eq.${encodeURIComponent(String(first.foto_ministerio_id))}&select=*` : 'fotos_ministerios?select=*';
+    const data = await supabaseFetch(env, path, { method: first ? 'PATCH' : 'POST', body: JSON.stringify(first ? { url_imagem: body.url_imagem } : { ministerio_id: parts[2], url_imagem: body.url_imagem, ordem: 0 }) });
+    return data instanceof Response ? data : response({ data: (data as Record<string, unknown>[])[0] });
   }
 
   if (parts[1] === 'ministerios' && parts[2] && parts[3] === 'fotos') {
