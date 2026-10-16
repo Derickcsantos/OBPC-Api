@@ -56,6 +56,7 @@ export const registerRoutes = async (
     if (!adminOnlyResources.has(segments[0])) return;
     if (segments[0] === 'eventos' && segments.length > 2 && segments[2] === 'inscricoes') return;
     if (segments[0] === 'oracoes' && segments.length > 2 && segments[2] === 'orado') return;
+    if (segments[0] === 'ministerios' && segments.length > 2 && segments[2] === 'interesse') return;
     await requireAuth(request, reply);
     if (!await opts.services.adminService.isAdmin(request.authUser!.usuario_id)) {
       throw app.httpErrors.forbidden('Acesso restrito a administradores.');
@@ -74,7 +75,7 @@ export const registerRoutes = async (
   louvoresRoutes(app, opts.services.crudServices.louvores);
   mensagensRoutes(app, opts.services.crudServices.mensagens);
   oracoesRoutes(app, opts.services.crudServices.oracoes, opts.services.userContentService);
-  relationshipRoutes(app, opts.services.relationshipService);
+  relationshipRoutes(app, opts.services.relationshipService, opts.services.adminService);
   userContentRoutes(app, opts.services.userContentService, opts.services.adminService);
   bibliaRoutes(app, opts.services.bibleService);
   planosEstudoRoutes(app, opts.services.studyPlanService);

@@ -305,7 +305,7 @@ const handleRelationshipRoutes = async (request: Request, env: Env, parts: strin
     return response({ message: 'Metodo nao permitido' }, { status: 405 });
   }
 
-  const userId = await getWorkerUserId(request, env);
+  const userId = isInterestedUsers ? await requireWorkerAdmin(request, env) : await getWorkerUserId(request, env);
   if (userId instanceof Response) return userId;
 
   if (isPrayer) {
@@ -1886,10 +1886,10 @@ export default {
       if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
       if (url.pathname.startsWith('/api/planos-estudo')) return handleStudyPlans(env, url.pathname, url.searchParams);
       if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });
-      const userContentResponse = await handleUserContentRoutes(request, env, url);
-      if (userContentResponse) return userContentResponse;
       const relationshipResponse = await handleRelationshipRoutes(request, env, parts);
       if (relationshipResponse) return relationshipResponse;
+      const userContentResponse = await handleUserContentRoutes(request, env, url);
+      if (userContentResponse) return userContentResponse;
       const uploadResponse = await handleUploadRoutes(request, env, parts);
       if (uploadResponse) return uploadResponse;
       if (parts[0] === 'api' && parts[1] === 'eventos' && parts[2] && parts[3] === 'inscricoes') {
