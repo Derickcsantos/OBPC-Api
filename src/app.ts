@@ -104,6 +104,18 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
     { prefix: '/api' },
   );
 
+  app.addHook('onResponse', async (request, reply) => {
+    const actorId = request.authUser?.usuario_id;
+    if (!actorId || !['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) || request.url === '/api/usuarios/me') return;
+    const path = request.url.split('?')[0];
+    const category = path.split('/').filter(Boolean)[1] ?? 'app';
+    try {
+      await supabase.from('audit_logs').insert({ actor_id: actorId, category, action: `${request.method} ${path}`, status_code: reply.statusCode });
+    } catch (error) {
+      request.log.warn({ error }, 'Falha ao registrar auditoria');
+    }
+  });
+
   app.get('/health', async () => ({ status: 'ok' }));
 
   app.setErrorHandler(errorHandler);

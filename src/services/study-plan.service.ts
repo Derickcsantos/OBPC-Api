@@ -261,4 +261,28 @@ export class StudyPlanService implements StudyPlanServiceContract {
       },
     };
   }
+
+  async listCompletedDays(userId: string, planRef: string): Promise<number[]> {
+    const plan = await this.resolvePlan(planRef);
+    const { data, error } = await this.client.from('planos_estudo_dias_concluidos')
+      .select('dia').eq('usuario_id', userId).eq('plano_estudo_id', plan.plano_estudo_id).order('dia');
+    if (error) throw new AppError(500, 'Erro ao carregar dias concluídos.', error);
+    return ((data ?? []) as Array<{ dia: number }>).map((row) => row.dia);
+  }
+
+  async setDayCompleted(userId: string, planRef: string, dayNumber: number, completed: boolean): Promise<unknown> {
+    const plan = await this.resolvePlan(planRef);
+    const day = await this.getDay(plan.plano_estudo_id, dayNumber);
+    if (!completed) {
+      const { error } = await this.client.from('planos_estudo_dias_concluidos').delete()
+        .eq('usuario_id', userId).eq('plano_estudo_id', plan.plano_estudo_id).eq('dia', dayNumber);
+      if (error) throw new AppError(500, 'Erro ao desfazer conclusão do dia.', error);
+      return { plano_estudo_id: plan.plano_estudo_id, dia: dayNumber, concluido: false };
+    }
+    const { data, error } = await this.client.from('planos_estudo_dias_concluidos')
+      .upsert({ usuario_id: userId, plano_estudo_id: plan.plano_estudo_id, plano_estudo_dia_id: day.plano_estudo_dia_id, dia: dayNumber }, { onConflict: 'usuario_id,plano_estudo_id,dia' })
+      .select('plano_estudo_id,dia,concluido_em').single();
+    if (error) throw new AppError(500, 'Erro ao concluir dia do plano.', error);
+    return { ...data, concluido: true };
+  }
 }

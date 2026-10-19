@@ -29,10 +29,17 @@ export const annotationSchema = z.object({
   versiculos: z.array(verseSchema).min(1).max(200),
 });
 
-export const highlightSchema = verseSchema.extend({
-  estilo: z.enum(['background', 'underline']),
-  cor: z.enum(['yellow', 'green', 'blue', 'pink', 'purple']),
-});
+export const highlightSchema = z.object({
+  ...verseSchema.shape,
+  estilo: z.enum(['background', 'underline']).optional(),
+  style: z.enum(['background', 'underline']).optional(),
+  cor: z.enum(['yellow', 'green', 'blue', 'pink', 'purple']).optional(),
+  color: z.enum(['yellow', 'green', 'blue', 'pink', 'purple']).optional(),
+}).transform(({ estilo, style, cor, color, ...verse }) => ({
+  ...verse,
+  estilo: estilo ?? style ?? 'background',
+  cor: cor ?? color ?? 'yellow',
+}));
 
 export const highlightQuerySchema = paginationSchema.extend({
   version: z.string().trim().min(1).max(20).optional(),

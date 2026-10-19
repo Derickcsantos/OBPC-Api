@@ -11,4 +11,6 @@ export const planosEstudoRoutes = (app: FastifyInstance, service: StudyPlanServi
   app.get('/planos-estudo/:plano', controller.getPlan);
   app.get('/planos-estudo/:plano/dias/:dia', controller.getPlanDay);
   app.get('/planos-estudo/:plano/dias/:dia/textos', controller.getPlanDayTexts);
+  app.get('/planos-estudo/:plano/conclusoes', controller.listCompletedDays);
+  app.put('/planos-estudo/:plano/dias/:dia/conclusao', controller.setDayCompleted);
 };

@@ -25,4 +25,5 @@ export interface GoogleLoginResult {
 
 export interface AuthServiceContract {
   loginWithGoogle(idToken: string): Promise<GoogleLoginResult>;
+  deleteAccount(userId: string): Promise<void>;
 }

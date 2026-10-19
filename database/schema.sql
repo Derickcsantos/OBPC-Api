@@ -101,7 +101,7 @@ create table if not exists eventos_inscricoes (
   evento_id uuid not null references eventos(evento_id) on delete cascade,
   nome varchar(150) not null,
   email varchar(255) not null,
-  telefone varchar(20) not null,
+  telefone varchar(20),
   status varchar(20) not null default 'inscrito' check (status in ('inscrito', 'cancelado')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

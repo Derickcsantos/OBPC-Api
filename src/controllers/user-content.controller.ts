@@ -37,4 +37,6 @@ export class AdminController {
   getUser = async (req: FastifyRequest, reply: FastifyReply) => reply.send({ data: await this.service.getUser(parseWithSchema(idParamSchema, req.params).id) });
   updateUser = async (req: FastifyRequest, reply: FastifyReply) => reply.send({ data: await this.service.updateUser(userId(req), parseWithSchema(idParamSchema, req.params).id, parseWithSchema(adminUpdateUserSchema, req.body)) });
   updateRole = async (req: FastifyRequest, reply: FastifyReply) => reply.send({ data: await this.service.updateUserRole(userId(req), parseWithSchema(idParamSchema, req.params).id, parseWithSchema(roleSchema, req.body).role) });
+  listAuditLogs = async (req: FastifyRequest, reply: FastifyReply) => reply.send(await this.service.listAuditLogs(parseWithSchema(paginationSchema, req.query), req.query as Record<string, string>));
+  getAuditLog = async (req: FastifyRequest, reply: FastifyReply) => reply.send({ data: await this.service.getAuditLog(parseWithSchema(idParamSchema, req.params).id) });
 }

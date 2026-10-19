@@ -53,6 +53,25 @@ export class AdminService implements AdminServiceContract {
     return data;
   }
 
+  async listAuditLogs({ page, limit }: PaginationInput, filters: Record<string, string>): Promise<unknown> {
+    const from = (page - 1) * limit;
+    let query = this.client.from('audit_logs').select('*', { count: 'exact' });
+    if (filters.category) query = query.eq('category', filters.category);
+    if (filters.from) query = query.gte('created_at', filters.from);
+    if (filters.to) query = query.lte('created_at', filters.to);
+    const { data, error, count } = await query.order('created_at', { ascending: false }).range(from, from + limit - 1);
+    if (error) throw new AppError(500, 'Erro ao listar logs.', error);
+    const total = count ?? 0;
+    return { data: data ?? [], pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)), hasNextPage: page * limit < total, hasPreviousPage: page > 1 } };
+  }
+
+  async getAuditLog(id: string): Promise<unknown> {
+    const { data, error } = await this.client.from('audit_logs').select('*').eq('log_id', id).maybeSingle();
+    if (error) throw new AppError(500, 'Erro ao consultar log.', error);
+    if (!data) throw new AppError(404, 'Log não encontrado.');
+    return data;
+  }
+
   private pagination(page: number, limit: number, total: number) {
     const totalPages = Math.max(1, Math.ceil(total / limit));
     return { page, limit, total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 };

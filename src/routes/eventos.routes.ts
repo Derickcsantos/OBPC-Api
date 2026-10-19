@@ -9,6 +9,7 @@ import { AppError } from '../utils/app-error.js';
 import { parseWithSchema } from '../utils/validation.js';
 import { getSupabaseClient } from '../lib/supabase.js';
 import { registerCrudRoutes } from './crud-route.factory.js';
+import { optionalAuth } from '../middlewares/auth.middleware.js';
 
 const eventoIdParamSchema = z.object({
   id: z.string().uuid(),
@@ -26,7 +27,7 @@ export const eventosRoutes = (app: FastifyInstance, service: CrudServiceContract
 
   registerCrudRoutes(app, '/eventos', controller);
 
-  app.post('/eventos/:id/inscricoes', async (request, reply) => {
+  app.post('/eventos/:id/inscricoes', { preHandler: optionalAuth }, async (request, reply) => {
     const { id } = parseWithSchema(eventoIdParamSchema, request.params);
     const payload = parseWithSchema(createEventoInscricaoPublicSchema, request.body);
     const supabase = getSupabaseClient();
@@ -47,8 +48,10 @@ export const eventosRoutes = (app: FastifyInstance, service: CrudServiceContract
     });
 
     if (error) {
-      const message = error.message.includes('Evento lotado') ? 'Evento lotado' : 'Erro ao realizar inscricao';
-      throw new AppError(error.message.includes('Evento lotado') ? 409 : 500, message, error);
+      const isDuplicate = /email ja inscrito/i.test(error.message);
+      const isFull = /evento lotado/i.test(error.message);
+      const message = isDuplicate ? 'Você já está inscrito neste evento.' : isFull ? 'Evento lotado.' : 'Erro ao realizar inscrição.';
+      throw new AppError(isDuplicate || isFull ? 409 : 500, message, error);
     }
 
     reply.status(201).send({ data });

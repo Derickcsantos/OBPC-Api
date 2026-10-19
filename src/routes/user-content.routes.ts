@@ -21,6 +21,8 @@ export const userContentRoutes = (app: FastifyInstance, content: UserContentServ
   app.put('/usuarios/me/destaques', { preHandler: requireAuth }, controller.upsertHighlight);
   app.delete('/usuarios/me/destaques/:id', { preHandler: requireAuth }, controller.deleteHighlight);
   app.get('/admin/oracoes', { preHandler: requireAdmin }, controller.listAdminPrayers);
+  app.get('/admin/logs', { preHandler: requireAdmin }, adminController.listAuditLogs);
+  app.get('/admin/logs/:id', { preHandler: requireAdmin }, adminController.getAuditLog);
   app.get('/admin/usuarios', { preHandler: requireAdmin }, adminController.listUsers);
   app.get('/admin/usuarios/:id', { preHandler: requireAdmin }, adminController.getUser);
   app.put('/admin/usuarios/:id', { preHandler: requireAdmin }, adminController.updateUser);

@@ -93,8 +93,8 @@ export class SupabaseRelationshipService implements RelationshipServiceContract 
       .order('created_at', { ascending: true });
     if (error) throw new AppError(500, 'Erro ao listar interessados do ministério.', error);
 
-    return ((data ?? []) as Array<{ created_at: string; usuarios: Record<string, unknown>[] | null }>).map((item) => ({
-      ...(item.usuarios?.[0] ?? {}),
+    return ((data ?? []) as Array<{ created_at: string; usuarios: Record<string, unknown> | Record<string, unknown>[] | null }>).map((item) => ({
+      ...(Array.isArray(item.usuarios) ? item.usuarios[0] : item.usuarios ?? {}),
       interesse_created_at: item.created_at,
     }));
   }

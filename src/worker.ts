@@ -280,6 +280,9 @@ const getWorkerUserId = async (request: Request, env: Env): Promise<string | Res
 
   try {
   const claims = await verifyApiToken(token, jwtSecret, env.BACKEND_URL ?? 'books-api');
+  const account = await supabaseFetch(env, `usuarios?select=usuario_id&usuario_id=eq.${encodeURIComponent(claims.sub)}&limit=1`);
+  if (account instanceof Response) return account;
+  if (!(account as Record<string, unknown>[])[0]) return response({ message: 'Esta conta não está mais ativa.' }, { status: 401 });
   return claims.sub;
   } catch (error) {
   return response({ message: error instanceof AppError ? error.message : 'Token de acesso invalido ou expirado.' }, { status: 401 });
@@ -355,8 +358,8 @@ const handleRelationshipRoutes = async (request: Request, env: Env, parts: strin
   const data = await supabaseFetch(env, `usuario_ministerios_interesse?select=created_at,usuarios(${authUserColumns})&ministerio_id=eq.${encodeURIComponent(parts[2])}&order=created_at.asc`);
   if (data instanceof Response) return data;
   return response({
-    data: (data as Array<{ created_at: string; usuarios?: Record<string, unknown>[] }>).map((item) => ({
-      ...(item.usuarios?.[0] ?? {}),
+    data: (data as Array<{ created_at: string; usuarios?: Record<string, unknown> | Record<string, unknown>[] }>).map((item) => ({
+      ...(Array.isArray(item.usuarios) ? item.usuarios[0] : item.usuarios ?? {}),
       interesse_created_at: item.created_at,
     })),
   });
@@ -370,6 +373,16 @@ const workerPagination = (params: URLSearchParams) => {
 
 const handleUserContentRoutes = async (request: Request, env: Env, url: URL): Promise<Response | null> => {
   let path = url.pathname;
+  if (path === '/api/usuarios/me' && request.method === 'DELETE') {
+    const userId = await getWorkerUserId(request, env);
+    if (userId instanceof Response) return userId;
+    const users = await supabaseFetch(env, `usuarios?select=email_usuario&usuario_id=eq.${encodeURIComponent(userId)}&limit=1`);
+    if (users instanceof Response) return users;
+    const email = String((users as Row[])[0]?.email_usuario ?? '');
+    if (!email) return response({ message: 'Conta não encontrada.' }, { status: 404 });
+    const data = await supabaseFetch(env, 'rpc/delete_obpc_account', { method: 'POST', body: JSON.stringify({ p_user_id: userId, p_email: email }) });
+    return data instanceof Response ? data : new Response(null, { status: 204, headers: jsonHeaders });
+  }
   const legacyAdminUsersRoute = /^\/api\/usuarios(?:\/[^/]+)?$/.test(path) && path !== '/api/usuarios/me';
   const isUserContent = path.startsWith('/api/usuarios/me/') || path.startsWith('/api/admin/') || legacyAdminUsersRoute;
   if (!isUserContent) return null;
@@ -404,6 +417,22 @@ const handleUserContentRoutes = async (request: Request, env: Env, url: URL): Pr
   }
   const { page, limit, offset } = workerPagination(url.searchParams);
   const pagination = (total: number) => ({ page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)), hasNextPage: page * limit < total, hasPreviousPage: page > 1 });
+
+  if (path === '/api/admin/logs' && request.method === 'GET') {
+    const params = new URLSearchParams({ select: '*', order: 'created_at.desc', offset: String(offset), limit: String(limit) });
+    for (const key of ['category', 'from', 'to']) {
+      const value = url.searchParams.get(key);
+      if (value) params.append(key === 'from' || key === 'to' ? 'created_at' : key, key === 'category' ? `eq.${value}` : `${key === 'from' ? 'gte' : 'lte'}.${value}`);
+    }
+    const result = await supabaseFetchWithCount(env, `audit_logs?${params.toString()}`);
+    return result instanceof Response ? result : response({ data: result.data, pagination: pagination(result.total) });
+  }
+  const logMatch = path.match(/^\/api\/admin\/logs\/([^/]+)$/);
+  if (logMatch && request.method === 'GET') {
+    const logs = await supabaseFetch(env, `audit_logs?select=*&log_id=eq.${encodeURIComponent(logMatch[1])}&limit=1`);
+    if (logs instanceof Response) return logs;
+    return (logs as Row[])[0] ? response({ data: (logs as Row[])[0] }) : response({ message: 'Log não encontrado.' }, { status: 404 });
+  }
 
   if (path === '/api/usuarios/me/oracoes-oradas' && request.method === 'GET') {
     const result = await supabaseFetchWithCount(env, `usuario_oracoes_oradas?select=created_at,oracoes(*)&usuario_id=eq.${encodeURIComponent(currentUserId)}&order=created_at.desc&offset=${offset}&limit=${limit}`);
@@ -450,8 +479,10 @@ const handleUserContentRoutes = async (request: Request, env: Env, url: URL): Pr
     }
     if (request.method === 'PUT' && !id) {
       const body = await parseBody(request);
-      if (!['background', 'underline'].includes(String(body.estilo)) || !['yellow', 'green', 'blue', 'pink', 'purple'].includes(String(body.cor))) return response({ message: 'Estilo ou cor invalido.' }, { status: 400 });
-      const data = await supabaseFetch(env, 'destaques_biblicos?on_conflict=usuario_id,version,book,chapter,verse,estilo&select=*', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ usuario_id: currentUserId, version: body.version, book: body.book, chapter: body.chapter, verse: body.verse, estilo: body.estilo, cor: body.cor }) });
+      const estilo = body.estilo ?? body.style;
+      const cor = body.cor ?? body.color;
+      if (!['background', 'underline'].includes(String(estilo)) || !['yellow', 'green', 'blue', 'pink', 'purple'].includes(String(cor))) return response({ message: 'Estilo ou cor inválido.' }, { status: 400 });
+      const data = await supabaseFetch(env, 'destaques_biblicos?on_conflict=usuario_id,version,book,chapter,verse,estilo&select=*', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ usuario_id: currentUserId, version: body.version, book: body.book, chapter: body.chapter, verse: body.verse, estilo, cor }) });
       return data instanceof Response ? data : response({ data: (data as Row[])[0] });
     }
     if (request.method === 'DELETE' && id) {
@@ -1184,7 +1215,13 @@ const handleEventRegistration = async (request: Request, env: Env, eventId: stri
     }),
   });
 
-  if (data instanceof Response) return data;
+  if (data instanceof Response) {
+    const failure = await data.clone().json().catch(() => ({})) as { message?: string; details?: string };
+    const rawMessage = `${failure.message ?? ''} ${failure.details ?? ''}`;
+    if (/email ja inscrito/i.test(rawMessage)) return response({ message: 'Você já está inscrito neste evento.' }, { status: 409 });
+    if (/evento lotado/i.test(rawMessage)) return response({ message: 'Evento lotado.' }, { status: 409 });
+    return data;
+  }
 
   return response({ data }, { status: 201 });
 };
@@ -1765,7 +1802,7 @@ const enrichStudyPlanReading = async (
   };
 };
 
-const handleStudyPlans = async (env: Env, pathname: string, params: URLSearchParams): Promise<Response> => {
+const handleStudyPlans = async (request: Request, env: Env, pathname: string, params: URLSearchParams): Promise<Response> => {
   if (pathname === '/api/planos-estudo/docs') return response({ data: studyPlansApiDocumentation });
 
   if (pathname === '/api/planos-estudo') {
@@ -1791,6 +1828,33 @@ const handleStudyPlans = async (env: Env, pathname: string, params: URLSearchPar
         quantidade_dias: counts[String(plan.plano_estudo_id)] ?? 0,
       })),
     });
+  }
+
+  const completedMatch = pathname.match(/^\/api\/planos-estudo\/([^/]+)\/conclusoes$/);
+  const completionMatch = pathname.match(/^\/api\/planos-estudo\/([^/]+)\/dias\/(\d+)\/conclusao$/);
+  if (completedMatch || completionMatch) {
+    const userId = await getWorkerUserId(request, env);
+    if (userId instanceof Response) return userId;
+    const plan = await getStudyPlan(env, decodeURIComponent((completedMatch ?? completionMatch)![1]));
+    if (plan instanceof Response) return plan;
+    if (completedMatch && request.method === 'GET') {
+      const rows = await supabaseFetch(env, `planos_estudo_dias_concluidos?select=dia&usuario_id=eq.${encodeURIComponent(userId)}&plano_estudo_id=eq.${encodeURIComponent(String(plan.plano_estudo_id))}&order=dia.asc`);
+      return rows instanceof Response ? rows : response({ data: (rows as Row[]).map((row) => Number(row.dia)) });
+    }
+    if (completionMatch && request.method === 'PUT') {
+      const dayNumber = Number(completionMatch[2]);
+      const day = await getStudyPlanDay(env, String(plan.plano_estudo_id), String(dayNumber));
+      if (day instanceof Response) return day;
+      const body = await parseBody(request);
+      if (typeof body.concluido !== 'boolean') return response({ message: 'Informe se o dia está concluído.' }, { status: 400 });
+      if (!body.concluido) {
+        const removed = await supabaseFetch(env, `planos_estudo_dias_concluidos?usuario_id=eq.${encodeURIComponent(userId)}&plano_estudo_id=eq.${encodeURIComponent(String(plan.plano_estudo_id))}&dia=eq.${dayNumber}`, { method: 'DELETE' });
+        return removed instanceof Response ? removed : response({ data: { plano_estudo_id: plan.plano_estudo_id, dia: dayNumber, concluido: false } });
+      }
+      const saved = await supabaseFetch(env, 'planos_estudo_dias_concluidos?on_conflict=usuario_id,plano_estudo_id,dia&select=plano_estudo_id,dia,concluido_em', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ usuario_id: userId, plano_estudo_id: plan.plano_estudo_id, plano_estudo_dia_id: day.plano_estudo_dia_id, dia: dayNumber }) });
+      return saved instanceof Response ? saved : response({ data: { ...((saved as Row[])[0] ?? {}), concluido: true } });
+    }
+    return response({ message: 'Método não permitido.' }, { status: 405 });
   }
 
   const textMatch = pathname.match(/^\/api\/planos-estudo\/([^/]+)\/dias\/(\d+)\/textos$/);
@@ -1872,8 +1936,7 @@ const handleBible = async (env: Env, pathname: string, params: URLSearchParams):
   return response({ message: 'Rota nao encontrada' }, { status: 404 });
 };
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+const dispatchWorkerRequest = async (request: Request, env: Env): Promise<Response> => {
     try {
       if (request.method === 'OPTIONS') return new Response(null, { headers: jsonHeaders });
 
@@ -1884,7 +1947,7 @@ export default {
       if (url.pathname === '/health') return response({ status: 'ok' });
       if (url.pathname === '/api/auth/google') return handleGoogleLogin(request, env);
       if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
-      if (url.pathname.startsWith('/api/planos-estudo')) return handleStudyPlans(env, url.pathname, url.searchParams);
+      if (url.pathname.startsWith('/api/planos-estudo')) return handleStudyPlans(request, env, url.pathname, url.searchParams);
       if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });
       const relationshipResponse = await handleRelationshipRoutes(request, env, parts);
       if (relationshipResponse) return relationshipResponse;
@@ -1910,5 +1973,21 @@ export default {
           : String(error),
       }, { status: 500 });
     }
+  };
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const result = await dispatchWorkerRequest(request, env);
+    if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) || new URL(request.url).pathname === '/api/usuarios/me') return result;
+    const actorId = await getWorkerUserId(request, env);
+    if (typeof actorId !== 'string') return result;
+    const path = new URL(request.url).pathname;
+    const category = path.split('/').filter(Boolean)[1] ?? 'app';
+    try {
+      await supabaseFetch(env, 'audit_logs', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ actor_id: actorId, category, action: `${request.method} ${path}`, status_code: result.status }) });
+    } catch {
+      // Auditoria não deve interromper uma ação concluída.
+    }
+    return result;
   },
 };

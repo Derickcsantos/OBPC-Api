@@ -109,4 +109,12 @@ export class AuthService implements AuthServiceContract {
       user,
     };
   }
+
+  async deleteAccount(userId: string): Promise<void> {
+    const { data: account, error: lookupError } = await this.client.from('usuarios').select('email_usuario').eq('usuario_id', userId).maybeSingle();
+    if (lookupError) throw new AppError(500, 'Não foi possível consultar a conta.', lookupError);
+    if (!account) throw new AppError(404, 'Conta não encontrada.');
+    const { error } = await this.client.rpc('delete_obpc_account', { p_user_id: userId, p_email: account.email_usuario });
+    if (error) throw new AppError(500, 'Não foi possível excluir a conta.', error);
+  }
 }

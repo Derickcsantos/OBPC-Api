@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { FastifyInstance } from 'fastify';
-import { beforeAll, afterAll, describe, expect, it } from 'vitest';
+import { beforeAll, afterAll, describe, expect, it, vi } from 'vitest';
 import { BibleServiceContract, CrudServiceContract, StudyPlanServiceContract } from '../src/types/crud.types.js';
 import { FakeCrudService } from './helpers/fake-crud.service.js';
 import { AuthServiceContract } from '../src/types/auth.types.js';
@@ -55,7 +55,9 @@ const bibleStub: BibleServiceContract = {
     : { verses: [{ verse_id: 1, text: 'Deus criou' }] }),
 };
 
+let deletedAccountId: string | undefined;
 const authStub: AuthServiceContract = {
+  deleteAccount: async (id) => { deletedAccountId = id; },
   loginWithGoogle: async () => ({
     access_token: 'api-jwt',
     token_type: 'Bearer',
@@ -89,6 +91,8 @@ const adminStub: AdminServiceContract = {
   getUser: async (id) => ({ usuario_id: id, role: 'user' }),
   updateUser: async (_actorId, id, input) => ({ usuario_id: id, ...input }),
   updateUserRole: async (_actorId, id, role) => ({ usuario_id: id, role }),
+  listAuditLogs: async () => ({ data: [], pagination: {} }),
+  getAuditLog: async (id) => ({ log_id: id }),
 };
 
 let receivedPrayerFilters: { q?: string; data?: string; page: number; limit: number } | null = null;
@@ -114,6 +118,8 @@ const userContentStub: UserContentServiceContract = {
 };
 
 const studyPlanStub: StudyPlanServiceContract = {
+  listCompletedDays: async () => [],
+  setDayCompleted: async (_userId, plan, day, completed) => ({ plano_estudo_id: plan, dia: day, concluido: completed }),
   listPlans: async () => [
     {
       plano_estudo_id: '22222222-2222-4222-8222-222222222222',
@@ -151,6 +157,10 @@ describe('API', () => {
   let adminToken: string;
 
   beforeAll(async () => {
+  vi.stubGlobal('fetch', vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+    if (init?.method === 'POST') return new Response(null, { status: 204 });
+    return new Response(JSON.stringify({ usuario_id: '99999999-9999-4999-8999-999999999999' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }));
     const { createApp } = await import('../src/app.js');
     const fakeService = new FakeCrudService() as CrudServiceContract;
 
@@ -185,6 +195,7 @@ describe('API', () => {
 
   afterAll(async () => {
     await app.close();
+  vi.unstubAllGlobals();
   });
 
   it('deve responder health check', async () => {
@@ -443,6 +454,31 @@ describe('API', () => {
     expect(response.statusCode).toBe(400);
   });
 
+  it('deve aceitar o formato de destaque usado pelo aplicativo', async () => {
+    const token = await signApiToken(
+      { sub: '11111111-1111-4111-8111-111111111111', email: 'usuario@example.com', provider: 'google' },
+      env.AUTH_JWT_SECRET, 600, env.BACKEND_URL ?? 'books-api',
+    );
+    const response = await request(app.server).put('/api/usuarios/me/destaques').set('Authorization', `Bearer ${token}`).send({
+      version: 'nvi', book: 1, chapter: 1, verse: 1, style: 'underline', color: 'green',
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data.estilo).toBe('underline');
+    expect(response.body.data.cor).toBe('green');
+  });
+
+  it('deve expor logs apenas na área administrativa', async () => {
+    const response = await request(app.server).get('/api/admin/logs').set('Authorization', `Bearer ${adminToken}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.data).toEqual([]);
+  });
+
+  it('deve excluir a conta autenticada pelo endpoint pessoal', async () => {
+    const response = await request(app.server).delete('/api/usuarios/me').set('Authorization', `Bearer ${adminToken}`);
+    expect(response.statusCode).toBe(204);
+    expect(deletedAccountId).toBe('99999999-9999-4999-8999-999999999999');
+  });
+
   it('deve criar pessoa', async () => {
     const response = await request(app.server).post('/api/pessoas').set('Authorization', `Bearer ${adminToken}`).send({
       nome: 'Maria Silva',
@@ -478,5 +514,19 @@ describe('API', () => {
     const response = await request(app.server).get('/api/planos-estudo/plano-leitura-biblia-1-ano/dias/1/textos');
     expect(response.statusCode).toBe(200);
     expect(response.body.data.dia.leituras[0].texto.chapter_text).toBe('No principio...');
+  });
+
+  it('deve proteger a consulta de dias concluídos por autenticação', async () => {
+    const response = await request(app.server).get('/api/planos-estudo/plano-leitura-biblia-1-ano/conclusoes');
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('deve listar e persistir a conclusão do dia autenticado', async () => {
+    const list = await request(app.server).get('/api/planos-estudo/plano-leitura-biblia-1-ano/conclusoes').set('Authorization', `Bearer ${adminToken}`);
+    expect(list.statusCode).toBe(200);
+    expect(list.body.data).toEqual([]);
+    const save = await request(app.server).put('/api/planos-estudo/plano-leitura-biblia-1-ano/dias/1/conclusao').set('Authorization', `Bearer ${adminToken}`).send({ concluido: true });
+    expect(save.statusCode).toBe(200);
+    expect(save.body.data).toMatchObject({ plano_estudo_id: 'plano-leitura-biblia-1-ano', dia: 1, concluido: true });
   });
 });

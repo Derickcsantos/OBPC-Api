@@ -4,6 +4,7 @@ import { verifyApiToken } from '../services/google-token.service.js';
 import { AuthUser } from '../types/auth.types.js';
 import { AppError } from '../utils/app-error.js';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../lib/supabase.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -19,6 +20,9 @@ export const requireAuth = async (request: FastifyRequest, _reply: FastifyReply)
   }
 
   const claims = await verifyApiToken(token, env.AUTH_JWT_SECRET, env.BACKEND_URL ?? 'books-api');
+  const { data, error } = await getSupabaseClient().from('usuarios').select('usuario_id').eq('usuario_id', claims.sub).maybeSingle();
+  if (error) throw new AppError(503, 'Não foi possível validar a conta agora.', error);
+  if (!data) throw new AppError(401, 'Esta conta não está mais ativa.');
   request.authUser = {
     usuario_id: claims.sub,
     nome_usuario: '',

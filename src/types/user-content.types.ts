@@ -25,4 +25,6 @@ export interface AdminServiceContract {
   getUser(id: string): Promise<unknown>;
   updateUser(actorId: string, id: string, input: Record<string, unknown>): Promise<unknown>;
   updateUserRole(actorId: string, id: string, role: 'user' | 'admin'): Promise<unknown>;
+  listAuditLogs(pagination: PaginationInput, filters: Record<string, string>): Promise<unknown>;
+  getAuditLog(id: string): Promise<unknown>;
 }
