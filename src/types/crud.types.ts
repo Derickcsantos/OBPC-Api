@@ -63,4 +63,6 @@ export interface StudyPlanServiceContract {
   getPlan(plan: string): Promise<unknown>;
   getPlanDay(plan: string, day: number): Promise<unknown>;
   getPlanDayTexts(plan: string, day: number, version?: string): Promise<unknown>;
+  listCompletedDays(userId: string, plan: string): Promise<number[]>;
+  setDayCompleted(userId: string, plan: string, day: number, completed: boolean): Promise<unknown>;
 }
