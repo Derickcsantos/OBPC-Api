@@ -19,6 +19,7 @@ import { SupabaseRelationshipService } from './services/relationship.service.js'
 import { AdminService } from './services/admin.service.js';
 import { UserContentService } from './services/user-content.service.js';
 import { AdminServiceContract, UserContentServiceContract } from './types/user-content.types.js';
+import { accountDeletionPage, privacyPolicyPage, termsOfUsePage } from './legal/pages.js';
 
 const resourceMap: Record<ResourceName, { table: string; idField: string }> = {
   ministerios: { table: 'ministerios', idField: 'ministerio_id' },
@@ -53,10 +54,11 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'https://accounts.google.com'],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:'],
-        connectSrc: ["'self'"],
+        connectSrc: ["'self'", 'https://accounts.google.com', 'https://www.googleapis.com'],
+        frameSrc: ['https://accounts.google.com'],
       },
     },
   });
@@ -68,6 +70,12 @@ export const createApp = async (dependencies?: AppDependencies): Promise<Fastify
   app.get('/', async (_request, reply) => {
     reply.type('text/html; charset=utf-8').send(dashboardHtml);
   });
+  const sendLegalPage = (page: string) => (_request: unknown, reply: { type: (value: string) => { send: (body: string) => void } }): void => {
+    reply.type('text/html; charset=utf-8').send(page);
+  };
+  app.get('/privacy-policy', sendLegalPage(privacyPolicyPage()));
+  app.get('/terms-of-use', sendLegalPage(termsOfUsePage()));
+  app.get('/delete-account', sendLegalPage(accountDeletionPage(env.GOOGLE_CLIENT_ID ?? env.GOOGLE_CLIENT_IDS[0] ?? '')));
 
   const supabase = getSupabaseClient();
 

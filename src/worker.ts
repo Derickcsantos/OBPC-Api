@@ -3,7 +3,9 @@ import { bibleApiExamples } from './docs/bible-api-examples.js';
 import { eventsApiExamples } from './docs/events-api-examples.js';
 import { studyPlansApiDocumentation } from './docs/study-plans-api-documentation.js';
 import { signApiToken, verifyApiToken, verifyGoogleIdToken } from './services/google-token.service.js';
+import { verifyAppleIdToken } from './services/apple-token.service.js';
 import { AppError } from './utils/app-error.js';
+import { accountDeletionPage, privacyPolicyPage, termsOfUsePage } from './legal/pages.js';
 
 interface Env {
   SUPABASE_URL: string;
@@ -928,6 +930,41 @@ const authUserColumns = [
   'role',
 ].join(',');
 
+const handleAppleLogin = async (request: Request, env: Env): Promise<Response> => {
+  if (request.method !== 'POST') return response({ message: 'Metodo nao permitido' }, { status: 405 });
+  try {
+    const body = await parseBody(request);
+    if (typeof body.id_token !== 'string' || typeof body.nonce !== 'string' || !body.nonce) return response({ message: 'O id_token e o nonce da Apple sao obrigatorios.' }, { status: 400 });
+    const jwtSecret = env.AUTH_JWT_SECRET ?? env.GOOGLE_SECRET_KEY;
+    if (!jwtSecret || jwtSecret.length < 32) return response({ message: 'Autenticacao Apple nao configurada no servidor.' }, { status: 500 });
+    const identity = await verifyAppleIdToken(body.id_token, body.nonce, ['com.obpcapp']);
+    let rows = await supabaseFetch(env, `usuarios?select=${authUserColumns}&apple_sub=eq.${encodeURIComponent(identity.sub)}&limit=1`);
+    if (rows instanceof Response) return rows;
+    let user = (rows as Record<string, unknown>[])[0];
+    if (!user) {
+      rows = await supabaseFetch(env, `usuarios?select=${authUserColumns}&email_usuario=eq.${encodeURIComponent(identity.email)}&limit=1`);
+      if (rows instanceof Response) return rows;
+      user = (rows as Record<string, unknown>[])[0];
+      const payload = user
+        ? { apple_sub: identity.sub, updated_at: new Date().toISOString() }
+        : { nome_usuario: identity.name, email_usuario: identity.email, apple_sub: identity.sub, auth_provider: 'apple' };
+      rows = await supabaseFetch(env, user
+        ? `usuarios?usuario_id=eq.${encodeURIComponent(String(user.usuario_id))}&select=${authUserColumns}`
+        : `usuarios?select=${authUserColumns}`, { method: user ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+      if (rows instanceof Response) return rows;
+      user = (rows as Record<string, unknown>[])[0];
+    }
+    if (!user) return response({ message: 'Nao foi possivel autenticar o usuario.' }, { status: 500 });
+    user = { ...user, role: user.role === 'admin' ? 'admin' : 'user' };
+    const expiresIn = Number(env.AUTH_JWT_EXPIRES_IN_SECONDS ?? 604800);
+    const accessToken = await signApiToken({ sub: user.usuario_id, email: user.email_usuario, provider: 'apple', role: user.role }, jwtSecret, expiresIn, env.BACKEND_URL ?? 'books-api');
+    return response({ access_token: accessToken, token_type: 'Bearer', expires_in: expiresIn, user });
+  } catch (error) {
+    if (error instanceof AppError) return response({ message: error.message }, { status: error.statusCode });
+    return response({ message: 'Erro interno do servidor' }, { status: 500 });
+  }
+};
+
 const handleGoogleLogin = async (request: Request, env: Env): Promise<Response> => {
   if (request.method !== 'POST') {
     return response({ message: 'Metodo nao permitido' }, { status: 405 });
@@ -1023,6 +1060,34 @@ const handleGoogleLogin = async (request: Request, env: Env): Promise<Response> 
     if (error instanceof AppError) {
       return response({ message: error.message }, { status: error.statusCode });
     }
+    return response({ message: 'Erro interno do servidor' }, { status: 500 });
+  }
+};
+
+const handleGoogleDeletionSession = async (request: Request, env: Env): Promise<Response> => {
+  if (request.method !== 'POST') return response({ message: 'Metodo nao permitido' }, { status: 405 });
+  try {
+    const body = await parseBody(request);
+    if (typeof body.id_token !== 'string' || !body.id_token) return response({ message: 'O id_token do Google e obrigatorio.' }, { status: 400 });
+    const googleClientIds = [...(env.GOOGLE_CLIENT_IDS?.split(',') ?? []), env.GOOGLE_CLIENT_ID]
+      .filter((value): value is string => Boolean(value?.trim())).map((value) => value.trim());
+    const jwtSecret = env.AUTH_JWT_SECRET ?? env.GOOGLE_SECRET_KEY;
+    if (!googleClientIds.length || !jwtSecret || jwtSecret.length < 32) return response({ message: 'Autenticacao Google nao configurada no servidor.' }, { status: 500 });
+    const identity = await verifyGoogleIdToken(body.id_token, googleClientIds);
+    let rows = await supabaseFetch(env, `usuarios?select=${authUserColumns}&google_sub=eq.${encodeURIComponent(identity.sub)}&limit=1`);
+    if (rows instanceof Response) return rows;
+    let user = (rows as Record<string, unknown>[])[0];
+    if (!user) {
+      rows = await supabaseFetch(env, `usuarios?select=${authUserColumns}&email_usuario=eq.${encodeURIComponent(identity.email)}&limit=1`);
+      if (rows instanceof Response) return rows;
+      user = (rows as Record<string, unknown>[])[0];
+    }
+    if (!user) return response({ message: 'Nenhuma conta do OBPC foi encontrada para esta identidade Google.' }, { status: 404 });
+    const expiresIn = Number(env.AUTH_JWT_EXPIRES_IN_SECONDS ?? 604800);
+    const accessToken = await signApiToken({ sub: user.usuario_id, email: user.email_usuario, provider: 'google', role: user.role === 'admin' ? 'admin' : 'user' }, jwtSecret, expiresIn, env.BACKEND_URL ?? 'books-api');
+    return response({ access_token: accessToken, token_type: 'Bearer', expires_in: expiresIn });
+  } catch (error) {
+    if (error instanceof AppError) return response({ message: error.message }, { status: error.statusCode });
     return response({ message: 'Erro interno do servidor' }, { status: 500 });
   }
 };
@@ -1944,8 +2009,13 @@ const dispatchWorkerRequest = async (request: Request, env: Env): Promise<Respon
       const parts = url.pathname.split('/').filter(Boolean);
 
       if (url.pathname === '/') return html(dashboardHtml);
+      if (url.pathname === '/privacy-policy') return html(privacyPolicyPage());
+      if (url.pathname === '/terms-of-use') return html(termsOfUsePage());
+      if (url.pathname === '/delete-account') return html(accountDeletionPage(env.GOOGLE_CLIENT_ID ?? env.GOOGLE_CLIENT_IDS?.split(',')[0]?.trim() ?? ''));
       if (url.pathname === '/health') return response({ status: 'ok' });
       if (url.pathname === '/api/auth/google') return handleGoogleLogin(request, env);
+      if (url.pathname === '/api/auth/apple') return handleAppleLogin(request, env);
+      if (url.pathname === '/api/auth/google/deletion-session') return handleGoogleDeletionSession(request, env);
       if (url.pathname.startsWith('/api/biblia')) return handleBible(env, url.pathname, url.searchParams);
       if (url.pathname.startsWith('/api/planos-estudo')) return handleStudyPlans(request, env, url.pathname, url.searchParams);
       if (url.pathname === '/api/eventos/examples') return response({ data: eventsApiExamples });

@@ -23,7 +23,15 @@ export interface GoogleLoginResult {
   user: AuthUser;
 }
 
+export interface DeletionSession {
+  access_token: string;
+  token_type: 'Bearer';
+  expires_in: number;
+}
+
 export interface AuthServiceContract {
   loginWithGoogle(idToken: string): Promise<GoogleLoginResult>;
+  loginWithApple(idToken: string, nonce: string): Promise<GoogleLoginResult>;
+  createDeletionSession(idToken: string): Promise<DeletionSession>;
   deleteAccount(userId: string): Promise<void>;
 }

@@ -1,7 +1,8 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { AuthServiceContract, AuthUser, GoogleLoginResult } from '../types/auth.types.js';
+import { AuthServiceContract, AuthUser, DeletionSession, GoogleLoginResult } from '../types/auth.types.js';
 import { AppError } from '../utils/app-error.js';
 import { signApiToken, verifyGoogleIdToken } from './google-token.service.js';
+import { verifyAppleIdToken } from './apple-token.service.js';
 
 interface AuthServiceConfig {
   googleClientIds: string[];
@@ -108,6 +109,49 @@ export class AuthService implements AuthServiceContract {
       expires_in: this.config.jwtExpiresIn,
       user,
     };
+  }
+
+  async loginWithApple(idToken: string, nonce: string): Promise<GoogleLoginResult> {
+    const identity = await verifyAppleIdToken(idToken, nonce, ['com.obpcapp']);
+    let lookup = await this.client.from('usuarios').select(userColumns).eq('apple_sub', identity.sub).maybeSingle();
+    if (lookup.error) throw new AppError(500, 'Erro ao consultar usuario.', lookup.error);
+    let user = lookup.data as AuthUser | null;
+    if (!user) {
+      const byEmail = await this.client.from('usuarios').select(userColumns).eq('email_usuario', identity.email).maybeSingle();
+      if (byEmail.error) throw new AppError(500, 'Erro ao consultar usuario.', byEmail.error);
+      if (byEmail.data) {
+        const linked = await this.client.from('usuarios').update({ apple_sub: identity.sub, updated_at: new Date().toISOString() }).eq('usuario_id', (byEmail.data as unknown as AuthUser).usuario_id).select(userColumns).single();
+        if (linked.error) throw new AppError(500, 'Erro ao vincular conta Apple.', linked.error);
+        user = linked.data as unknown as AuthUser;
+      } else {
+        const created = await this.client.from('usuarios').insert({ nome_usuario: identity.name, email_usuario: identity.email, apple_sub: identity.sub, auth_provider: 'apple' }).select(userColumns).single();
+        if (created.error) throw new AppError(500, 'Erro ao criar usuario com Apple.', created.error);
+        user = created.data as unknown as AuthUser;
+      }
+    }
+    user = { ...user!, role: user!.role === 'admin' ? 'admin' : 'user' };
+    const accessToken = await signApiToken({ sub: user.usuario_id, email: user.email_usuario, provider: 'apple', role: user.role }, this.config.jwtSecret, this.config.jwtExpiresIn, this.config.issuer);
+    return { access_token: accessToken, token_type: 'Bearer', expires_in: this.config.jwtExpiresIn, user };
+  }
+
+  async createDeletionSession(idToken: string): Promise<DeletionSession> {
+    const identity = await verifyGoogleIdToken(idToken, this.config.googleClientIds);
+    let result = await this.client.from('usuarios').select(userColumns).eq('google_sub', identity.sub).maybeSingle();
+    if (result.error) throw new AppError(500, 'Erro ao verificar a conta.', result.error);
+    if (!result.data) {
+      result = await this.client.from('usuarios').select(userColumns).eq('email_usuario', identity.email).maybeSingle();
+      if (result.error) throw new AppError(500, 'Erro ao verificar a conta.', result.error);
+    }
+    if (!result.data) throw new AppError(404, 'Nenhuma conta do OBPC foi encontrada para esta identidade Google.');
+
+    const user = result.data as unknown as AuthUser;
+    const accessToken = await signApiToken(
+      { sub: user.usuario_id, email: user.email_usuario, provider: 'google', role: user.role === 'admin' ? 'admin' : 'user' },
+      this.config.jwtSecret,
+      this.config.jwtExpiresIn,
+      this.config.issuer,
+    );
+    return { access_token: accessToken, token_type: 'Bearer', expires_in: this.config.jwtExpiresIn };
   }
 
   async deleteAccount(userId: string): Promise<void> {

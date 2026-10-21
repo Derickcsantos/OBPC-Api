@@ -58,6 +58,7 @@ const bibleStub: BibleServiceContract = {
 let deletedAccountId: string | undefined;
 const authStub: AuthServiceContract = {
   deleteAccount: async (id) => { deletedAccountId = id; },
+  createDeletionSession: async () => ({ access_token: 'deletion-jwt', token_type: 'Bearer', expires_in: 600 }),
   loginWithGoogle: async () => ({
     access_token: 'api-jwt',
     token_type: 'Bearer',
@@ -69,6 +70,10 @@ const authStub: AuthServiceContract = {
       auth_provider: 'google',
       role: 'user',
     },
+  }),
+  loginWithApple: async () => ({
+    access_token: 'api-jwt', token_type: 'Bearer', expires_in: 604800,
+    user: { usuario_id: '11111111-1111-4111-8111-111111111111', nome_usuario: 'Usuario Apple', email_usuario: 'usuario@example.com', auth_provider: 'apple', role: 'user' },
   }),
 };
 

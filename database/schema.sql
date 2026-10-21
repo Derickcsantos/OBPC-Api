@@ -32,6 +32,7 @@ create table if not exists usuarios (
   email_usuario varchar(255) not null unique,
   data_nascimento date,
   google_sub varchar(255) unique,
+  apple_sub varchar(255) unique,
   avatar_url text,
   auth_provider varchar(30) not null default 'local',
   created_at timestamptz not null default now(),
