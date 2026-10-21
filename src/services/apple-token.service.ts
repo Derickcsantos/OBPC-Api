@@ -13,10 +13,11 @@ const buffer = (value: Uint8Array): ArrayBuffer => value.buffer.slice(value.byte
 
 export const verifyAppleIdToken = async (token: string, expectedNonce: string, audiences: string[]): Promise<GoogleIdentity> => {
   try {
+    if (!token || !expectedNonce || audiences.length === 0) throw new Error('Missing verification input');
     const parts = token.split('.');
     if (parts.length !== 3) throw new Error('Malformed JWT');
     const header = json<{ alg?: string; kid?: string }>(parts[0]);
-    const claims = json<{ iss?: string; aud?: string | string[]; sub?: string; email?: string; email_verified?: boolean | string; nonce?: string; exp?: number; iat?: number }>(parts[1]);
+    const claims = json<{ iss?: string; aud?: string | string[]; sub?: string; email?: string; email_verified?: boolean | string; nonce?: string; exp?: number; iat?: number; nbf?: number }>(parts[1]);
     if (header.alg !== 'RS256' || !header.kid) throw new Error('Invalid header');
     if (!cache || cache.expiresAt <= Date.now()) {
       const response = await fetch('https://appleid.apple.com/auth/keys');
@@ -31,7 +32,7 @@ export const verifyAppleIdToken = async (token: string, expectedNonce: string, a
     const valid = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, buffer(decode(parts[2])), new TextEncoder().encode(`${parts[0]}.${parts[1]}`));
     const now = Math.floor(Date.now() / 1000);
     const auds = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
-    if (!valid || claims.iss !== 'https://appleid.apple.com' || !auds.some((aud) => aud && audiences.includes(aud)) || !claims.sub || !claims.exp || claims.exp <= now || (claims.iat && claims.iat > now + 300) || claims.nonce !== expectedNonce) throw new Error('Invalid claims');
+    if (!valid || claims.iss !== 'https://appleid.apple.com' || !auds.some((aud) => aud && audiences.includes(aud)) || !claims.sub || !claims.exp || claims.exp <= now || (claims.iat && claims.iat > now + 300) || (claims.nbf && claims.nbf > now) || claims.nonce !== expectedNonce) throw new Error('Invalid claims');
     const emailVerified = claims.email_verified === true || claims.email_verified === 'true';
     if (!claims.email || !emailVerified) throw new Error('Verified email required');
     const email = claims.email.toLowerCase();
